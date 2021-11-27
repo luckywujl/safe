@@ -1,0 +1,40 @@
+<style>
+	.examp_list li i {
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		 background: url(__ADDON__/img/icon_exam_list.png) no-repeat center center darkred;
+		display: block;
+		width: 30px;
+		background-size: 18px auto;
+</style>
+<body>
+
+<div class="cheader">
+	<div class="headerleft">
+		<a href="{:url('index/user/main')}"><span class="arrow-left"></span></a>
+	</div>
+	<h1>{$title}</h1>
+</div>
+<div class="cmain">
+	{if condition="count($subject) eq 0"}
+	<div style="text-align: center">空空的错题集</div>
+
+	{else/}
+	<ul class="examp_list formal_examplist">
+
+		{foreach name="subject" item="vo" }
+			<li>
+				<a href="{:addon_url('kaoshi/exams/getwrong',array('subject_id'=>$vo.subject_id))}">
+					<i></i>
+					<span class="time">题数：{$vo.number}</span>
+
+					<span class="name">{$vo.subject_name}&nbsp;</span>
+				</a>
+			</li>
+		{/foreach}
+	</ul>
+	{/if}
+</div>
+</body>

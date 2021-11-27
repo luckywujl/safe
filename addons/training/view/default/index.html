@@ -1,0 +1,443 @@
+{layout name="common/layout" /}
+<style data-render="style">
+    .example {
+        height: 100%;
+        position: relative;
+    }
+
+    .example>span {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
+
+    .fixed-table-container {
+        border: none !important;
+    }
+    .widget-user .widget-user-image {
+        top: 80px;
+    }
+    .widget-user-2 .widget-user-image>img {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    .fc-event-main {
+        cursor: pointer;
+    }
+
+    .attachment-block {
+        border: none;
+        padding: 5px;
+        margin-bottom: 10px;
+        background: #ffffff;
+    }
+
+    .breadcrumb {
+        padding: 0px 0px;
+        margin-bottom: 0px;
+        list-style: none;
+        background-color: transparent !important;
+        border-radius: 3px;
+        line-height: 40px;
+    }
+
+    .table-template {
+        height: 770px;
+    }
+
+    .fixed-table-pagination {
+        margin: 0px 15px;
+    }
+
+    .tab-badge>.badge {
+        display: inline-block;
+        min-width: 10px;
+        padding: 2px 5px;
+        font-size: 7px !important;
+        font-weight: normal !important;
+        color: #fff;
+        line-height: 1;
+        vertical-align: middle;
+        white-space: nowrap;
+        text-align: center;
+        background-color: #777777;
+        border-radius: 10px;
+        position: absolute;
+        top: 0px;
+        right: -2px;
+    }
+
+    .description-header {
+        font-size: 24px !important;
+    }
+</style>
+<div class="container-fluid" id="content-container">
+    <div class="row">
+        <div class="col-md-8 connectedSortable">
+            <div class="nav-tabs-custom">
+                <ul class="nav nav-tabs" id="tablist">
+                    <li class="active"><a class="tab-link" href="#tab_1" aria-controls="unlearned" data-toggle="tab">{:__('Unlearned')} <span class="tab-badge"></span></a></li>
+                    <li><a class="tab-link" href="#tab_2" aria-controls="learning" data-toggle="tab">{:__('Learning')} <span class="tab-badge"></span></a></li>
+                    <li><a class="tab-link" href="#tab_3" aria-controls="completed" data-toggle="tab">{:__('Completed')} <span class="tab-badge"></span></a></li>
+                    {if $config.training.future_show == '1'}
+                    <li><a class="tab-link" href="#tab_4" aria-controls="future" data-toggle="tab">{:__('Not started')} <span class="tab-badge"></span></a></li>
+                    {/if} {if $config.training.past_show == '1'}
+                    <li><a class="tab-link" href="#tab_5" aria-controls="past" data-toggle="tab">{:__('Out of date')} <span class="tab-badge"></span></a></li>
+                    {/if}
+                    <li class="pull-right" style="margin:0px;border-top:none">
+                        <a class="label bg-green" href="#" id="breadcrumb" style="height:42px;line-height:22px">{:__('All')}</a>
+                    </li>
+                    <li class="dropdown pull-right" id="selectYear">
+                        {assign name="year" value=':date("Y")' /}
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                            <span id="year" data-value="{$year}">{$year}年</span><span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li role="presentation"><a role="menuitem" href="#" data-value="">所有年份</a></li>
+                            <li role="presentation" class="divider"></li>
+                            {for start="$year-5" end="$year+1"}
+                            <li role="presentation"><a role="menuitem" href="#" data-value="{$i}">{$i}年</a></li>
+                            {/for}
+                        </ul>
+                    </li>
+                </ul>
+                <table id="table" class="table" width="100%" style="border-bottom: none !important;"></table>
+            </div>
+        </div>
+        <div class="col-md-4 connectedSortable hidden-xs">
+            <div class="box box-widget widget-user-2">
+                <div class="box box-widget widget-user">
+                    <div class="widget-user-header bg-light-blue-gradient">
+                        <h3 class="widget-user-username" style="margin-left: 0px;margin-top:0px">{$user.nickname}</h3>
+                        <h5 class="widget-user-desc" style="margin-left: 0px;margin-top:0px">{:__('Logintime')} : {$user.logintime|date="Y-m-d H:i:s",###}</h5>
+                    </div>
+                    <div class="widget-user-image">
+                        <img class="img-circle" src="{$user.avatar}" alt="{$user.nickname}">
+                    </div>
+                    <div class="box-footer">
+                        <div class="row">
+                            <div class="col-xs-4 border-right">
+                                <div class="description-block">
+                                    <h3 class="description-header">{$totalStudyMain}</h3>
+                                    <span class="description-text">已完成培训</span>
+                                </div>
+                            </div>
+                            <div class="col-xs-4 border-right">
+                                <div class="description-block">
+                                    <h3 class="description-header">{$totalStudyCourse}</h3>
+                                    <span class="description-text">已完成课程</span>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="description-block">
+                                    <h3 class="description-header">{:round($totalStudyTime/3600,2)}</h3>
+                                    <span class="description-text">已完成学时</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id='calendar'></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="itemtpl" type="text/html">
+        <li>
+            <i class="fa fa-book bg-blue"></i>
+            <div class="timeline-item">
+                <span class="time"><i class="fa fa-clock-o"></i> <%=item.training_course_ids.split(',').length%> 节课</span>
+                <h3 class="timeline-header">
+                    <a href="#">
+                        <%=Moment(item.starttime*1000).format("YYYY-MM-DD HH:mm")%>
+                    </a>
+                </h3>
+                <div class="timeline-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-4 text-center">
+                            <a href="javascript:void(0)" class="btn-open-course" data-id="<%=item.id%>">
+                                <img src="<%=item.coverimage%>" alt="<%=item.name%>" style="max-width:280px;max-height:157px;width:100%;height:100%">
+                            </a>
+                        </div>
+                        <div class="col-xs-12 col-sm-8">
+                            <h4 style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">
+                                <a href="javascript:void(0)" class="btn-open-course" data-id="<%=item.id%>" data-type="<%=item.type%>">
+                                    <b> <%=item.name?item.name:'无'%></b>
+                                </a>
+                            </h4>
+                            <div>
+                                <div class="row" style="margin-top:10px">
+                                    <div class="col-xs-12 col-sm-12">
+                                        <% var progress_color = 'danger'%>
+                                        <% var btn_text = '开始学习'%>
+                                        <% if(item.type == 'unlearned'){%>
+                                            <% progress_color = 'danger'%>
+                                            <% btn_text = '开始学习'%>
+                                        <%}else if(item.type == 'learning'){%>
+                                            <% progress_color = 'info'%>
+                                            <% btn_text = '开始学习'%>
+                                        <%}else if(item.type == 'future'){%>
+                                            <% progress_color = 'warning'%>
+                                        <%}else if(item.type == 'past'){%>
+                                            <% progress_color = 'default'%>
+                                            <% btn_text = '回顾学习'%>
+                                        <%}else if(item.type == 'completed'){%>
+                                            <% progress_color = 'success'%>
+                                            <% btn_text = '回顾学习'%>
+                                        <%}%>
+                                        <div class="progress" style="position: relative;">
+                                            <div class="progress-text" style="position:absolute;top:0;left:0;text-align: center;width:100%;color:#000">
+                                                <%=item.progress%>%</div>
+                                            <div class="progress-bar progress-bar-<%=progress_color%> progress-bar-striped" style="width: <%=item.progress%>%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-8">
+                                        学习有效期至：
+                                        <%=Moment(item.endtime*1000).format("YYYY-MM-DD HH:mm:ss")%>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4">
+                                        <% if(item.type !== 'future'){%>
+                                            <a class="btn btn-<%=progress_color%> btn-block btn-open-course" data-id="<%=item.id%>" data-type="<%=item.type%>"> <%=btn_text%></a>
+                                        <%}%>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12" style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">
+                                        <small><%=item.description%></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </script>
+    <script data-render="script">
+        require.callback = function() {
+            define('training/index', ['jquery', 'bootstrap', 'frontend', 'table', 'fullcalendar-lang', 'fullcalendar', 'moment', 'moment/locale/zh-cn', 'panelslider'], function($, undefined, Frontend, Table, CalendarLocale, Calendar, Moment, undefined, panelslider) {
+                var table = null;
+                var category_id = '#';
+                var Controller = {
+                    index: function() {
+                        $('#tablist a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+                            table.bootstrapTable('refresh', {})
+                        });
+                        // 初始化表格参数配置
+                        Table.api.init({
+                            extend: {
+                                index_url: "{:addon_url('training/Index/index')}"
+                            }
+                        });
+                        table = $("#table");
+                        Template.helper("Moment", Moment);
+                        // 初始化表格
+                        table.bootstrapTable({
+                            url: $.fn.bootstrapTable.defaults.extend.index_url,
+                            sortName: 'id',
+                            classes: 'table',
+                            //是否启用模板渲染
+                            templateView: true,
+                            //数据格式化的模板ID或格式函数
+                            templateFormatter: "itemtpl",
+                            //添加的父类的class
+                            templateParentClass: "timeline",
+                            //向table添加的class
+                            templateTableClass: "table-template",
+                            queryParams: function(params) {
+                                params.group = $('#tablist li[class="active"]').find('a[data-toggle="tab"]').attr('aria-controls')
+                                params.year = $('#year').data('value')
+                                params.category_id = category_id;
+                                return params;
+                            },
+                            columns: [
+                                [{
+                                        field: 'state',
+                                        checkbox: true,
+                                    }, {
+                                        field: 'id',
+                                        title: 'ID',
+                                        operate: false
+                                    },
+                                    //直接响应搜索
+                                    {
+                                        field: 'name',
+                                        title: __('Name')
+                                    }, {
+                                        field: 'coverimage',
+                                        title: __('Coverimage')
+                                    }
+                                ],
+                            ],
+                            //禁用默认搜索
+                            search: false,
+                            //启用普通表单搜索
+                            commonSearch: false,
+                            //可以控制是否默认显示搜索单表,false则隐藏,默认为false
+                            searchFormVisible: false,
+                            //分页大小
+                            pageSize: 8,
+                            pageList: [8],
+                            showColumns: false,
+                            showToggle: false,
+                            showExport: false,
+                        });
+                        // 为表格绑定事件
+                        Table.api.bindevent(table);
+
+                        table.on('load-success.bs.table', function() {
+                            var data = table.bootstrapTable('getData');
+                            calendar.setOption('events', evnetsData);
+                            var evnetsData = [];
+                            var color = '#3498db';
+                            var tab_active = $("#tablist li .active").data('type');
+                            data.forEach(function(item) {
+                                if (item.type == "learning") {
+                                    color = "#3498db"
+                                } else if (item.type == "unlearned") {
+                                    color = "#e74c3c"
+                                } else if (item.type == "future") {
+                                    color = "#f39c12"
+                                } else if (item.type == "past") {
+                                    color = "#777777"
+                                } else if (item.type == "completed") {
+                                    color = "#18bc9c"
+                                }
+                                evnetsData.push({
+                                    title: item.name,
+                                    start: Moment(item.starttime * 1000).format("YYYY-MM-DD"),
+                                    end: Moment(item.endtime * 1000).format("YYYY-MM-DD"),
+                                    course: item,
+                                    color: color
+                                })
+                            })
+                            calendar.setOption('events', evnetsData);
+                        });
+
+                        var calendarEl = document.getElementById('calendar');
+                        var calendar = new FullCalendar.Calendar(calendarEl, {
+                            header: {
+                                left: 'title',
+                                center: '',
+                                right: 'today prev,next'
+                            },
+                            initialDate: Moment().format('YYYY-MM-DD'),
+                            locale: 'zh-cn',
+                            height: 599,
+                            buttonText: {
+                                today: '今天',
+                                month: '月视图',
+                                week: '周视图',
+                                day: '日视图'
+                            },
+                            firstDay: 1,
+                            eventClick: function(info) {
+                                var item = info.event._def.extendedProps.course;
+                                if (item.type == 'past') {
+                                    Layer.alert('该培训已结束，回顾学习将不再记录学习进度！', {
+                                        btn: ['知道了'] //按钮
+                                    }, function(index) {
+                                        Layer.close(index);
+                                        Controller.api.openMain(item.id);
+                                    });
+                                } else if (item.type == 'future') {
+                                    Layer.msg('培训尚未开始！');
+                                } else {
+                                    Controller.api.openMain(item.id);
+                                }
+                            }
+                        });
+                        calendar.render();
+                        Controller.api.bindEvents();
+                    },
+                    api: {
+                        ajax: {
+                            getCount() {
+                                $.getJSON("{:addon_url('training/index/getCount')}", {
+                                        year: $('#year').data('value'),
+                                        category_id: category_id
+                                    },
+                                    function(data, textStatus, jqXHR) {
+                                        $.each(data, function(name, value) {
+                                            
+                                                var color = '';
+                                                if (name == "learning") {
+                                                    color = 'bg-aqua';
+                                                } else if (name == "unlearned") {
+                                                    color = 'bg-red';
+                                                } else if (name == "future") {
+                                                    color = 'bg-yellow';
+                                                } else if (name == "past") {
+                                                    color = '';
+                                                } else if (name == "completed") {
+                                                    color = 'bg-green';
+                                                }
+
+                                                if(value > 0){
+                                              		var badge = ' <span class="badge '+color+'">'+value+'</span>';
+                                                $('.tab-link[aria-controls=' + name + '] > .tab-badge').html(badge);
+                                           		}else {
+                                                $('.tab-link[aria-controls=' + name + '] > .tab-badge').html('');
+                                            		}
+                                            
+                                        });
+                                    }
+                                );
+                            }
+                        },
+                        openMain(id) {
+                            if(Config.training.main_open_type == '1'){
+                                window.location.href=Fast.api.fixurl("/training/main/" + id);
+                            }else{
+                                window.open(Fast.api.fixurl("/training/main/" + id));
+                            }
+                        },
+                        bindEvents() {
+                            Controller.api.ajax.getCount();
+                            $(".category-type-link").on("click", function (e) {
+                                var type = $(this).data('type') ? $(this).data('type') : 'single';
+                                if (type == 'single') {
+                                    $("#header-navbar").collapse('hide');
+                                }
+                                category_id = $(this).data('id');
+                                $("#breadcrumb").html($(this).data('text'));
+                                Controller.api.ajax.getCount();
+                                table.bootstrapTable('refresh', {})
+                            });
+
+                            $("#selectYear li>a").on("click", function (e) {
+                                var year = $(this).data('value');
+                                var str = year == '' ? '所有年份' : year + '年'
+                                $("#year").data('value', year).html(str);
+                                Controller.api.ajax.getCount();
+                                table.bootstrapTable('refresh', {})
+                            });
+
+                            $(document).on("click", ".btn-open-course", function() {
+                                var id = $(this).data('id');
+                                var type = $(this).data('type');
+                                if (type == "past") {
+                                    Layer.alert('该培训已结束，回顾学习将不再记录学习进度！', {
+                                        btn: ['知道了'] //按钮
+                                    }, function(index) {
+                                        Layer.close(index);
+                                        Controller.api.openMain(id);
+                                    });
+                                } else {
+                                    Controller.api.openMain(id);
+                                }
+                            });
+                        }
+                    }
+                };
+                return Controller;
+            });
+        }
+    </script>
