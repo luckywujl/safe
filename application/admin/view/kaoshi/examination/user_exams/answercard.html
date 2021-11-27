@@ -1,0 +1,103 @@
+<style>
+    .exam-head{padding: 15px;background-color: #f1f1f1;border-radius: 15px;}
+    .question-large{margin-top: 15px;border-bottom: 2px solid #eee;}
+    .question-mid{padding:15px;border-bottom: 1px dotted #eee}
+    .question-option{;padding:15px;}
+    .question-large:last-child,
+    .question-mid:last-child{border-bottom: none;}
+    .option-default{margin-bottom: 10px;padding: 10px;border-radius: 10px;}
+    .option-success{background-color: rgba(24, 188, 156, 0.19);color: green;}
+    .option-error{background-color: rgba(255, 0, 0, 0.17);color: red;}
+    .option-warning{background-color: rgba(255, 165, 0, 0.16);color: orange;}
+</style>
+
+
+
+<div class="panel panel-default panel-intro">
+
+    <div class="panel-body">
+        <div class="exam-head">
+            <p>计划名称：{$user_exams['plan_name']}</p>
+            <p>试卷名称：{$user_exams['exam_name']}</p>
+            <p>考生名称：{$user_exams['nickname']}</p>
+            <p>试卷总分：{$user_exams['full_marks']}</p>
+            <p>及格线：{$user_exams['pass']}</p>
+            <p>得分：{$user_exams['score']}</p>
+        </div>
+        <div class="exam-body">
+
+            <!--遍历题型-->
+            {volist name='questions' id='vo' key='k'}
+            <div class="question-large">
+                <h3>[{$k}]&nbsp;{$typeList[$vo.type]}&nbsp;(共{$vo.number}题,每题{$vo.mark}分)</h3>
+
+                <!--遍历题目-->
+                {volist name='vo.timu' id='timu' key='step'}
+                <div class="question-mid">
+                    <h4><b>[{$step}]&nbsp;{$timu.question}</b></h4>
+
+                    <div class="question-option">
+                        <!--遍历选项-->
+                        {volist name='timu.selectdata' id='option' key='key'}
+                        <!--存在答题记录-->
+                        {if isset($answers[$k]) && isset($answers[$k][$step.'_'.$timu.id])}
+                        <!--用户选项-->
+                        {if (is_array($answers[$k][$step.'_'.$timu.id])&& in_array($option.key,$answers[$k][$step.'_'.$timu.id])) || $option.key == $answers[$k][$step.'_'.$timu.id]}
+                        <!--用户选中答案是否为正确答案-->
+
+                        {if is_array($answers[$k][$step.'_'.$timu.id])}
+                        <!--多选题-->
+                        {if implode(',',$answers[$k][$step.'_'.$timu.id]) == $real_answers[$timu.id]['answer']}
+                        <!--多选题正确-->
+                        <div class="option-default option-success">
+                            <i class="fa fa-check-circle"></i>&nbsp;[{$option.key}]&nbsp;{$option.value}
+                        </div>
+                        {elseif in_array($option.key,explode(',',$real_answers[$timu.id]['answer']))/}
+                        <!--多选题部分正确-->
+                        <div class="option-default option-warning">
+                            <i class="fa fa-check-circle"></i>&nbsp;[{$option.key}]&nbsp;{$option.value}
+                        </div>
+                        {else/}
+                        <!--多选题错误-->
+                        <div class="option-default option-error">
+                            <i class="fa fa-check-circle"></i>&nbsp;[{$option.key}]&nbsp;{$option.value}
+                        </div>
+                        {/if}
+
+                        {elseif $real_answers[$timu.id]['answer'] == $answers[$k][$step.'_'.$timu.id]/}
+                        <div class="option-default option-success">
+                            <i class="fa fa-check-circle"></i>&nbsp;[{$option.key}]&nbsp;{$option.value}
+                        </div>
+                        <!--单选题 -->
+                        {else/}
+                        <div class="option-default option-error">
+                            <i class="fa fa-check-circle"></i>&nbsp;[{$option.key}]&nbsp;{$option.value}
+                        </div>
+                        {/if}
+
+                        {else/}
+                        <div class="option-default">
+                            <i class="fa fa-circle-o"></i>&nbsp;[{$option.key}]&nbsp;{$option.value}
+                        </div>
+                        {/if}
+                        {else/}
+                        <div class="option-default">
+                            <i class="fa fa-circle-o"></i>&nbsp;[{$option.key}]&nbsp;{$option.value}
+                        </div>
+                        {/if}
+                        {/volist}
+                        <p>正确答案：{$real_answers[$timu.id]['answer']}</p>
+                        {if $real_answers[$timu.id]['describe']}
+                        <p>解析：{$real_answers[$timu.id]['describe']}</p>
+                        {/if}
+                    </div>
+                </div>
+                {/volist}
+            </div>
+            {/volist}
+
+
+
+        </div>
+    </div>
+</div>

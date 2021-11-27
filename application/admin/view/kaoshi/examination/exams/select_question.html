@@ -1,0 +1,55 @@
+<style>
+    .select-only{padding:15px;line-height: 1.5;font-size: 16px;border-bottom: dashed 1px #e9e9e9}
+    .select-only:nth-child(odd){background-color: rgba(233, 233, 233, 0.38)}
+    input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 18px;
+        margin-right: 10px;
+        position: relative;
+    }
+
+    input[type="checkbox"]::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: #fff;
+        width: 100%;
+        height: 100%;
+        border: 1px solid #d9d9d9;
+        border-radius: 4px;
+    }
+
+    input[type="checkbox"]:checked::before {
+        content: "\2713";
+        background-color: #fff;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        border: 1px solid #7D7D7D;
+        border-radius:4px;
+        color: #7D7D7D;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    .question-img{max-width: 100px;max-height: 150px;}
+
+</style>
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+
+    <div class="select-box">
+        <!--<div class="select-only row"><div class="question-msg col-xs-12 col-sm-10"><div>题目</div><div class="question-annex"><img class="question-img" src="/uploads/20200225/29190cb7f4acd802368dc27e9501f8bd.jpg" alt=""></div><div>答案</div></div><div class="select-btn-box col-xs-12 col-sm-2 "><input type="checkbox" value="" name="ids[]"></div></div>-->
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__("OK")}</button>
+        </div>
+    </div>
+</form>

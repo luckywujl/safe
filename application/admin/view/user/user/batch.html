@@ -1,0 +1,46 @@
+<form id="batch-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+    {:token()}
+    
+    <div class="form-group">
+    </div>
+    <div class="form-group">
+    </div>
+    <div class="form-group">
+        <label for="c-group_id" class="control-label col-xs-2 col-sm-2">{:__('Group_id')}:</label>
+        <div class="col-xs-8 col-sm-2">
+            {$groupList}
+        </div>
+        <button type="button" class="btn btn-info btn-embossed btn-setgroup">{:__('设置组别')}</button>
+    </div>
+    <div class="form-group"> 
+        <label for="c-group_id" class="control-label col-xs-2 col-sm-2">{:__('Department_id')}:</label>
+        <div class="col-xs-8 col-sm-2">
+            <select id="c-department_id" data-rule="required" class="form-control selectpicker" name="row[department_id]">
+                {foreach name="departmentList" item="vo"}
+                <option data-type="{$vo.type}" class="" value="{$key}" >{$vo.name}</option>
+                {/foreach}
+            </select>
+        </div>
+        <button type="button" class="btn btn-info btn-embossed btn-setdepartment">{:__('设置部门')}</button>
+    </div>
+ 
+    <div class="form-group">
+        
+        <label for="content" class="control-label col-xs-2 col-sm-2">{:__('Status')}:</label>
+        <div class="col-xs-8 col-sm-2">
+            {:build_radios('row[status]', ['normal'=>__('Normal'), 'hidden'=>__('Hidden')])}
+        </div>
+        <button type="button" class="btn btn-info btn-embossed btn-setstatus">{:__('设置状态')}</button>
+    </div>
+
+    <div class="form-group">
+        
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            
+            <button type="button" class="btn btn-default btn-close">{:__('Close')}</button>
+        </div>
+    </div>
+</form>

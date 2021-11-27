@@ -1,0 +1,82 @@
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Company_name')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-company_name" class="form-control" name="row[company_name]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Company_nickname')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-company_nickname" class="form-control" name="row[company_nickname]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Company_tel')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-company_tel" class="form-control" name="row[company_tel]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Company_address')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-company_address" class="form-control" name="row[company_address]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Company_websit')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-company_websit" class="form-control" name="row[company_websit]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Company_regtime')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-company_regtime" class="form-control datetimepicker" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="row[company_regtime]" type="text" value="{:date('Y-m-d H:i:s')}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Company_status')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            
+            <div class="radio">
+            {foreach name="companyStatusList" item="vo"}
+            <label for="row[company_status]-{$key}"><input id="row[company_status]-{$key}" name="row[company_status]" type="radio" value="{$key}" {in name="key" value="0"}checked{/in} /> {$vo}</label> 
+            {/foreach}
+            </div>
+
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Company_type')}:</label>
+        <div class="col-xs-12 col-sm-8">
+                        
+            <select  id="c-company_type" class="form-control selectpicker" name="row[company_type]">
+                {foreach name="companyTypeList" item="vo"}
+                    <option value="{$key}" {in name="key" value=""}selected{/in}>{$vo}</option>
+                {/foreach}
+            </select>
+
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Company_asofdate')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-company_asofdate" class="form-control" name="row[company_asofdate]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Company_remark')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-company_remark" class="form-control" name="row[company_remark]" type="text">
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>
