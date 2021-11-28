@@ -1,0 +1,381 @@
+{layout name="common/empty" /}
+<style data-render="style">
+.video-js .vjs-time-control{display:block!important;}
+.video-js .vjs-current-time{display: block!important;}
+.container-fluid .overlay, .overlay-wrapper .overlay {
+    z-index: 50;
+    background: rgba(0,0,0,1);
+    border-radius: 3px;
+}
+
+.container-fluid>.overlay, .overlay-wrapper>.overlay, .box>.loading-img, .overlay-wrapper>.loading-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.container-fluid .overlay>.fa, .overlay-wrapper .overlay>.fa {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -15px;
+    margin-top: -15px;
+    color: #fff;
+    font-size: 30px;
+}
+</style>
+<div class="container-fluid" id="content-container">
+    <div class="row">
+        <div class="col-lg-10">
+            <video id="video" class="video-js vjs-default-skin vjs-big-play-centered vjs-16-9" webkit-playsinline="true" playsinline="true"></video>
+        </div>
+        <div class="col-lg-2" style="height:100%">
+            <div class="nav-tabs-custom charts-custom">
+                <!-- Tabs within a box -->
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#tab-1" data-toggle="tab">{:__('Course list')}</a></li>
+                    <li><a href="#tab-2" data-toggle="tab">{:__('Introduction')}</a></li>
+                </ul>
+                <div class="tab-content no-padding">
+                    <div class="tab-pane active" id="tab-1">
+                        <ul class="nav nav-stacked" id="courselist" style="height:875px;overflow:auto;" data-training_main_id="{$main_id}">
+                            {volist name="list" id="item"}
+                            <li class="mtpis {:$key == 0 ? 'active' : ''}" data-index="{$key}" data-training_course_id="{$item.id}"  data-studytime="{$item.record.studytime}" data-complete="{$item.record.complete}" data-name="{$item.name}" data-url="{$item.videofile}"
+                                data-description="{$item.description}" data-speaker="{$item.speaker}" data-playtimes="{$item.playtimes}">
+                                <a href="#">
+                                    <span style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">{$i} . {$item.name}</span>
+                                    {if condition="isset($item.record) && $item.record"}
+                                        {if condition="$item.record.complete == 1"}
+                                            <span class="pull-right badge bg-green status">{:__('Completed')}</span>
+                                        {else /}
+                                            <span class="pull-right badge bg-gray status">{:__('Incomplete')}</span>
+                                        {/if}
+                                    {else /}
+                                        <span class="pull-right badge bg-gray status">{:__('Incomplete')}</span>
+                                    {/if}
+                                    <div class="progress" style="margin-top: 10px;position: relative;">
+                                        <div class="progress-text" style="position:absolute;top:0;left:0;text-align: center;width:100%;color:#000">{$item.record.progress?:0}%</div>
+                                        <div class="progress-bar progress-bar-{:$item.record.complete ?'success':'primary'} progress-bar-striped" style="width: {$item.record.progress?:0}%"></div>
+                                    </div>
+                                </a>
+                            </li>
+                            {/volist}
+                        </ul>
+                    </div>
+                    <div class="tab-pane" id="tab-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="overlay" id="loading">
+        <i class="fa fa-refresh fa-spin"></i>
+    </div>
+</div>
+<script data-render="script">
+    require.callback = function() {
+        define('training/course', ['jquery', 'bootstrap', 'frontend', 'video', 'moment', 'moment/locale/zh-cn', 'mTips'], function($, undefined, Frontend, Video, Moment, undefined, mTips) {
+            var player = null;
+            var timer = 0;
+            var active = null;
+            var isfirst = false;
+            var dialog = null;
+            var list = {$list|json_encode};
+            var active_index = 0;
+            var ispast = false;
+            var Controller = {
+                index: function() {
+                    $(".tab-pane").height(document.body.clientHeight - 80+'px');
+                    ispast  = Moment().isBetween(Moment({:$main['starttime']*1000}), Moment({:$main['endtime']*1000}))?false:true;
+                    if(ispast){
+                        if(Config.training.pastview === "0"){
+                            window.location.href = Fast.api.fixurl('/training/alert/培训已经结束，无法观看视频！'); 
+                        }else{
+                            var title = parent.$('.layui-layer-title').html();
+                            parent.$('.layui-layer-title').html(title + ' --- 培训已结束！');
+                        }
+                    }
+                    Controller.api.events.ismobile();
+                    Controller.api.events.arrestDebuger();
+                    Controller.api.events.holdback();
+                     
+                    var fullscreenToggle = true;
+                    if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+                        fullscreenToggle = false;
+                    }
+                    player = Video('video', {
+                        controls: true, // 是否显示控制条
+                        autoplay: true,
+                        preload: 'metadata', //预加载
+                        language: 'zh-CN', // 设置语言
+                        muted: false, // 是否静音
+                        fluid: true, // 自适应宽高
+                        controlBar: { 
+                            currentTimeDisplay: true, // 当前时间
+                            timeDivider: true, // 时间分割线
+                            durationDisplay: true, // 总时间
+                            progressControl: true, // 进度条
+                            remainingTimeDisplay: false, //
+                            customControlSpacer: true, //
+                            fullscreenToggle: fullscreenToggle, // 全屏按钮
+                            volumePanel: false
+                        }
+                    }, function onPlayerReady() {
+                        $('#loading').remove();
+                        this.on('play', function() {
+                            Layer.close(dialog);   
+                            var currentTime = player.currentTime();
+                            var studytime = Controller.api.getRecord('studytime')?Controller.api.getRecord('studytime'):0;
+                            var title = parent.$('.layui-layer-title').html();
+                            title=title.replace("<b>（ 已暂停 ）</b>","")
+                            parent.$('.layui-layer-title').html(title);
+                            //未完成学习时
+                            if (!Controller.api.getRecord('complete') && !ispast) {
+                                if (isfirst) {
+                                    isfirst = false;
+                                    player.currentTime(studytime);
+                                }
+                                if (!isfirst && currentTime > studytime) {
+                                    player.currentTime(studytime);
+                                }
+                                timer = setInterval(function() {
+                                    Controller.api.ajax.send();
+                                }, Config.training.uploadcycle);
+                            }
+                            //防挂机
+                            Controller.api.events.outboard();
+                            console.log("开始播放");
+                        });
+                        this.on('pause', function() {
+                            if(!ispast){
+                                clearInterval(timer);
+                            }
+                            console.log("暂停")
+                        });
+                        this.on('ended', function() {
+                            $(window).off('blur');
+                            if(!ispast){
+                                clearInterval(timer);
+                                var currentTime = player.currentTime();
+                                Controller.api.setRecord('studytime', currentTime);
+                                Controller.api.setRecord('complete', 1);
+                                $(active).find('.status').removeClass('bg-gray').addClass('bg-green').html('已完成');
+                                $(active).find('.progress-bar').removeClass('progress-bar-primary').addClass('progress-bar-success').css('width', '100%');
+                                $(active).find('.progress-text').html('100%');
+                                Controller.api.ajax.send();
+                                dialog = Layer.confirm('本节课程学习完毕，是否继续播放下一未完成课程？', {
+                                    btn: ['确定','取消'],
+                                },function(index){
+                                    $(window).unbind('beforeunload');
+                                    window.location.href=Fast.api.fixurl('/training/course/{$main_id}'); 
+                                },function(index){
+                                    Layer.close(index);
+                                });
+                            }else{
+                                if($(active).next().length > 0){
+                                    $(active).next().trigger('click');
+                                }else{
+                                    $(active).siblings(":first").trigger('click');
+                                }
+                                
+                            }
+                            console.log("播放结束");
+                        });
+                    });
+                    Controller.api.bindEvents();
+                    Controller.api.events.autoplay("{$course_id}");
+                },
+                api: {
+                    getRecord(itemname){
+                        if(active_index === null || list[active_index]['record'] === null || list[active_index]['record'][itemname] === null){
+                            return null
+                        }
+                        return list[active_index]['record'][itemname]?list[active_index]['record'][itemname]:null;
+                    },
+                    setRecord(itemname,value){
+                        if(active_index === null){
+                            return null
+                        }else{
+                            if(list[active_index]['record'] === null){
+                                var tmp = {}
+                                tmp[itemname]= value;
+                                list[active_index]['record'] = tmp;
+                            }else{
+                                var tmp = {}
+                                tmp[itemname]= value;
+                                list[active_index]['record'] = $.extend(list[active_index]['record'],tmp)
+                            }
+                        }
+                    },
+                    getItem(itemname){
+                        if(active_index === null || list[active_index] === null || list[active_index][itemname]== null){
+                            return null
+                        }
+                        return list[active_index][itemname]?list[active_index][itemname]:null;
+                    },
+                    setItem(itemname,value){
+                        if(active_index === null){
+                            return null
+                        }else{
+                            if(list[active_index][itemname]  === null){
+                                var tmp = {}
+                                tmp[itemname]= value;
+                                list[active_index] = tmp;
+                            }else{
+                                var tmp = {}
+                                tmp[itemname]= value;
+                                list[active_index] = $.extend(list[active_index],tmp)
+                            }
+                        }
+                    },
+                    events: {
+                        ismobile(){
+                            if(Config.training.mobile === "1"){
+                                if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+                                    window.location.href = Fast.api.fixurl('/training/alert/禁止在移动端访问'); 
+                                }
+                            }
+                        },
+                        holdback() {
+                            //阻止页面后退
+                            if (window.history && window.history.pushState) {
+                                $(window).on('popstate', function() {
+                                    window.history.pushState('forward', null, '#');
+                                    window.history.forward(1);
+                                });
+                            }
+                            window.history.pushState('forward', null, '#'); //在IE中必须得有这两行
+                            window.history.forward(1);
+                        },
+                        arrestDebuger() {
+                            if(Config.training.cheat === "1"){
+                                var element = new Image();
+                                Object.defineProperty(element, 'id', {
+                                    get: function() {
+                                        $(window).unbind('beforeunload');
+                                        window.location.href = Fast.api.fixurl('/training/alert/当前页面禁止使用调试工具！'); 
+                                    }
+                                });
+                                console.log(element)
+                                $(document).bind("contextmenu", function() {
+                                    return false;
+                                }); //禁止右键
+                                document.oncontextmenu = function() {
+                                    return false;
+                                };
+                                document.onkeydown = function() {
+                                    if (window.event && window.event.keyCode == 123) {
+                                        event.keyCode = 0;
+                                        event.returnValue = false;
+                                        return false;
+                                    }
+                                }
+                            }
+                        },
+                        outboard() {
+                            if(Config.training.outboard === '1'){
+                                $(window).focus();
+                                $(window).off('blur').on('blur', function(e) {
+                                    player.pause();
+                                    var title = parent.$('.layui-layer-title').html();
+                                    title=title.replace("<b>（ 已暂停 ）</b>","")
+                                    parent.$('.layui-layer-title').html(title +"<b>（ 已暂停 ）</b>");
+                                });
+                            }
+                        },
+                        autoplay(course_id=null) {
+                            var iscomplete = true;
+                                $('.mtpis').each(function(i,el) {
+                                if(course_id){
+                                    if (list[i]['id'] == course_id) {
+                                        $(this).trigger('click');                                      
+                                        iscomplete = false;
+                                        return false;
+                                    }
+                                }else{
+                                    if(!ispast){
+                                        if(list[i]['record'] === null){
+                                            $(this).trigger('click');
+                                            iscomplete = false;
+                                            return false;
+                                        }else {
+                                            if (list[i]['record']['complete'] !== 1) {
+                                                $(this).trigger('click');
+                                                iscomplete = false;
+                                                return false;
+                                            }
+                                        }
+                                    }
+                                }
+                            });                            
+                            if (iscomplete && !ispast) {
+                                Layer.closeAll();
+                                dialog = Layer.confirm('恭喜您，此培训内所有课程均已完成学习！', {
+                                    btn: ['关闭此页', '留在此页']
+                                }, function(index) {
+                                    parent.Layer.closeAll();
+                                }, function(index) {
+                                   Layer.close(index)
+                                });
+                            } 
+                        }
+                    },
+                    ajax: {
+                        send() {
+                            if(!ispast){
+                                currentTime = player.currentTime();
+                                Controller.api.setRecord('studytime', currentTime);
+                                var data = {
+                                    training_main_id:$("#courselist").data('training_main_id'),
+                                    training_course_id: Controller.api.getItem('id'),
+                                    studytime: currentTime,
+                                    complete: Controller.api.getRecord('complete')
+                                };     
+                                if (!Controller.api.getRecord('complete')) {
+                                    data.complete=Controller.api.getRecord('complete')
+                                    Controller.api.ajax.record(data, function(progress) {
+                                        $(active).find('.progress-bar').css('width', progress + '%');
+                                        $(active).find('.progress-text').html(progress + '%');
+                                    });
+                                }else{
+                                    data.complete = 1
+                                    Controller.api.ajax.record(data);
+                                }
+                            } 
+                        },
+                        record(params, callback) {
+                            if(!ispast){
+                                $.post("{:addon_url('training/Course/play')}", params, callback, "json");
+                            }
+                        }
+                    },
+                    bindEvents() {
+                        $(document).on('click', '.mtpis', function() {
+                            isfirst = true;
+                            active = $(this);
+                            active_index = $(active).data('index');
+                            $(active).addClass('active').siblings('li').removeClass('active');;
+                            player.src(Controller.api.getItem('videofile'));
+                            player.load(Controller.api.getItem('videofile'));
+                            $("#tab-2").html(Controller.api.getItem('description'));
+                            $.post("{:addon_url('training/Course/playtimes')}", {training_course_id:Controller.api.getItem('id')}, null, "json");
+                        });
+
+                        $(document).on('mouseenter', '.mtpis', function() {
+                            var i = $(this).data('index');
+                            var item =list[i];
+                            mTips.c.x = -120;
+                            mTips.c.y = 20;
+                            mTips.s('<p style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">介绍：' + item['description'] + '</p>\
+                                            <p>主讲人：' + item['speaker'] + '</p>\
+                                            <span class="pull-right">' + item['playtimes'] + ' 次播放', 'default');
+                        }).on('mouseleave', '.mtpis', function() {
+                            mTips.h();
+                        });
+                    }
+                }
+            };
+            return Controller;
+        });
+    }
+</script>

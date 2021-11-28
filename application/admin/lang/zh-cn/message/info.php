@@ -1,0 +1,30 @@
+<?php
+
+return [
+    'Category_id'                 => '分类ID',
+    'Name'                        => '标题',
+    'Coverimage'                  => '封面',
+    'Keywords'                    => '关键字',
+    'Description'                 => '通知内容',
+    'Url'                         => '物理路径',
+    'User_ids'                    => '指定学员',
+    'User_r_ids'                  => '已阅学员',
+    'User_group_ids'              => '指定分组',
+    'Admin_id'                    => '创建人',
+    'Createtime'                  => '创建日期',
+    'Updatetime'                  => '更新时间',
+    'Deletetime'                  => '删除时间',
+    'Weigh'                       => '权重',
+    'Status'                      => '状态',
+    'Company_id'                  => '数据归属',
+    'Messagecategory.pid'         => '父ID',
+    'Messagecategory.pname'       => '父类名称',
+    'Messagecategory.icon'        => '图片',
+    'Messagecategory.keywords'    => '关键字',
+    'Messagecategory.description' => '描述',
+    'Messagecategory.createtime'  => '创建时间',
+    'Messagecategory.updatetime'  => '更新时间',
+    'Messagecategory.weigh'       => '权重',
+    'Messagecategory.status'      => '状态',
+    'Messagecategory.company_id'  => '数据归属'
+];

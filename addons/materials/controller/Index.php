@@ -105,11 +105,7 @@ class Index extends Base
             if ($year !== '') {
                 $map['createtime']=['between time',["{$year}-1-1","{$year}-12-31"]];
             }
-            //if ($category_id >0) {
-            //    $map['materials_category_id']=['=',$category_id];
-            //}
-            //$map['status']=['=','normal'];
-            //$map['type']=['=','online'];  //20211118加入仅显示在线培训
+            
             $materials_type = new \app\admin\model\materials\Category;
             $type = $materials_type->field('id,name')->where('company_id',$this->auth->company_id)->select();
         		$type_a = [];
@@ -118,9 +114,13 @@ class Index extends Base
         		$type[] = $type_a;
             foreach($type as $k=>$v){
             	if($v['id']>0) {
-            	$count[$v['id']] = $model->where($map)->where('materials_category_id',$v['id'])->where('company_id',$this->auth->company_id)->count();
+            	$count[$v['id']] = $model->where($map)->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',user_ids)')->whereor('find_in_set('.$this->group_id.',user_group_ids)');
+            		})->where('materials_category_id',$v['id'])->where('company_id',$this->auth->company_id)->count();
             }else {
-            	$count[$v['id']] = $model->where($map)->where('company_id',$this->auth->company_id)->count();
+            	$count[$v['id']] = $model->where($map)->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',user_ids)')->whereor('find_in_set('.$this->group_id.',user_group_ids)');
+            		})->where('company_id',$this->auth->company_id)->count();
             }
             }
             

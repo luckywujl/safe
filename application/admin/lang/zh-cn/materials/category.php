@@ -9,5 +9,6 @@ return [
     'Updatetime'  => '更新时间',
     'Weigh'       => '权重',
     'Status'      => '状态',
+    'Search icon'=>'查询图标',
     'Pname'       => '上级分类'
 ];

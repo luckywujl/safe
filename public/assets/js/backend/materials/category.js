@@ -36,7 +36,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                 return value.toString().replace(/(&|&amp;)nbsp;/g, '&nbsp;');
                             }
                         },
-                        
+                        {field: 'description', title: __('Description'), operate: 'LIKE'},
                         {field: 'icon', title: __('Icon'), operate: 'LIKE', operate:false,visible:false,formatter: Table.api.formatter.icon},
                         //{field: 'weigh', title: __('Weigh'), operate: false},
                         {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},

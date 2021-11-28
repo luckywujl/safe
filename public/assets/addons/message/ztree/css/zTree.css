@@ -1,0 +1,165 @@
+    .ztree li a.curSelectedNode {
+        height: 18px !important;
+        width: calc(100% - 29px);
+    }
+    
+    .ztree li span.button.ico_docu {
+        margin-right: 4px !important;
+    }
+
+    .ztree.ztree-awesome {
+        overflow: auto;
+    }
+
+    .ztree-awesome-compact li {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+
+    .ztree-awesome-compact *:before, .ztree-awesome-compact *:after {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: padding-box;
+    }
+
+    .ztree-awesome-folder {
+        --awesome-item-height: 22px;
+        --awesome-item-padding-top: 5px;
+        --awesome-item-padding-bottom: 0;
+        --awesome-item-padding-top-first-type: 7px;
+        --awesome-control-and-icon-offset-down: 9px;
+        --awesome-control-left-space: 10px;
+        --awesome-control-width: 7px;
+        --awesome-control-color: #333333;
+        --awesome-control-font-size: 1.3em;
+        --awesome-icon-right-space: 5px;
+        --awesome-icon-font-size: 1.2em;
+        --awesome-icon-color: #333333;
+        --awesome-text-color: #333333;
+    }
+
+    .ztree-awesome-accordion {
+        /* TODO */
+    }
+
+    .ztree-awesome {
+        --awesome-text-color-background: transparent;
+        --awesome-text-color-selected: auto;
+    }
+    .ztree-awesome-select-default{
+        --awesome-text-color-background: #beebff;
+        --awesome-text-color-selected: #000000;
+    }
+    .ztree-awesome-select-primary {
+        --awesome-text-color-background: #007bff;
+        --awesome-text-color-selected: #ffffff;
+    }
+
+    .ztree-awesome-select-secondary {
+        --awesome-text-color-background: #6c757d;
+        --awesome-text-color-selected: #ffffff;
+    }
+
+    .ztree-awesome-select-success {
+        --awesome-text-color-background: #28a745;
+        --awesome-text-color-selected: #ffffff;
+    }
+
+    .ztree-awesome-select-danger {
+        --awesome-text-color-background: #dc3545;
+        --awesome-text-color-selected: #ffffff;
+    }
+
+    .ztree-awesome-select-warning {
+        --awesome-text-color-background: #ffc107;
+        --awesome-text-color-selected: #000000;
+    }
+
+    .ztree-awesome-select-info {
+        --awesome-text-color-background: #17a2b8;
+        --awesome-text-color-selected: #ffffff;
+    }
+
+    .ztree-awesome-select-light {
+        --awesome-text-color-background: #f8f9fa;
+        --awesome-text-color-selected: #000000;
+    }
+
+    .ztree-awesome-select-dark {
+        --awesome-text-color-background: #343a40;
+        --awesome-text-color-selected: #ffffff;
+    }
+
+    /* Render begin */
+
+    .ztree.ztree-awesome li {
+        min-height: var(--awesome-item-height);
+        padding-top: var(--awesome-item-padding-top);
+        padding-bottom: var(--awesome-item-padding-bottom);
+    }
+
+    .ztree.ztree-awesome li:first-of-type {
+        padding-top: var(--awesome-item-padding-top-first-type);
+    }
+
+    .ztree.ztree-awesome li span.button {
+        position: relative;
+        top: var(--awesome-control-and-icon-offset-down);
+        background-image: none;
+    }
+
+    .ztree.ztree-awesome li span.button.switch {
+        padding-right: var(--awesome-control-right-space);
+    }
+
+    .ztree.ztree-awesome li span.button.switch::before {
+        margin-left: var(--awesome-control-left-space);
+        font-size: var(--awesome-control-font-size);
+        color: var(--awesome-control-color);
+    }
+
+    .ztree.ztree-awesome li span.button[treenode_switch] {
+        padding-right: var(--awesome-control-width);
+    }
+
+    .ztree.ztree-awesome li span.button.ico_loading {
+        position: static;
+        width: 0;
+    }
+
+    .ztree.ztree-awesome li span.button.ico_loading::before {
+        position: relative;
+        top: 9px;
+        left: -1px;
+        background-color: transparent!important;
+    }
+
+    .ztree.ztree-awesome li span.button[treenode_ico] {
+        font-size: var(--awesome-icon-font-size);
+        padding-right: calc(25px + var(--awesome-icon-right-space));
+    }
+
+    .ztree.ztree-awesome li span.button[treenode_ico]::before {
+        padding-left: 10px;
+        color: var(--awesome-icon-color);
+    }
+
+    .ztree.ztree-awesome li a:hover {
+        text-decoration: none;
+    }
+
+    .ztree.ztree-awesome .node_name {
+        color: var(--awesome-text-color);
+        font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-weight: 400;
+    }
+
+    .ztree.ztree-awesome li a.curSelectedNode, .ztree.ztree-awesome li a.curSelectedNode .button::before, .ztree.ztree-awesome li a.curSelectedNode .node_name {
+        border-color: transparent;
+        border-left: none;
+        border-radius: 2px;
+        color: var(--awesome-text-color-selected);
+        background-color: var(--awesome-text-color-background);
+        box-shadow: inset 0 0 1px #999999;
+    }
