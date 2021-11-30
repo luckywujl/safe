@@ -1,0 +1,63 @@
+{layout name="common/signinlayout"/}
+    <div class="row">    
+        <div class="col-md-12 connectedSortable">
+            <div class="box box-widget widget-user-2">      
+                    <div class="widget-user-header bg-light-blue-gradient">               
+                        <h2 class="widget-user-desc" style="margin-left: 0px;margin-top:0px; text-align:center;">{$signin.name}</h2>
+                        <h4 class="widget-user-desc" style="margin-left: 0px;margin-top:0px">发布人：{$signin.admin_id}</h4>
+                        <h4 class="widget-user-desc" style="margin-left: 0px;margin-top:0px">关键字：{$signin.keywords}</h4>
+                        <h4 class="widget-user-desc" data-date-format="YYYY-MM-DD HH:mm:ss" style="margin-left: 0px;margin-top:0px">发布时间：{:$signin.createtime?datetime($signin.createtime):''}</h4>
+                        <h4 class="widget-user-desc" data-date-format="YYYY-MM-DD HH:mm:ss" style="margin-left: 0px;margin-top:0px">签到时间：{:datetime(time())}</h4>          
+                    </div>
+                   <div class="widget-user-header bg-light-green-gradient">
+                   		<h2 class="widget-user-desc" style="margin-left: 0px;margin-top:0px; text-align:left;">{$signin.user_nickname},你好，请签到！</h2>		   
+        				</div>	 
+        				 <div class="widget-user-header bg-light-green-gradient">
+         				  <button type="button" class="btn btn-success btn-embossed " style="width: 100%;height: 100%" data-id="{$signin.id}">{:__('签到')}</button> 
+         				   
+        				</div>	
+        				  
+        				       
+            </div>        
+        </div>
+</div>
+    <script data-render="script">
+        require.callback = function() {
+            define('training/index', ['jquery', 'bootstrap', 'frontend', 'moment', 'moment/locale/zh-cn'], function($, undefined, Frontend, Moment) {
+                var table=null;
+                var Controller = {
+                    signin: function() {
+                   
+                        Controller.api.bindEvents();
+                    },
+                    api: {
+                        bindEvents() {                       
+                            $(document).on("click", ".btn-embossed ", function() {
+                            		var id = $(this).data('id');
+                            		//Layer.alert(id); 
+                                 $.post("{:addon_url('training/index/signin')}", {id:id},function(response){
+            							if(response.code == 1){
+                 							//Toastr.success(response.msg);
+                 							Layer.alert(response.msg);
+					  							//parent.$("a.btn-refresh").trigger("click");
+         	     							
+             							}else{
+             							
+                  						Toastr.error(response.msg)
+             							}
+             						}, 'json');
+                                                  
+                            });
+                            $(document).on("click", ".btn-open-course", function() {
+                                var id = $(this).data('id');
+                                var title = $(this).data('title');
+                                Layer.alert(title);                     
+                            });
+                        }
+                    }
+                };
+                return Controller;
+            });
+        }
+    </script>
+   

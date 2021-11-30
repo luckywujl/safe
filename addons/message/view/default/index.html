@@ -141,7 +141,7 @@
                 <p>
                     <!--详情的事件需要在JS中手动绑定-->
                     
-                     <a href="#" class="btn btn-success btn-open-course" data-description="<%=item.description%>"><i class="fa fa-camera"></i> 详情</a> 
+                     <a href="#" class="btn btn-success btn-open-course" data-id="<%=item.id%> " data-description="<%=item.description%> "><i class="fa fa-camera"></i>阅读</a> 
 
                     <!--如果需要响应编辑或删除事件，可以给元素添加 btn-edit或btn-del的类和data-id这个属性值-->
                     
@@ -257,6 +257,14 @@
                                     }
                                 );
                             }
+                            
+                        },
+                        openMain(id) {
+                            if(Config.training.main_open_type == '1'){
+                                window.location.href=Fast.api.fixurl("/training/main/" + id);
+                            }else{
+                                window.open(Fast.api.fixurl("/training/main/" + id));
+                            }
                         },
                      
                         bindEvents() {
@@ -268,15 +276,28 @@
                                 var str = year == '' ? '所有年份' : year + '年'
                                 $("#year").data('value', year).html(str);
                                 Controller.api.ajax.getCount();
-                                table.bootstrapTable('refresh', {})
+                                table.bootstrapTable('refresh', {});
                             });
 
 
                             $(document).on("click", ".btn-open-course", function() {
+                                var id = $(this).data('id');
                                 var description = $(this).data('description');
-                                Layer.alert(description);
-                               
-                                   // Controller.api.openMain(id);
+                                window.location.href=Fast.api.fixurl("{:addon_url('message/Index/showmessage')}&&id="+id);
+                                //Layer.alert(description);
+                                $.post("{:addon_url('message/index/addids_r')}", {id:id},function(response){
+            							if(response.code == 1){
+                 							//Toastr.success(response.msg);
+					  							//parent.$("a.btn-refresh").trigger("click");
+         	     							Controller.api.ajax.getCount();
+                                    table.bootstrapTable('refresh', {});
+             							}else{
+             							
+                  						//Toastr.error(response.msg)
+             							}
+             						}, 'json');
+             						
+                             
                                 
                             });
                         }

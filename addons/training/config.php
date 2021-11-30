@@ -110,6 +110,7 @@ return [
             'index/index' => '/training/$',
             'index/main' => '/training/main/[:id]',
             'index/alert' => '/training/alert/[:msg]',
+            
             'course/index' => '/training/course/[:main_id]/[:course_id]',
         ],
         'rule' => 'required',

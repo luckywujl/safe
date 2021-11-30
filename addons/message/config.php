@@ -108,7 +108,7 @@ return [
         'content' => [],
         'value' => [
             'index/index' => '/message/$',
-            'index/main' => '/message/main/[:id]',
+            'index/showmessage' => '/message/showmessage/[:id]',
             'index/alert' => '/message/alert/[:msg]',
             'course/index' => '/message/course/[:main_id]/[:course_id]',
         ],

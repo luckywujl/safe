@@ -304,7 +304,7 @@ class Exams extends Controller
         $this->view->assign('type', $user_exams_row['type']);
         $real_answers = json_decode($user_exams_row['real_answersdata'], true);
         $questions = json_decode($user_exams_row['questionsdata'], true);
-        $score = $user_exams_row['score'];
+        $score = 0;//$user_exams_row['score'];
         $map = [
             'b.plan_id' => $user_exams_row['plan_id'],
         ];

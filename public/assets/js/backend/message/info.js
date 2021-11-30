@@ -50,11 +50,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'category_id', title: __('Category_id'),visible:false,operate:'in'},
                         {field: 'name', title: __('Name'), operate: 'LIKE'},
                         {field: 'coverimage', title: __('Coverimage'), operate: false, events: Table.api.events.image, formatter: Table.api.formatter.image},
-                        {field: 'keywords', title: __('Keywords'), visible:false,operate: 'LIKE'},
+                        {field: 'keywords', title: __('Keywords'),operate: 'LIKE'},
                         
                         //{field: 'url', title: __('Url'), operate: 'LIKE', formatter: Table.api.formatter.url},
                         //{field: 'user_ids', title: __('User_ids')},
-                        {field: 'description', title: __('Description'), operate: 'LIKE'},
+                       
                         {field: 'admin_id', title: __('Admin_id')},
                         {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         {field: 'updatetime', title: __('Updatetime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},

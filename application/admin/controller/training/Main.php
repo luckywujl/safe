@@ -85,6 +85,7 @@ class Main extends Backend
                 if ($this->dataLimit && $this->dataLimitFieldAutoFill) {
                     $params[$this->dataLimitField] = $this->auth->company_id;
                 }
+                $params['admin_id'] = $this->auth->nickname;//创建人
                 $result = false;
                 Db::startTrans();
                 try {
@@ -122,7 +123,7 @@ class Main extends Backend
 
     
     /**
-     * 查看
+     * 选择用户
      */
     public function selectuser()
     {

@@ -191,4 +191,54 @@ class Index extends Base
         $this->view->assign('params', $params);
         return $this->view->fetch('/alert');
     }
+    //扫码签到
+    public function signin()
+    {
+    	  if ($this->request->isPost()) { 
+        	 $params = $this->request->param();//接收过滤条件	
+        	 
+        	 
+        	 $this->success($params['id']);
+            
+        }
+    	  $id = $this->request->param('id');
+    	  $model = new MainModel;
+    	  $main = $model->where(['id'=>$id,'company_id'=>$this->auth->company_id,'type'=>'offline'])->find();
+    	  
+        
+        
+        if($main) {
+        	$main['user_nickname'] = $this->auth->nickname;
+        	$this->view->assign('signin', $main);
+         return $this->view->fetch('/signin');
+       }else {
+       	return $this->view->fetch('/signinerror');
+       }
+        
+    }
+    //扫码签退
+    public function signout()
+    {
+    	  if ($this->request->isPost()) { 
+        	 $params = $this->request->param();//接收过滤条件	
+        	 
+        	 
+        	 $this->success($params['id']);
+            
+        }
+    	  $id = $this->request->param('id');
+    	  $model = new MainModel;
+    	  $main = $model->where(['id'=>$id,'company_id'=>$this->auth->company_id,'type'=>'offline'])->find();
+    	  
+        
+        
+        if($main) {
+        	$main['user_nickname'] = $this->auth->nickname;
+        	$this->view->assign('signout', $main);
+         return $this->view->fetch('/signout');
+       }else {
+       	return $this->view->fetch('/signouterror');
+       }
+        
+    }
 }

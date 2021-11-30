@@ -1,0 +1,28 @@
+{layout name="common/messagelayout" /}
+
+
+    <div class="row">
+        
+        <div class="col-md-12 connectedSortable">
+            <div class="box box-widget widget-user-2">
+               
+                    <div class="widget-user-header bg-light-blue-gradient">
+                       
+                        <h2 class="widget-user-desc" style="margin-left: 0px;margin-top:0px; text-align:center;">{$message.name}</h2>
+                        <h4 class="widget-user-desc" style="margin-left: 0px;margin-top:0px">发布人：{$message.admin_id}</h4>
+                        <h4 class="widget-user-desc" style="margin-left: 0px;margin-top:0px">关键字：{$message.keywords}</h4>
+                        <h4 class="widget-user-desc" data-date-format="YYYY-MM-DD HH:mm:ss" style="margin-left: 0px;margin-top:0px">发布时间：{:$message.createtime?datetime($message.createtime):''}</h4>
+                        <h4 class="widget-user-desc" style="margin-left: 0px;margin-top:0px">类别：{$message.category_id}</h4>
+                        
+                    </div>
+                   <div class="widget-user-header bg-light-green-gradient">
+         				   <textarea id="c-description" class="form-control " rows="30"  cols="50" style="font-size:20px" readonly="readonly">{$message.description|htmlentities}</textarea>
+        				</div>	
+             
+            </div>
+            
+         
+        </div>
+ 
+</div>
+   

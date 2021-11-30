@@ -38,7 +38,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template'], function
                         { field: 'keywords', title: __('Keywords'), operate: 'LIKE' },
                         { field: 'user_ids', title: __('User_ids'), operate: false, visible: false },
                         { field: 'user_group_ids', title: __('User_group_ids'), operate: false, visible: false },
-                        { field: 'admin_id', title: __('Admin_id'), operate: false, visible: false },
+                        { field: 'admin_id', title: __('Admin_id'), operate: false },
                         { field: 'starttime', title: __('Starttime'), operate: 'RANGE', addclass: 'datetimerange', autocomplete: false, formatter: Table.api.formatter.datetime },
                         { field: 'endtime', title: __('Endtime'), operate: 'RANGE', addclass: 'datetimerange', autocomplete: false, formatter: Table.api.formatter.datetime },
                         { field: 'weigh', title: __('Weigh'),visible:false, operate: false },

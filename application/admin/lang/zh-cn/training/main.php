@@ -8,7 +8,7 @@ return [
     'Description'         => '描述',
     'User_ids'            => '指定学员',
     'User_group_ids'      => '指定分组',
-    'Admin_id'            => '创建人ID',
+    'Admin_id'            => '创建人',
     'Createtime'          => '创建日期',
     'Updatetime'          => '更新时间',
     'Deletetime'          => '删除时间',
