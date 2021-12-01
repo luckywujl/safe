@@ -7,6 +7,7 @@ use addons\training\model\Course as CourseModel;
 use addons\training\model\Record as RecordModel;
 use addons\training\model\Result as ResultModel;
 use app\common\model\User;
+use Think\Db;
 
 class Index extends Base
 {
@@ -196,17 +197,41 @@ class Index extends Base
     {
     	  if ($this->request->isPost()) { 
         	 $params = $this->request->param();//接收过滤条件	
+        	 $record = new RecordModel;
+        	 $main = new MainModel;
+        	 $main_info =  $main->field('training_course_ids')->where('id', $params['id'])->find();//获取培训中包含的课程
+        	 $course_ids = explode(',',$main_info['training_course_ids']);
+        	 $data = [];
+        	 foreach($course_ids as $k=>$v){
+        	 		$data_r=[];
+        	 		$data_r['user_id'] = $this->auth->id;
+        	 		$data_r['training_main_id'] = $params['id'];
+        	 		$data_r['training_course_id'] = $v;
+        	 		$data_r['studytime'] = 0;
+        	 		$data_r['progress'] = 0;
+        	 		$data_r['complete'] = 0;
+        	 		$data_r['createtime'] = time();
+        	 		$data_r['updatetime'] =time();
+        	 		$data_r['company_id'] = $this->auth->company_id;
+        	 		$data[] = $data_r;
+        	 }
+        	 $result = $record->saveall($data);
         	 
+        	 if($result) {
         	 
-        	 $this->success($params['id']);
-            
+        	 $this->success('签到成功！');       
+        }else {
+        	$this->error('签到失败！');
+        }
         }
     	  $id = $this->request->param('id');
     	  $model = new MainModel;
-    	  $main = $model->where(['id'=>$id,'company_id'=>$this->auth->company_id,'type'=>'offline'])->find();
-    	  
-        
-        
+    	  $time = date("Y-m-d H:i:s");
+    	  $main = $model
+    	  		->whereTime('starttime', '<=', $time)
+            ->whereTime('endtime', '>=', $time)  //需要在培训时间段内扫码签到
+            ->where(['id'=>$id,'company_id'=>$this->auth->company_id,'type'=>'offline'])->find();
+
         if($main) {
         	$main['user_nickname'] = $this->auth->nickname;
         	$this->view->assign('signin', $main);
@@ -221,17 +246,55 @@ class Index extends Base
     {
     	  if ($this->request->isPost()) { 
         	 $params = $this->request->param();//接收过滤条件	
+        	 $record = new RecordModel;
+        	 $log = new ResultModel;
+        	 $data_r = [];
+        	 $data_l = [];
+        	 $data_l['user_id'] = $this->auth->id;
+        	 $data_l['training_main_id'] = $params['id'];
+        	 $data_l['createtime'] = time();
+        	 $data_l['updatetime'] = time();
+        	 $data_l['company_id'] = $this->auth->company_id;
+        	 $record_in = $record->where(['training_main_id'=>$params['id'],'user_id'=>$this->auth->id,'company_id'=>$this->auth->company_id])->find();
+        	 if($record_in) {
+        	 	$data_r['studytime'] = round((time()-$record_in['createtime'])/1000);
+        	 } else {
+        	 	$this->error('您能可没有成功签到！');
+        	 }
+        	 $main = new MainModel;
+        	 $main_info =  $main->field('training_course_ids')->where('id', $params['id'])->find();//获取培训中包含的课程
         	 
-        	 
-        	 $this->success($params['id']);
-            
+        	 $data_r['updatetime'] = time();
+        	 $data_r['complete'] = 1;
+        	 $data_r['progress'] = 100;
+        	 Db::startTrans();
+        	 try {
+        	 	$result_r = $record->where(['training_main_id'=>$params['id'],'user_id'=>$this->auth->id,'company_id'=>$this->auth->company_id])->update($data_r);//更新培训记录
+        	 	$result_l = $log->save($data_l);//完成培训记录
+        	   Db::commit();
+        	 } catch (ValidateException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (PDOException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (Exception $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                }
+        	 if($result_l) {
+        	 $this->success('签退成功！');       
+        }else {
+        	$this->error('签退失败！');
+        }
         }
     	  $id = $this->request->param('id');
     	  $model = new MainModel;
-    	  $main = $model->where(['id'=>$id,'company_id'=>$this->auth->company_id,'type'=>'offline'])->find();
-    	  
-        
-        
+    	  $time = date("Y-m-d H:i:s");
+    	  $main = $model
+    	  		->whereTime('starttime', '<=', $time)
+            ->whereTime('endtime', '>=', $time)  //需要在培训时间段内扫码签到
+            ->where(['id'=>$id,'company_id'=>$this->auth->company_id,'type'=>'offline'])->find();  
         if($main) {
         	$main['user_nickname'] = $this->auth->nickname;
         	$this->view->assign('signout', $main);
