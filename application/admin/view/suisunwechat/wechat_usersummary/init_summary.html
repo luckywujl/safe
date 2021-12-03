@@ -1,0 +1,62 @@
+<link href="/assets/addons/suisunwechat/css/suisun.css?v={$Think.config.site.version}" rel="stylesheet">
+<style>
+    .mtitle {
+        color: black;
+        font-weight: 900;
+        margin-bottom: 5px;
+    }
+    .process{
+        width: 350px;
+        height: 25px;
+        border-radius: 2px;
+        border: solid 1px #e5e5e5;
+        position: relative;
+        overflow: hidden;
+    }
+    .process .process-item{
+        position: absolute;
+        height: 100%;
+        left: 0;
+        border-radius: 2px;
+        transition: width 0.5s;
+        width: 0%;
+    }
+    .process .process-item-number{
+        z-index: 99;
+        color: black;
+    }
+    .usersummary .datetimepicker{
+        border: solid 1px #e5e5e5;
+        height: 25px;
+        padding-left: 5px;
+    }
+</style>
+
+
+<div class="usersummary bg-white padding">
+    <div class="mtitle text-lg padding-sm margin-left">用户分析数据初始化</div>
+    <div class="padding">
+        <div class="row padding-sm">
+            <div class="col-xs-12 col-sm-12"><i class="fa fa-exclamation-circle text-green"></i>
+                本页根据你选择的月份进行采集数据,点击下方'开始采集'后等待数据采集完成即可。
+            </div>
+            <form role="form" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 margin-top">
+                <div class="flex  align-center flex ">
+                    <span class="margin-right-sm">同步时间: </span><input type="text" data-date-format="YYYY-MM" data-date-max-date="{:date('Y-m')}" class="datetimepicker" name="starttime" id="starttime" data-date-use-strict="true">
+                </div>
+                <div class="flex align-center margin-top ">
+                    <div class="margin-right-sm">同步进度:</div>
+                    <div class="process flex justify-center align-center ">
+                        <div class="process-item bg-green">  </div>
+                        <div class="process-item-number"><span>0</span>%</div>
+                    </div>
+                </div>
+
+                <div class="btn btn-success margin-top-xl btn-get"> 开始采集 </div>
+                <a href="{:url('suisunwechat/wechat_usersummary/index')}" class="btn btn-default margin-top-xl " target="_self" > 返回数据分析 </a>
+            </form>
+        </div>
+
+    </div>
+</div>
+

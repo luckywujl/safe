@@ -1,0 +1,150 @@
+<style>
+
+    .mtitle {
+        color: black;
+        font-weight: 900;
+        margin-bottom: 5px;
+    }
+    .content,
+    body.is-dialog{
+        background-color: #e5e5e5;
+    }
+
+    .material{
+        width: 850px;
+        margin: 0 auto;
+    }
+
+    .articlelist{
+
+    }
+    .main-article{
+        position: relative;
+        cursor: pointer;
+        border: solid 1px white;
+        height: 100px;
+        overflow: hidden;
+    }
+    .main-article .article-image{
+        height: auto;
+        width: 100%;
+    }
+    .main-article .article_title{
+        position: absolute;
+        background-color: rgba(0,0,0,0.5);
+        width: 100%;
+        height: 35px;
+        color: white;
+        bottom: 0;
+    }
+
+    .add-btn{
+        width: 100%;
+        height: 35px;
+        text-align: center;
+        line-height: 35px;
+        cursor: pointer;
+    }
+
+    .item-article{
+        height: 55px;
+        cursor: pointer;
+        border: solid 1px white;
+    }
+    .item-article img{
+        width: 35px;
+        height: 35px;
+        background-color: #e5e5e5;
+    }
+
+    .articlelist .active{
+        border: solid 1px #18bc9c;
+    }
+
+</style>
+
+
+
+
+<div class="material" id="material" v-cloak>
+    <div class="row">
+        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 ">
+            <div class="articlelist bg-white radius">
+                <div v-for="(item,index) in list">
+                    <div class="main-article " v-if="index==0" :class="[currentindex==index?'active':'']" @click="selectArticle(index)">
+                        <img class="article-image" :src="item.image" />
+                        <div class="article_title padding-sm text-clamp2">{{item.title}}</div>
+                    </div>
+                    <div class="item-article solid-bottom padding-sm flex " v-else :class="[currentindex==index?'active':'']" @click="selectArticle(index)">
+                        <div class="item-title text-clamp2 flex-sub">{{item.title}}</div>
+                        <img :src="item.image" alt="">
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white margin-top-sm radius">
+                <div class="add-btn solid-top btn-success" @click="saveall">保存全部</div>
+            </div>
+
+        </div>
+
+        <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8 solid-right bg-white radius">
+            <div class="mtitle text-lg padding-sm">文章信息</div>
+            <div class="row padding-bottom">
+                <form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+                    <div class="form-group">
+                        <label class="control-label col-xs-12 col-sm-2">{:__('title')}:</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <input id="c-title" data-rule="required" class="form-control"  type="text" v-model="list[currentindex].title">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-xs-12 col-sm-2">{:__('author')}:</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <input id="c-author" data-rule="required" class="form-control"  type="text" v-model="list[currentindex].author">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-xs-12 col-sm-2">{:__('show_cover')}:</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <label><input name="show_cover" type="radio" v-model="list[currentindex].show_cover" value="0">否</label>
+                            <label><input name="show_cover" type="radio" v-model="list[currentindex].show_cover" value="1">是</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-xs-12 col-sm-2">{:__('digest')}:</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <input id="c-digest"  class="form-control"  type="text" v-model="list[currentindex].digest">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-xs-12 col-sm-2">{:__('Image')}:</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <div class="input-group">
+                                <input id="c-image" data-rule="required" class="form-control" size="50" type="text" v-model="list[currentindex].image">
+                                <div class="input-group-addon no-border no-padding">
+                                    <span><button type="button" id="plupload-image" class="btn btn-danger plupload" data-input-id="c-image" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="false" data-preview-id="p-image"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
+                                    <span><button type="button" id="fachoose-image" class="btn btn-primary fachoose" data-input-id="c-image" data-mimetype="image/*" data-multiple="false"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
+                                </div>
+                                <span class="msg-box n-right" for="c-image"></span>
+                            </div>
+                            <ul class="row list-inline plupload-preview" id="p-image"></ul>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-xs-12 col-sm-2">{:__('content')}:</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <textarea id="c-content" class="form-control editor" rows="5" cols="50" v-model="list[currentindex].content"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-xs-12 col-sm-2">{:__('source_url')}:</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <input id="c-source_url"  class="form-control"  type="text" v-model="list[currentindex].source_url">
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

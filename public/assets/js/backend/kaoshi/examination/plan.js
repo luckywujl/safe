@@ -9,6 +9,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             $('.time0').addClass('hide');
         }
     })
+    //选择不同的参与对像，决定是否显示选择学员按钮
     $('[name="row[limit]"]').on('change',function (e) {
         var limit = $(this).val();
         if(limit == 1){
@@ -17,7 +18,15 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             $('.user-select').addClass('hide');
         }
     })
-
+	//选择线下考核时，显示试卷图片上传栏
+	$('[name="row[type]"]').on('change',function (e) {
+        var limit = $(this).val();
+        if(limit == 2){
+            $('.type-select').removeClass('hide');
+        }else{
+            $('.type-select').addClass('hide');
+        }
+    })
     $('[name="row[exam_id]').data("params", function (obj) {
         return {custom: {subject_id: $('[name="row[subject_id]').val()}};
     });
@@ -70,8 +79,14 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'plan_name', title: __('Plan_name')},
                         {field: 'exams.exam_name', title: __('Exam_name')},
                         {field: 'subject.subject_name', title: __('Subject_name')},
-                        {field: 'type', title: __('Type'), searchList: {"0":__('Type 0'),"1":__('Type 1')}, formatter: Table.api.formatter.normal},
+                        {field: 'type', title: __('Type'), searchList: {"0":__('Type 0'),"1":__('Type 1'),"2":__('Type 2')}, formatter: Table.api.formatter.normal},
                         {field: 'limit', title: __('Limit'), searchList: {"0":__('Limit 0'),"1":__('Limit 1')}, formatter: Table.api.formatter.normal},
+                        
+                        {field: 'times', title: __('Times')},
+                        {field: 'hours', title: __('Hours')},
+
+                        {field: 'starttime', title: __('Starttime'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
+                        {field: 'endtime', title: __('Endtime'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                         {
                             field: 'buttons',
                             width: "120px",
@@ -89,15 +104,32 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     url: 'kaoshi/examination/user_plan/index/plan_id/{id}'
                                 },
                                 
+                              
+                                {
+                                    name: 'input',
+                                    text: __('录入成绩'),
+                                    title: __('录入成绩'),
+                                    classname: 'btn btn-xs btn-primary btn-dialog',
+                                    icon: 'fa fa-group',
+                                    url: 'kaoshi/examination/user_plan/input/plan_id/{id}'
+                                },
+                                
                                 ],
-                            formatter: Table.api.formatter.buttons
-                        },
-                        {field: 'times', title: __('Times')},
-                        {field: 'hours', title: __('Hours')},
+    										//events: Table.api.events.operate,
+    										formatter: function(value, row, index){
+        										var that = $.extend({}, this);
+        										var table = $(that.table).clone(true);
+        										if (row.type != 2){
+        										    $(table).data("operate-input", null);
+        										}
+        										if (row.type == 2){
+        										    $(table).data("operate-contact", null);
+        										}
+        										that.table = table;
+        										return Table.api.formatter.operate.call(that, value, row, index);
+    										}
 
-                        {field: 'starttime', title: __('Starttime'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
-                        {field: 'endtime', title: __('Endtime'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
-                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
+                        }
                     ]
                 ]
             });
@@ -154,7 +186,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             ],
                             formatter: Table.api.formatter.buttons
                         },
-                        {field: 'type', title: __('type'), searchList: {"0":__('type 0'),"1":__('type 1')}, formatter: Table.api.formatter.status},
+                        {field: 'type', title: __('type'), searchList: {"0":__('type 0'),"1":__('type 1'),"2":__('type 2')}, formatter: Table.api.formatter.status},
                         {field: 'starttime', title: __('Starttime'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                         {field: 'endtime', title: __('endtime'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                     ]
@@ -208,7 +240,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             ],
                             formatter: Table.api.formatter.buttons
                         },
-                        {field: 'type', title: __('type'), searchList: {"0":__('type 0'),"1":__('type 1')}, formatter: Table.api.formatter.status},
+                        {field: 'type', title: __('type'), searchList: {"0":__('type 0'),"1":__('type 1'),"2":__('type 2')}, formatter: Table.api.formatter.status},
                         {field: 'starttime', title: __('Starttime'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                         {field: 'endtime', title: __('endtime'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                     ]

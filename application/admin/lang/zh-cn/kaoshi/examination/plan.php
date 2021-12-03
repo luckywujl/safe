@@ -10,6 +10,7 @@ return [
     'Type'       => '类型',
     'Type 0'     => '正式',
     'Type 1'     => '学习',
+    'Type 2'     => '线下考试',
     'Limit'       => '参与学员',
     'Limit 0'     => '全体学员',
     'Limit 1'     => '指定学员',
@@ -22,5 +23,6 @@ return [
     'Deletetime' => '删除时间',
     'student_num' => '应参与人数',
     'real_num' => '开始人数',
-    'Subject'  => '科目'
+    'Subject'  => '科目',
+    'Exam_pic'  => '试卷图片'
 ];

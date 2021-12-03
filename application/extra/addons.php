@@ -16,6 +16,12 @@ return [
         'app_init' => [
             'qrcode',
         ],
+        'testhook' => [
+            'suisunwechat',
+        ],
+        'config_init' => [
+            'third',
+        ],
     ],
     'route' => [
         '/kaoshi$' => 'kaoshi/index/index',
@@ -43,6 +49,11 @@ return [
         '/message/course/[:main_id]/[:course_id]' => 'message/course/index',
         '/qrcode$' => 'qrcode/index/index',
         '/qrcode/build$' => 'qrcode/index/build',
+        '/third$' => 'third/index/index',
+        '/third/connect/[:platform]' => 'third/index/connect',
+        '/third/callback/[:platform]' => 'third/index/callback',
+        '/third/bind/[:platform]' => 'third/index/bind',
+        '/third/unbind/[:platform]' => 'third/index/unbind',
         '/training/$' => 'training/index/index',
         '/training/main/[:id]' => 'training/index/main',
         '/training/alert/[:msg]' => 'training/index/alert',

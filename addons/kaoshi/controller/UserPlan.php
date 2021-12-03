@@ -172,7 +172,7 @@ class UserPlan extends Controller
     public function examhistory()
     {
         $map['a.status'] = 1;
-        $map['c.type'] = 0;
+        $map['c.type'] = array('in','0,2');
         $map['c.deletetime'] = NULL;
         $map['b.user_id'] = $this->auth->id;
         $field = "a.id, a.score, c.plan_name, d.exam_name";

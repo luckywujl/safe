@@ -61,7 +61,7 @@ class Kaoshirecord extends Backend
             $list = $this->model
                     ->with(['kaoshiuserexams','kaoshiplan'])
                     ->where($where)
-                    ->where(['user_id'=>$ids,'kaoshiplan.type'=>0])
+                    ->where(['user_id'=>$ids,'kaoshiplan.type'=>['in','0,2']])
                     ->order($sort, $order)
                     ->paginate($limit);
 

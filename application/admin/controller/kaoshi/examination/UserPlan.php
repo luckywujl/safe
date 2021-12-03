@@ -21,7 +21,7 @@ class UserPlan extends Backend
     protected $dataLimit = 'personal';
 	 protected $dataLimitField = 'company_id';
 	 
-	 protected $noNeedRight = ['index','select_question'];
+	 protected $noNeedRight = ['index','input'];
 
     public function _initialize()
     {
@@ -53,13 +53,13 @@ class UserPlan extends Backend
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $total = $this->model
-                ->with(['plan', 'user'])
+                ->with(['plan', 'user','userexams'])
                 ->where($where)
                 ->order($sort, $order)
                 ->count();
 
             $list = $this->model
-                ->with(['plan', 'user'])
+                ->with(['plan', 'user','userexams'])
                 ->where($where)
                 ->order($sort, $order)
                 ->limit($offset, $limit)
@@ -77,5 +77,49 @@ class UserPlan extends Backend
         }
         return $this->view->fetch();
     }
+    /**
+     * 查看
+     */
+    public function input()
+    {
+        //$this->dataLimit = false;
+        //当前是否为关联查询
+        $this->relationSearch = true;
+        //设置过滤方法
+
+        $this->request->filter(['strip_tags', 'trim']);
+        if ($this->request->isAjax()) {
+            //如果发送的来源是Selectpage，则转发到Selectpage
+            if ($this->request->request('keyField')) {
+                return $this->selectpage();
+            }
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+            $total = $this->model
+                ->with(['plan', 'user','userexams'])
+                ->where($where)
+                ->order($sort, $order)
+                ->count();
+
+            $list = $this->model
+                ->with(['plan', 'user','userexams'])
+                ->where($where)
+                ->order($sort, $order)
+                ->limit($offset, $limit)
+                ->select();
+
+            foreach ($list as $row) {
+                $exam_id = $row['plan']['exam_id'];
+                $row['exams'] = Db::name('KaoshiExams')->where('id', $exam_id)->find();
+
+            }
+            $list = collection($list)->toArray();
+            $result = array("total" => $total, "rows" => $list);
+
+            return json($result);
+        }
+
+        return $this->view->fetch();
+    }
+
 
 }

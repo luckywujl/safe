@@ -219,19 +219,29 @@ class Plan extends Backend
                     $result = $this->model->allowField(true)->save($params);
 
 
-                    if($params['limit'] == 1){
+                    if($params['limit'] == 1){ //如果是指定学员，则将学员ID添加到user_plan表中
                         $plan_id = $this->model->id;
                         $userplan = [];
                         $user_ids = explode(',', $params['user_ids']);
                         if ($params['user_ids']=='' || count($user_ids) < 1) {
                            // $this->error('请选择参与的学生！');
                         } else {
+                        	foreach ($user_ids as $key => $value) {
+                            	array_push($userplan, ['plan_id' => $plan_id, 'user_id' => $value,'company_id'=>$this->auth->company_id]);
+                        	}
+                        $result = Db::name('KaoshiUserPlan')->insertAll($userplan);
+                    		}
+
+                    } else { //如果是全体学员的话，则将所有人ID添加到user_plan表中
+                    	   $plan_id = $this->model->id;
+                        $userplan = [];
+                        //$user_ids = explode(',', $params['user_ids']);
+                        $user =new \app\admin\model\User;
+                        $user_ids = $user::where('company_id', $this->auth->company_id)->column('id');
                         foreach ($user_ids as $key => $value) {
                             array_push($userplan, ['plan_id' => $plan_id, 'user_id' => $value,'company_id'=>$this->auth->company_id]);
                         }
                         $result = Db::name('KaoshiUserPlan')->insertAll($userplan);
-                     }
-
                     }
 
                     Db::commit();

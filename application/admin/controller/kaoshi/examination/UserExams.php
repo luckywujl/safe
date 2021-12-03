@@ -19,6 +19,7 @@ class UserExams extends Backend {
 	protected $model = null;
 	protected $dataLimit = 'personal';
 	 protected $dataLimitField = 'company_id';
+	 protected $noNeedRight = ['input'];
 
 	public function _initialize() {
 		parent::_initialize();
@@ -195,6 +196,65 @@ class UserExams extends Backend {
 
         return $this->view->fetch();
 
+    }
+    /**
+     * 编辑
+     */
+    public function input($ids = null)
+    {
+        //$user_plan_id = $this->request->param('user_plan_id');
+    	  //$nickname = $this->request->param('nickname');
+    	  $user_plan_info = $this->request->param();
+    	  $row = $this->model->where(['user_plan_id'=>$user_plan_info['user_plan_id'],'company_id'=>$this->auth->company_id])->find();
+        if ($this->request->isPost()) {
+            $params = $this->request->post("row/a");
+            if ($params) {
+                $params = $this->preExcludeFields($params);
+                $params['questionsdata'] = '';
+                $params['real_answersdata'] = '';
+                $params['status'] = 1;
+                $params['starttime'] = time();
+                $params['usetime'] = 0;
+                $params['lasttime'] = time();
+                $result = false;
+                Db::startTrans();
+                try {
+                    //是否采用模型验证
+                    if ($this->modelValidate) {
+                        $name = str_replace("\\model\\", "\\validate\\", get_class($this->model));
+                        $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : $name) : $this->modelValidate;
+                        $row->validateFailException(true)->validate($validate);
+                    }
+                    if($row) {
+                    	   $result = $row->allowField(true)->save($params);
+                    }else {
+                    		$result = $this->model->allowField(true)->save($params);
+                    }
+                    
+                    $user_plan = new \app\admin\model\kaoshi\examination\KaoshiUserPlan;
+                    $result = $user_plan->where('id',$params['user_plan_id'])->update(['status'=>1]);
+                    Db::commit();
+                } catch (ValidateException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (PDOException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (Exception $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                }
+                if ($result !== false) {
+                    $this->success();
+                } else {
+                    $this->error(__('No rows were updated'));
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        $this->view->assign("user_plan_info", $user_plan_info);
+        $this->view->assign("row", $row);
+        return $this->view->fetch();
     }
 
 }

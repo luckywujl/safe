@@ -44,5 +44,10 @@ class KaoshiUserPlan extends Model
     {
         return $this->hasOne('app\admin\model\kaoshi\examination\KaoshiPlan', 'id', 'plan_id')->setEagerlyType(0)->joinType('LEFT');
     }
+    
+    public function userexams()
+    {
+        return $this->belongsTo('app\admin\model\kaoshi\examination\KaoshiUserExams', 'id', 'user_plan_id', [], 'LEFT')->setEagerlyType(0);
+    }
 
 }

@@ -113,7 +113,6 @@
    <div class="form-group user-select {if $row.type=='online'}hide{/if}">
       <label class="control-label col-xs-12 col-sm-2">培训用签到码:</label>
    	<div class="col-xs-12 col-sm-8">
-       
     		<img src="" alt="" id='qrcodeimg' />
     		<img src="" alt="" id='qrcodeimg-1' />
     	</div>
@@ -134,8 +133,8 @@
 <script type="text/javascript">
             $(function () {
                 $("form").submit(function () {
-                	 var t = 'http://192.168.0.2:9010/addons/training/index/signin.html?id='+$("#c-id").val();
-                	 var q = 'http://192.168.0.2:9010/addons/training/index/signout.html?id='+$("#c-id").val();
+                	 var t = 'http://safe.haxxj.com/addons/training/index/signin.html?id='+$("#c-id").val();
+                	 var q = 'http://safe.haxxj.com/addons/training/index/signout.html?id='+$("#c-id").val();
                     $("#qrcodeimg").prop("src", "{:addon_url('qrcode/index/build',[],false)}?" + 'label='+$("#c-name").val()+'签到&logo=1&logopath=.'+$("#c-coverimage").val()+'&text='+t);
                     $("#qrcodeimg-1").prop("src", "{:addon_url('qrcode/index/build',[],false)}?" + 'label='+$("#c-name").val()+'签退&logo=1&logopath=.'+$("#c-coverimage").val()+'&text='+q);
                     

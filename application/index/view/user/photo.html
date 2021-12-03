@@ -9,6 +9,7 @@
     <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
     <meta http-equiv="description" content="This is my page">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <link rel="stylesheet" href="http://demo.open.weixin.qq.com/jssdk/css/style.css">
   </head>
   <body>
@@ -47,8 +48,11 @@
       <h3 id="menu-image">图像接口</h3>
       <span class="desc">拍照或从手机相册中选图接口</span>
       <button class="btn btn_primary" id="chooseImage">chooseImage</button>
+      <div id = "photo">
+      </div>
       <span class="desc">预览图片接口</span>
       <button class="btn btn_primary" id="previewImage">previewImage</button>
+      
       <span class="desc">上传图片接口</span>
       <button class="btn btn_primary" id="uploadImage">uploadImage</button>
       <span class="desc">下载图片接口</span>
@@ -108,14 +112,14 @@
   </div>
   </body>
 
-<script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.1.0.js"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
 <script type="text/javascript">
  wx.config({
 	  debug: true,
-      appId:'wx24eff48b6390f2b3',
-      timestamp: '${timestamp}',
-      nonceStr: '${nonceStr }',
-      signature: '${signature}',
+      appId: '<?php echo $signPackage["appId"];?>',
+    	timestamp: <?php echo $signPackage["timestamp"];?>,
+    	nonceStr: '<?php echo $signPackage["nonceStr"];?>',
+    	signature: '<?php echo $signPackage["signature"];?>',
       jsApiList: [
         'checkJsApi',
         'onMenuShareTimeline',
@@ -163,7 +167,7 @@ wx.ready(function () {
         'previewImage'
       ],
       success: function (res) {
-        alert(JSON.stringify(res));
+        alert(JSON.stringify('<?php echo $signPackage["appId"];?>'));
       }
     });
   };
@@ -392,6 +396,7 @@ wx.ready(function () {
       success: function (res) {
         images.localId = res.localIds;
         alert('已选择 ' + res.localIds.length + ' 张图片');
+
       }
     });
   };
@@ -401,13 +406,14 @@ wx.ready(function () {
     wx.previewImage({
       current: 'http://img5.douban.com/view/photo/photo/public/p1353993776.jpg',
       urls: [
-        'http://img3.douban.com/view/photo/photo/public/p2152117150.jpg',
-        'http://img5.douban.com/view/photo/photo/public/p1353993776.jpg',
-        'http://img3.douban.com/view/photo/photo/public/p2152134700.jpg'
+         'http://safe.haxxj.com/uploads/20211128/e6c20e46af558e8c307a414f64346559.png',
+         'http://safe.haxxj.com/uploads/20211128/e6c20e46af558e8c307a414f64346559.png',
+        'http://safe.haxxj.com/uploads/20211128/e6c20e46af558e8c307a414f64346559.png'
       ]
     });
   };
-
+  
+  
   // 5.3 上传图片
   document.querySelector('#uploadImage').onclick = function () {
     if (images.localId.length == 0) {
@@ -420,9 +426,23 @@ wx.ready(function () {
       wx.uploadImage({
         localId: images.localId[i],
         success: function (res) {
+        //加入下载到本地服务器的代码
+          var serverId = res.serverId;
+          $.ajax({
+                  url:'http://safe.haxxj.com/index/user/getimg',
+                  data:{serverid:serverId},
+                  type: 'post',
+                  success: function(data){
+                  	// 上传成功后输出图片
+                  	$("#photo").append('<img class="addImg image" style="width: 100%" src='+data+' />'+'<input type="hidden" name="image[]" value='+data+'>');
+                  	alert(data);
+                  }
+                 })
+
           alert(JSON.stringify(res));
           i++;
           alert('已上传：' + i + '/' + length);
+
           images.serverId.push(res.serverId);
           if (i < length) {
             upload();
@@ -451,6 +471,7 @@ wx.ready(function () {
           alert(JSON.stringify(res));
           i++;
           alert('已下载：' + i + '/' + length);
+          alert(res.localId);
           images.localId.push(res.localId);
           if (i < length) {
             download();

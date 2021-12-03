@@ -12,6 +12,7 @@ use think\Cookie;
 use think\Hook;
 use think\Session;
 use think\Validate;
+use app\index\controller\Jssdk;
 
 /**
  * 会员中心
@@ -27,6 +28,8 @@ class User extends Frontend
     {
         parent::_initialize();
         $auth = $this->auth;
+        require_once "Jssdk.php";
+        
 
         if (!Config::get('fastadmin.usercenter')) {
             $this->error(__('User center already closed'), '/');
@@ -73,11 +76,9 @@ class User extends Frontend
      */
     public function photo()
     {
-    	  if ($this->request->isPost()) {
-    	  
-
-    	  }
-        $this->view->assign('title', __('User center'));
+        $jssdk = new Jssdk("wx4f79233878b9f770", "e6a3c7af5767c53ec68bf07df1ca5d69");
+        $signPackage = $jssdk->GetSignPackage();
+        $this->view->assign('signPackage',$signPackage);
         return $this->view->fetch();
     }
 
@@ -354,5 +355,97 @@ class User extends Frontend
         return $this->view->fetch();
     }
     
+ 
+	/**
+     * 下载保存微信图片素材
+     * @param  [string] $serverid 微信服务器上的素材ID
+     * @return [string] 返回保存本地之后的图片路径
+     */
+    function getimg(){
+        $serverid=$this->request->param('serverid');
+        if(empty($serverid)) return false;
+        $access_token=$this->getimg_token();
+        $content = $this->https_request('https://api.weixin.qq.com/cgi-bin/media/get?access_token='.$access_token.'&media_id='.$serverid);
+        if(json_decode($content,true)['errcode']){
+            return json_decode($content,true)['errmsg'];
+        }
+        $filename = time().rand(001,999).'.jpg';			//保存的文件名
+        $dateStr = date('Ymd');
+        $file_dir =  './uploads/'.date("Ymd").'/'; //保存文件的目录
+        if (!is_dir($file_dir)){       			//创建保存文件的目录
+            mkdir(iconv("GBK","UTF-8", $file_dir),0777,true);
+        }
+
+        $path = $file_dir.$filename;			//文件路径
+        if(file_exists($path)){
+            unlink($path); 						//如果文件已经存在则删除已有的
+        }
+
+        $fp = fopen($path, 'w');
+        $state = fwrite($fp,$content);  		//写入数据
+        fclose($fp);
+
+        if(!$state) return false;
+        $path='/uploads/'.date("Ymd").'/'.$filename;
+        return $path;
+    }
+
+
+    public function getimg_token(){
+        //获取access_token，并缓存
+        $file = RUNTIME_PATH.'/access_token1';//缓存文件名access_token1
+        $appid='wx4f79233878b9f770'; // 填写自己的appid
+        $secret='e6a3c7af5767c53ec68bf07df1ca5d69'; // 填写自己的appsecret
+        $expires = 3600;//缓存时间1个小时
+        if(file_exists($file)) {
+            $time = filemtime($file);
+            if(time() - $time > $expires) {
+                $token = null;
+            }else {
+                $token = file_get_contents($file);
+            }
+        }else{
+            fopen("$file", "w+");
+            $token = null;
+        }
+        if (!$token || strlen($token) < 6) {
+            $res = file_get_contents("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$appid."&secret=".$secret."");
+            $res = json_decode($res, true);
+            $token = $res['access_token'];
+            @file_put_contents($file, $token);
+        }
+        return $token;
+    }
+
+
+    function https_request($url, $data = null,$time_out=60,$out_level="s",$headers=array())
+    {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_NOSIGNAL, 1);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        if (!empty($data)){
+            curl_setopt($curl, CURLOPT_POST, 1);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        }
+        if($out_level=="s")
+        {
+            //超时以秒设置
+            curl_setopt($curl, CURLOPT_TIMEOUT,$time_out);//设置超时时间
+        }elseif ($out_level=="ms")
+        {
+            curl_setopt($curl, CURLOPT_TIMEOUT_MS,$time_out);  //超时毫秒，curl 7.16.2中被加入。从PHP 5.2.3起可使用
+        }
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        if($headers)
+        {
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);//如果有header头 就发送header头信息
+        }
+        $output = curl_exec($curl);
+        curl_close($curl);
+        return $output;
+    }
+
 
 }
