@@ -91,6 +91,11 @@ class Course extends Base
                         'complete' => $complete,
                         'updatetime'=>strtotime(date("Y-m-d H:i:s"))
                     ]);
+                    //合计学时
+                    $user = new \app\admin\model\User;
+                    $studytimecount = $model->field('user_id,sum(studytime) as studytime')->where(['user_id'=>$this->auth->id,'company_id'=>$this->auth->company_id])->group('user_id')->select();
+                    $update_result = $user->where('id',$this->auth->id)->update(['studytime'=>$studytimecount[0]['studytime']]);
+                    
                     \think\Hook::listen("course_completed", $training_course_id);
                     //检测是否所有课程全部完成
                     $count = count(explode(',',$main['training_course_ids']));
@@ -104,7 +109,7 @@ class Course extends Base
                         \think\Hook::listen("training_completed", $training_main_id);
                         $isin = ResultModel::where(['user_id'=>$this->auth->id,'training_main_id'=>$training_main_id])->find();
                         if(!$isin){
-                            ResultModel::create(['user_id'=>$this->auth->id,'training_main_id'=>$training_main_id]);
+                            ResultModel::create(['user_id'=>$this->auth->id,'training_main_id'=>$training_main_id,'company_id'=>$this->auth->company_id]);
                         }
                     }
                 }

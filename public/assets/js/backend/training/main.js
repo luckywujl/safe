@@ -1,5 +1,14 @@
 define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template'], function($, undefined, Backend, Table, Form, Template) {
     var zTreeObj=null;
+     $('input:radio[name="row[type]"]').click(function(){
+     	  
+        var type = $(this).val();
+        if(type == 'offline'){
+            $('.user-select').removeClass('hide');
+        }else{
+            $('.user-select').addClass('hide');
+        }
+    })
     var Controller = {
         index: function() {
         		$(".btn-add").data("area",["98%","98%"]);

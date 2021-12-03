@@ -276,6 +276,9 @@ class Exams extends Controller
             $id = $this->request->get('id');
         }
         $user_exams_obj = new \addons\kaoshi\model\examination\KaoshiUserExams;
+        $user_plan_obj = new \addons\kaoshi\model\examination\KaoshiUserPlan;
+        $plan_obj = new \addons\kaoshi\model\examination\KaoshiPlan;
+        
         $user_wrong_obj = new \addons\kaoshi\model\examination\KaoshiWrong;
 
         $user_exams_row = $user_exams_obj
@@ -377,6 +380,20 @@ class Exams extends Controller
             ];
             $result = Db::name('KaoshiUserExams')->where('id = ' . $id)->update($update);
             $result_1 = Db::name('KaoshiUserPlan')->where('id = ' . $user_exams_row['user_plan_id'])->update(['status'=>1]);
+            //更新学分
+            $scorecount = $user_exams_obj
+            ->alias('a')
+            ->join('__KAOSHI_USER_PLAN__ b', 'b.id = a.user_plan_id', 'left')
+            ->join('__KAOSHI_PLAN__ c', 'b.plan_id = c.id', 'left')
+            ->field('b.user_id as user_id,sum(a.score) as scorecount')
+            ->where(['b.user_id'=>$this->auth->id,'c.type'=>0])
+            ->group('b.user_id')
+            ->select();
+            //合计学分
+                    $user = new \app\admin\model\User;
+                    if($scorecount) {
+                    $update_result = $user->where('id',$this->auth->id)->update(['score'=>$scorecount[0]['scorecount']]);
+                    }
 
         }
         $this->view->assign('score', $score);

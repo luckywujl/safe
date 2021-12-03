@@ -21,6 +21,7 @@ class User extends Frontend
     protected $layout = 'default';
     protected $noNeedLogin = ['login', 'register', 'third'];
     protected $noNeedRight = ['*'];
+    
 
     public function _initialize()
     {
@@ -64,6 +65,18 @@ class User extends Frontend
      */
     public function main()
     {
+        $this->view->assign('title', __('User center'));
+        return $this->view->fetch();
+    }
+    /**
+     * 拍照
+     */
+    public function photo()
+    {
+    	  if ($this->request->isPost()) {
+    	  
+
+    	  }
         $this->view->assign('title', __('User center'));
         return $this->view->fetch();
     }
@@ -340,4 +353,6 @@ class User extends Frontend
         $this->view->assign("mimetypeList", \app\common\model\Attachment::getMimetypeList());
         return $this->view->fetch();
     }
+    
+
 }

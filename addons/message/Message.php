@@ -97,12 +97,12 @@ class Message extends Addons
         $actionname = strtolower($request->action());
         $index = new Index;
         $countlist = $index->getCount();
-        $count = $countlist['unlearned'] + $countlist['learning'];
+       // $count = $countlist['unlearned'] + $countlist['learning'];
         $data = [
             'controllername' => $controllername,
             'actionname'     => $actionname,
             'sidenav'        => ['main'],
-            'count'          => $count
+        //    'count'          => $count
         ];
         
         return $this->fetch('view/hook/user_sidenav_after', $data);

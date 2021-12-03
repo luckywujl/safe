@@ -446,5 +446,6 @@ class User extends Backend
         $this->assignconfig("ids", $ids);
         return $this->view->fetch();
     }
+    
 
 }

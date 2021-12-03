@@ -40,6 +40,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'avatar', title: __('Avatar'), events: Table.api.events.image, formatter: Table.api.formatter.image, operate: false},
                         //{field: 'level', title: __('Level'), operate: 'BETWEEN', sortable: true},
                         {field: 'score', title: __('Score'), operate: 'BETWEEN', sortable: true},
+                        {field: 'studytime', title: __('Studytime'), operate: 'BETWEEN', sortable: true},
                         //{field: 'successions', title: __('Successions'), visible: false, operate: 'BETWEEN', sortable: true},
                         //{field: 'maxsuccessions', title: __('Maxsuccessions'), visible: false, operate: 'BETWEEN', sortable: true},
                         //{field: 'logintime', title: __('Logintime'), visible:false,formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},
@@ -47,7 +48,29 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'jointime', title: __('Jointime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},
                         //{field: 'joinip', title: __('Joinip'), visible:false,formatter: Table.api.formatter.search},
                         {field: 'status', title: __('Status'), formatter: Table.api.formatter.status, searchList: {normal: __('Normal'), hidden: __('Hidden')}},
-                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
+                        {field: 'operate', title: __('Operate'), table: table, 
+													buttons: [
+ 												  		 {
+ 												  		 	name: 'main_info', 
+ 												  		 	text: '培训记录', 
+ 												  		 	title: '培训记录', 
+ 												  		 	icon: 'fa fa-list', 
+ 												  		 	extend: 'data-area=\'["95%","95%"]\'',    //设置最大化
+ 												  		 	classname: 'btn btn-xs btn-primary btn-dialog',  												  
+ 												  		 	url: 'training/record/index?user_id={id}',
+ 												  			},
+														
+ 												  		 {
+ 												  		 	name: 'kaoshi_info', 
+ 												  		 	text: '考试记录', 
+ 												  		 	title: '考试记录', 
+ 												  		 	icon: 'fa fa-list', 
+ 												  		 	extend: 'data-area=\'["85%","85%"]\'',    //设置最大化
+ 												  		 	classname: 'btn btn-xs btn-primary btn-dialog',  												  
+ 												  		 	url: 'kaoshi/examination/kaoshirecord/index?user_id={id}',
+ 												  			}
+														],
+														formatter: Table.api.formatter.operate} ,
                     ]
                 ]
             });

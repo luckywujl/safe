@@ -4,10 +4,17 @@ return [
     'autoload' => false,
     'hooks' => [
         'view_filter' => [
+            'materials',
+            'message',
             'training',
         ],
         'user_sidenav_after' => [
+            'materials',
+            'message',
             'training',
+        ],
+        'app_init' => [
+            'qrcode',
         ],
     ],
     'route' => [
@@ -26,6 +33,16 @@ return [
         '/kaoshi/exam$' => 'kaoshi/user_plan/exam',
         '/kaoshi/studyhistory$' => 'kaoshi/user_plan/studyhistory',
         '/kaoshi/examhistory$' => 'kaoshi/user_plan/examhistory',
+        '/materials/$' => 'materials/index/index',
+        '/materials/main/[:id]' => 'materials/index/main',
+        '/materials/alert/[:msg]' => 'materials/index/alert',
+        '/materials/course/[:main_id]/[:course_id]' => 'materials/course/index',
+        '/message/$' => 'message/index/index',
+        '/message/showmessage/[:id]' => 'message/index/showmessage',
+        '/message/alert/[:msg]' => 'message/index/alert',
+        '/message/course/[:main_id]/[:course_id]' => 'message/course/index',
+        '/qrcode$' => 'qrcode/index/index',
+        '/qrcode/build$' => 'qrcode/index/build',
         '/training/$' => 'training/index/index',
         '/training/main/[:id]' => 'training/index/main',
         '/training/alert/[:msg]' => 'training/index/alert',

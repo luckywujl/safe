@@ -1,5 +1,6 @@
 <form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
     <input id="c-duration" data-rule="required" class="form-control" name="row[duration]" type="hidden" value="{$row.duration|htmlentities}" readonly="readonly">
+    <input id="c-id"  class="form-control" name="row[id]" type="hidden" value="{$row.id|htmlentities}" readonly="readonly">
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Name')}:</label>
         <div class="col-xs-12 col-sm-8">
@@ -103,6 +104,23 @@
             {:build_radios('row[status]', ['normal'=>__('Normal'), 'hidden'=>__('Hidden')], $row['status'])}
         </div>
     </div>
+    
+   <div class="form-group" hidden="hidden">
+        
+        <input type="text" class="form-control" id='qrcodeurl' />
+   </div>
+   
+   <div class="form-group user-select {if $row.type=='online'}hide{/if}">
+      <label class="control-label col-xs-12 col-sm-2">培训用签到码:</label>
+   	<div class="col-xs-12 col-sm-8">
+       
+    		<img src="" alt="" id='qrcodeimg' />
+    		<img src="" alt="" id='qrcodeimg-1' />
+    	</div>
+   </div>
+    
+    
+    
     <div class="form-group layer-footer">
         <label class="control-label col-xs-12 col-sm-2"></label>
         <div class="col-xs-12 col-sm-8">
@@ -112,3 +130,17 @@
     </div>
 </form>
 {include file="training/main/tpl"/}
+<script src="__CDN__/assets/libs/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript">
+            $(function () {
+                $("form").submit(function () {
+                	 var t = 'http://192.168.0.2:9010/addons/training/index/signin.html?id='+$("#c-id").val();
+                	 var q = 'http://192.168.0.2:9010/addons/training/index/signout.html?id='+$("#c-id").val();
+                    $("#qrcodeimg").prop("src", "{:addon_url('qrcode/index/build',[],false)}?" + 'label='+$("#c-name").val()+'签到&logo=1&logopath=.'+$("#c-coverimage").val()+'&text='+t);
+                    $("#qrcodeimg-1").prop("src", "{:addon_url('qrcode/index/build',[],false)}?" + 'label='+$("#c-name").val()+'签退&logo=1&logopath=.'+$("#c-coverimage").val()+'&text='+q);
+                    
+                    return false;
+                });
+                $("form").trigger('submit');
+            });
+</script>

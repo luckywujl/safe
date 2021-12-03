@@ -58,7 +58,7 @@ return [
     'Captcha is incorrect'                       => '验证码不正确',
     'Logged in successful'                       => '登录成功',
     'Logout successful'                          => '退出成功',
-    'User center already closed'                 => '会员中心已经关闭',
+    'User center already closed'                 => '学员中心已经关闭',
     'Operation failed'                           => '操作失败',
     'Invalid parameters'                         => '参数不正确',
     'Change password failure'                    => '修改密码失败',
