@@ -1,0 +1,47 @@
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Point_code')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-point_code" data-rule="required" class="form-control" name="row[point_code]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Point_name')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-point_name" class="form-control" name="row[point_name]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Point_description')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-point_description" class="form-control" name="row[point_description]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Point_address')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-point_address" class="form-control" name="row[point_address]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Point_position')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-point_position" class="form-control" name="row[point_position]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Point_department_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-point_department_id" data-rule="required" data-source="point/department/index" class="form-control selectpage" name="row[point_department_id]" type="text" value="">
+        </div>
+    </div>
+    
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

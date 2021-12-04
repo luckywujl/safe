@@ -50,6 +50,23 @@
             <textarea id="c-description" class="form-control" name="row[description]">{$row.description|htmlentities}</textarea>
         </div>
     </div>
+    <div class=" form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Leader')}:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-leader"  data-rule="" data-source="user/user/index" data-multiple="true" data-field="nickname" class="form-control selectpage" name="row[leader]" type="text" value="{$row.leader|htmlentities}">
+          	
+        </div>
+		  <button type="button" class="btn btn-success btn-selectleader ">{:__('选择人员')}</button>
+        
+    </div>
+    <div class=" form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Person')}:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-person"  data-rule="" data-source="user/user/index" data-multiple="true" data-field="nickname" class="form-control selectpage" name="row[person]" type="text" value="{$row.person|htmlentities}">
+            
+        </div>
+        <button type="button" class="btn btn-success btn-selectperson ">{:__('选择人员')}</button>
+    </div>
     <div class="form-group">
         <label for="c-weigh" class="control-label col-xs-12 col-sm-2">{:__('Weigh')}:</label>
         <div class="col-xs-12 col-sm-8">
@@ -58,7 +75,7 @@
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Status')}:</label>
-        <div class="col-xs-12 col-sm-8">
+        <div class="col-xs-12 col-sm-3">
             {:build_radios('row[status]', ['normal'=>__('Normal'), 'hidden'=>__('Hidden')], $row['status'])}
         </div>
     </div>

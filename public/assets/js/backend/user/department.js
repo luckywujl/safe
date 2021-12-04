@@ -2,6 +2,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
     var Controller = {
         index: function () {
+          	$(".btn-add").data("area",["85%","85%"]);
+        		$(".btn-edit").data("area",["85%","85%"]);
+        		$(".btn-edit").data("title",'修改');
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
@@ -55,11 +58,52 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
             // 为表格绑定事件
             Table.api.bindevent(table);
+            table.on('post-body.bs.table',function () {
+            	$(".btn-editone").data("area",["85%","85%"]);
+            	$(".btn-editone").data("title",'修改');
+            })
         },
         add: function () {
             Controller.api.bindevent();
         },
         edit: function () {
+        		//选择部门负责人
+				$(document).on("click",".btn-selectleader",function () {
+					var ids = '0';
+					if ($("#c-leader").val()!=='') {
+						ids = $("#c-leader").val();
+					}
+				    //弹窗显示学员信息
+         	  Fast.api.open('user/selectuser/index?ids='+ids,'选择部门负责人',{//?card_code=" + $(this).attr("id") + "&multiple=" + multiple + "&mimetype=" + mimetype, __('Choose'), {
+	           area:['98%', '98%'],
+		           callback: function (data) {	
+		           $("#c-leader").val(data);
+		           $("#c-leader").selectPageRefresh();
+		           //alert(data);
+		           	
+	       	    },function (data) {
+	       	    	
+	       	    }
+	            });
+	         });
+	         //选择安全员
+				$(document).on("click",".btn-selectperson",function () {
+					var ids = '0';
+					if ($("#c-person").val()!=='') {
+						ids = $("#c-person").val();
+					}
+				    //弹窗显示学员信息
+         	  Fast.api.open('user/selectuser/index?ids='+ids,'选择部门安全员',{
+	           area:['98%', '98%'],
+		           callback: function (data) {	
+		           $("#c-person").val(data);
+		           $("#c-person").selectPageRefresh();
+		           	
+	       	    },function (data) {
+	       	    	
+	       	    }
+	            });
+	         });
             Controller.api.bindevent();
         },
         api: {
