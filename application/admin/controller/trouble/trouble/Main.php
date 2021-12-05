@@ -1,43 +1,29 @@
 <?php
 
-namespace app\admin\controller\trouble\base;
+namespace app\admin\controller\trouble\trouble;
 
 use app\common\controller\Backend;
-use Think\Db;
-use fast\Tree;
+
 /**
- * 隐患点信息
+ * 隐患告警信息
  *
  * @icon fa fa-circle-o
  */
-class Point extends Backend
+class Main extends Backend
 {
     
     /**
-     * Point模型对象
-     * @var \app\admin\model\trouble\base\Point
+     * Main模型对象
+     * @var \app\admin\model\trouble\trouble\Main
      */
     protected $model = null;
-    protected $dataLimit = 'personal';
-	 protected $dataLimitField = 'company_id';
-
 
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = new \app\admin\model\trouble\base\Point;
-        
-        $department = new \app\admin\model\user\Department;
-        $tree = Tree::instance();
-        $tree->init(collection($department->where(['company_id'=>$this->auth->company_id])->order('weigh desc,id desc')->select())->toArray(), 'pid');
-        $this->departmentlist = $tree->getTreeList($tree->getTreeArray(0), 'name');
-        $departmentdata = [0 => ['type' => 'all', 'name' => __('None')]];
-        foreach ($this->departmentlist as $k => $v) {
-            $departmentdata[$v['id']] = $v;
-        }
-       
-        $this->view->assign("parentList", $departmentdata);
-
+        $this->model = new \app\admin\model\trouble\trouble\Main;
+        $this->view->assign("sourceTypeList", $this->model->getSourceTypeList());
+        $this->view->assign("mainStatusList", $this->model->getMainStatusList());
     }
 
     public function import()
@@ -69,7 +55,7 @@ class Point extends Backend
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
 
             $list = $this->model
-                    ->with(['troublearea','userdepartment'])
+                    ->with(['troublepoint','troubletype'])
                     ->where($where)
                     ->order($sort, $order)
                     ->paginate($limit);

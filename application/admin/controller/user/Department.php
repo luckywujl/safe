@@ -67,6 +67,10 @@ class Department extends Backend
         //设置过滤方法
         $this->request->filter(['strip_tags']);
         if ($this->request->isAjax()) {
+        		//如果发送的来源是Selectpage，则转发到Selectpage
+            if ($this->request->request('keyField')) {
+                return $this->selectpage();
+            }
             $search = $this->request->request("search");
             $type = $this->request->request("type");
 

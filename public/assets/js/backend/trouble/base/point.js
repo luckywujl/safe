@@ -31,8 +31,28 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'point_description', title: __('Point_description'), operate: 'LIKE'},
                         {field: 'point_address', title: __('Point_address'), operate: 'LIKE'},
                         {field: 'point_position', title: __('Point_position'), operate: 'LIKE'},
-                        {field: 'point_department_id', title: __('Point_department_id')},
-                        //{field: 'company_id', title: __('Company_id'), operate: 'LIKE'},
+                        //{field: 'point_department_id', title: __('Point_department_id')},
+                        //{field: 'point_area_id', title: __('Point_area_id')},
+                        
+                        
+                        {field: 'troublearea.area_name', title: __('Point_area_id'), operate: false},
+                        //{field: 'troublearea.area_description', title: __('Troublearea.area_description'), operate: 'LIKE'},
+                        
+                        //{field: 'userdepartment.pid', title: __('Userdepartment.pid')},
+                        //{field: 'userdepartment.pname', title: __('Userdepartment.pname'), operate: 'LIKE'},
+                       // {field: 'userdepartment.type', title: __('Userdepartment.type'), operate: 'LIKE'},
+                        {field: 'userdepartment.name', title: __('Point_department_id'), operate: false},
+                        //{field: 'userdepartment.icon', title: __('Userdepartment.icon'), operate: 'LIKE', formatter: Table.api.formatter.icon},
+                        //{field: 'userdepartment.keywords', title: __('Userdepartment.keywords'), operate: 'LIKE'},
+                        //{field: 'userdepartment.description', title: __('Userdepartment.description'), operate: 'LIKE'},
+                        //{field: 'userdepartment.diyname', title: __('Userdepartment.diyname'), operate: 'LIKE'},
+                        //{field: 'userdepartment.leader', title: __('Userdepartment.leader'), operate: 'LIKE'},
+                        //{field: 'userdepartment.person', title: __('Userdepartment.person'), operate: 'LIKE'},
+                        //{field: 'userdepartment.createtime', title: __('Userdepartment.createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
+                        //{field: 'userdepartment.updatetime', title: __('Userdepartment.updatetime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
+                        //{field: 'userdepartment.weigh', title: __('Userdepartment.weigh')},
+                        //{field: 'userdepartment.status', title: __('Userdepartment.status'), operate: 'LIKE', formatter: Table.api.formatter.status},
+                        //{field: 'userdepartment.company_id', title: __('Userdepartment.company_id'), operate: 'LIKE'},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ]

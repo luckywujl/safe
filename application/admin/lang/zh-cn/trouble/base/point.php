@@ -1,11 +1,30 @@
 <?php
 
 return [
-    'Point_code'          => '隐患点编码',
-    'Point_name'          => '隐患点名称',
-    'Point_description'   => '隐患点描述',
-    'Point_address'       => '隐患点地址',
-    'Point_position'      => '隐患点位置',
-    'Point_department_id' => '所属部门',
-    'Company_id'          => '数据归属'
+    'Point_code'                   => '隐患点编码',
+    'Point_name'                   => '隐患点名称',
+    'Point_description'            => '隐患点描述',
+    'Point_address'                => '隐患点地址',
+    'Point_position'               => '隐患点位置',
+    'Point_department_id'          => '所属部门',
+    'Point_area_id'                => '所属区域',
+    'Company_id'                   => '数据归属',
+    'Troublearea.id'               => '区域ID',
+    'Troublearea.area_name'        => '区域名称',
+    'Troublearea.area_description' => '区域描述',
+    'Troublearea.company_id'       => '数据归属',
+    'Userdepartment.pid'           => '父ID',
+    'Userdepartment.pname'         => '上级部门',
+    'Userdepartment.type'          => '栏目类型',
+    'Userdepartment.icon'          => '图片',
+    'Userdepartment.keywords'      => '关键字',
+    'Userdepartment.description'   => '描述',
+    'Userdepartment.diyname'       => '自定义名称',
+    'Userdepartment.leader'        => '部门负责人',
+    'Userdepartment.person'        => '部门安全员',
+    'Userdepartment.createtime'    => '创建时间',
+    'Userdepartment.updatetime'    => '更新时间',
+    'Userdepartment.weigh'         => '权重',
+    'Userdepartment.status'        => '状态',
+    'Userdepartment.company_id'    => '数据归属'
 ];

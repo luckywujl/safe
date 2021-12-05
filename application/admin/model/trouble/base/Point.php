@@ -37,4 +37,14 @@ class Point extends Model
 
 
 
+    public function troublearea()
+    {
+        return $this->belongsTo('app\admin\model\trouble\base\Area', 'point_area_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
+
+
+    public function userdepartment()
+    {
+        return $this->belongsTo('app\admin\model\user\Department', 'point_department_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
 }
