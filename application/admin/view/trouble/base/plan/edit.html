@@ -12,6 +12,34 @@
             <input id="c-plan_content" data-rule="required" class="form-control" name="row[plan_content]" type="text" value="{$row.plan_content|htmlentities}">
         </div>
     </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('部门安全员')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_radios('row[one]', ['1'=>__('发送通知'), '0'=>__('不发送通知')], $row['one']);}
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('部门负责人')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_radios('row[two]', ['1'=>__('发送通知'), '0'=>__('不发送通知')], $row['two']);}
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('上级部门安全员')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_radios('row[three]', ['1'=>__('发送通知'), '0'=>__('不发送通知')], $row['three']);}
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('上级部门负责人')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_radios('row[four]', ['1'=>__('发送通知'), '0'=>__('不发送通知')], $row['four']);}
+        </div>
+    </div>
+    
     
     <div class="form-group layer-footer">
         <label class="control-label col-xs-12 col-sm-2"></label>

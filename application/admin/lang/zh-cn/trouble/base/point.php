@@ -26,5 +26,6 @@ return [
     'Userdepartment.updatetime'    => '更新时间',
     'Userdepartment.weigh'         => '权重',
     'Userdepartment.status'        => '状态',
-    'Userdepartment.company_id'    => '数据归属'
+    'Userdepartment.company_id'    => '数据归属',
+    'Department'						  => '所属部门'
 ];

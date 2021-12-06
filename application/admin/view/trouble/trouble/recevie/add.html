@@ -1,0 +1,85 @@
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+   
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Point_id')}:</label>
+        <div class="col-xs-12 col-sm-7">
+            <input id="c-point_id" data-rule="required" class="form-control selectpage" data-source="trouble/base/point/getpoint" data-field="point_name" data-primary-key="id" name="row[point_id]"  type="text" value="">
+            
+        </div>
+        <button type="button" class="btn btn-success btn-selectpoint ">{:__('确定隐患点')}</button>
+    </div>
+    
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Source_type')}:</label>
+        <div class="col-xs-12 col-sm-8">
+                        
+            <select  id="c-source_type" class="form-control selectpicker" name="row[source_type]">
+                {foreach name="sourceTypeList" item="vo"}
+                    <option value="{$key}" {in name="key" value=""}selected{/in}>{$vo}</option>
+                {/foreach}
+            </select>
+
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_expression')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-trouble_expression" class="form-control" name="row[trouble_expression]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Description')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-description" class="form-control" name="row[description]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_type_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-trouble_type_id" data-rule="required" data-source="trouble/base/type/index" data-field="trouble_type" data-primary-key="id" class="form-control selectpage" name="row[trouble_type_id]" type="text" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_pic')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-trouble_pic" class="form-control" name="row[trouble_pic]" type="text">
+        </div>
+    </div>
+    
+    
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Informer')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-informer" class="form-control" name="row[informer]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Recevier')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-recevier" class="form-control" name="row[recevier]" type="text">
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Together_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-together_id" data-rule="required" data-source="together/index" class="form-control selectpage" name="row[together_id]" type="text" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Together_code')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-together_code" class="form-control" name="row[together_code]" type="text">
+        </div>
+    </div>
+    
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

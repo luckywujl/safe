@@ -36,7 +36,7 @@
         <div class="col-xs-12 col-sm-8">
             <select id="c-point_department_id" data-rule="required" class="form-control selectpicker" name="row[point_department_id]">
                 {foreach name="parentList" item="vo"}
-                <option data-type="{$vo.type}" value="{$key}" {in name="key" value=""}selected{/in}>{$vo.name}</option>
+                <option data-type="{$vo.type}" value="{$key}" {in name="key" value="$department_id"}selected{/in}>{$vo.name}</option>
                 {/foreach}
             </select>
         </div>

@@ -27,7 +27,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {checkbox: true},
                         //{field: 'id', title: __('Id')},
                         {field: 'trouble_type', title: __('Trouble_type'), operate: 'LIKE'},
-                        {field: 'plan_id', title: __('Plan_id')},
+                        {field: 'typeplan.plan_name', title: __('Plan_id')},
                         //{field: 'company_id', title: __('Company_id'), operate: 'LIKE'},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
