@@ -1,0 +1,40 @@
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Main_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-main_id" data-rule="required" data-source="main/index" class="form-control selectpage" name="row[main_id]" type="text" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Log_time')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-log_time" class="form-control datetimepicker" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="row[log_time]" type="text" value="{:date('Y-m-d H:i:s')}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Log_operator')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-log_operator" class="form-control" name="row[log_operator]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Log_content')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-log_content" class="form-control" name="row[log_content]" type="text">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Company_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-company_id" data-rule="required" data-source="company/index" class="form-control selectpage" name="row[company_id]" type="text" value="">
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

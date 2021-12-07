@@ -41,7 +41,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'trouble_pic', title: __('Trouble_pic')},
                         {field: 'process_pic', title: __('Process_pic')},
                         {field: 'finish_pic', title: __('Finish_pic')},
-                        {field: 'main_status', title: __('Main_status'), searchList: {"0":__('Main_status 0'),"1":__('Main_status 1'),"2":__('Main_status 2'),"3":__('Main_status 3'),"4":__('Main_status 4'),"5":__('Main_status 5')}, formatter: Table.api.formatter.status},
+                        {field: 'main_status', title: __('Main_status'), searchList: {"0":__('Main_status 0'),"1":__('Main_status 1'),"2":__('Main_status 2'),"3":__('Main_status 3'),"4":__('Main_status 4'),"5":__('Main_status 5'),"9":__('Main_status 9')}, formatter: Table.api.formatter.status},
                         {field: 'informer', title: __('Informer'), operate: 'LIKE'},
                         {field: 'recevier', title: __('Recevier'), operate: 'LIKE'},
                         {field: 'processer', title: __('Processer'), operate: 'LIKE'},

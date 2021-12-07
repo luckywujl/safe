@@ -1,41 +1,22 @@
 <form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
 
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Draft_code')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-draft_code" class="form-control" name="row[draft_code]" type="text" value="{$row.draft_code|htmlentities}">
-        </div>
-    </div>
+   
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Main_code')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-main_code" class="form-control" name="row[main_code]" type="text" value="{$row.main_code|htmlentities}">
+            <input id="c-main_code" class="form-control" readonly="readonly" name="row[main_code]" type="text" value="{$row.main_code|htmlentities}">
+            
         </div>
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Point_id')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-point_id" data-rule="required" data-source="point/index" class="form-control selectpage" name="row[point_id]" type="text" value="{$row.point_id|htmlentities}">
+       <div class="col-xs-12 col-sm-7">
+            <input id="c-point_id" data-rule="required" class="form-control selectpage" data-source="trouble/base/point/getpoint" data-field="point_name" data-primary-key="id" name="row[point_id]"  type="text" value="{$row.point_id|htmlentities}">
+            
         </div>
+        <button type="button" class="btn btn-success btn-selectpoint ">{:__('确定隐患点')}</button>
     </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Finishtime')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-finishtime" class="form-control datetimepicker" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="row[finishtime]" type="text" value="{:$row.finishtime?datetime($row.finishtime):''}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Firtstduration')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-firtstduration" class="form-control" name="row[firtstduration]" type="number" value="{$row.firtstduration|htmlentities}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Finishduration')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-finishduration" class="form-control" name="row[finishduration]" type="number" value="{$row.finishduration|htmlentities}">
-        </div>
-    </div>
+   
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Source_type')}:</label>
         <div class="col-xs-12 col-sm-8">
@@ -49,53 +30,43 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_type_id')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-trouble_type_id" data-rule="required" data-source="trouble/type/index" class="form-control selectpage" name="row[trouble_type_id]" type="text" value="{$row.trouble_type_id|htmlentities}">
-        </div>
-    </div>
-    <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_expression')}:</label>
-        <div class="col-xs-12 col-sm-8">
+        <div class="col-xs-12 col-sm-7">
             <input id="c-trouble_expression" class="form-control" name="row[trouble_expression]" type="text" value="{$row.trouble_expression|htmlentities}">
         </div>
+        <button type="button" class="btn btn-success btn-selectexpression ">{:__('选择隐患现象')}</button>
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Description')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-description" class="form-control" name="row[description]" type="text" value="{$row.description|htmlentities}">
+       
+            <textarea id="c-description" class="form-control " rows="5" name="row[description]" cols="50">{$row.description|htmlentities}</textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_type_id')}:</label>  
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-trouble_type_id" data-rule="required" data-source="trouble/base/type/index" data-field="trouble_type" data-primary-key="id" class="form-control selectpage" name="row[trouble_type_id]" type="text" value="{$row.trouble_type_id|htmlentities}">
         </div>
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_pic')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-trouble_pic" class="form-control" name="row[trouble_pic]" type="text" value="{$row.trouble_pic|htmlentities}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Process_pic')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-process_pic" class="form-control" name="row[process_pic]" type="text" value="{$row.process_pic|htmlentities}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Finish_pic')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-finish_pic" class="form-control" name="row[finish_pic]" type="text" value="{$row.finish_pic|htmlentities}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Main_status')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            
-            <div class="radio">
-            {foreach name="mainStatusList" item="vo"}
-            <label for="row[main_status]-{$key}"><input id="row[main_status]-{$key}" name="row[main_status]" type="radio" value="{$key}" {in name="key" value="$row.main_status"}checked{/in} /> {$vo}</label> 
-            {/foreach}
+            <div class="input-group">
+                <input id="c-trouble_pic" class="form-control" size="50" name="row[trouble_pic]" type="text" readonly="readonly" data-rule="" value="{$row.trouble_pic|htmlentities}">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" id="faupload-trouble_pic" class="btn btn-danger faupload" data-input-id="c-trouble_pic" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="true" data-preview-id="p-trouble_pic"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
+                    <span><button type="button" id="fachoose-trouble_pic" class="btn btn-primary fachoose" data-input-id="c-trouble_pic" data-mimetype="image/*" data-multiple="true"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
+                </div>
+                <span class="msg-box n-right" for="c-trouble_pic"></span>
             </div>
-
+            <ul class="row list-inline faupload-preview" id="p-trouble_pic"></ul>
         </div>
     </div>
+    
+    
+    
+    
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Informer')}:</label>
         <div class="col-xs-12 col-sm-8">
@@ -105,39 +76,17 @@
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Recevier')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-recevier" class="form-control" name="row[recevier]" type="text" value="{$row.recevier|htmlentities}">
+            <input id="c-recevier" class="form-control" readonly="readonly" name="row[recevier]" type="text" value="{$row.recevier|htmlentities}">
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Processer')}:</label>
+        <label class="control-label col-xs-12 col-sm-2">{:__('Remark')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-processer" class="form-control" name="row[processer]" type="text" value="{$row.processer|htmlentities}">
+       
+            <textarea id="c-remark" class="form-control " rows="5" name="row[remark]" cols="50">{$row.remark|htmlentities}</textarea>
         </div>
     </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Checker')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-checker" class="form-control" name="row[checker]" type="text" value="{$row.checker|htmlentities}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Together_id')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-together_id" data-rule="required" data-source="together/index" class="form-control selectpage" name="row[together_id]" type="text" value="{$row.together_id|htmlentities}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Together_code')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-together_code" class="form-control" name="row[together_code]" type="text" value="{$row.together_code|htmlentities}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Company_id')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-company_id" data-rule="required" data-source="company/index" class="form-control selectpage" name="row[company_id]" type="text" value="{$row.company_id|htmlentities}">
-        </div>
-    </div>
+   
     <div class="form-group layer-footer">
         <label class="control-label col-xs-12 col-sm-2"></label>
         <div class="col-xs-12 col-sm-8">

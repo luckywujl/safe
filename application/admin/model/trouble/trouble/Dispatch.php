@@ -3,12 +3,12 @@
 namespace app\admin\model\trouble\trouble;
 
 use think\Model;
+use traits\model\SoftDelete;
 
-
-class Main extends Model
+class Dispatch extends Model
 {
 
-    
+    use SoftDelete;
 
     
 
@@ -21,7 +21,7 @@ class Main extends Model
     // 定义时间戳字段名
     protected $createTime = 'createtime';
     protected $updateTime = 'updatetime';
-    protected $deleteTime = false;
+    protected $deleteTime = 'deletetime';
 
     // 追加属性
     protected $append = [
@@ -39,7 +39,7 @@ class Main extends Model
 
     public function getMainStatusList()
     {
-        return ['0' => __('Main_status 0'), '1' => __('Main_status 1'), '2' => __('Main_status 2'), '3' => __('Main_status 3'), '4' => __('Main_status 4'), '5' => __('Main_status 5'), '9' => __('Main_status 9')];
+        return ['0' => __('Main_status 0'), '1' => __('Main_status 1')];
     }
 
 

@@ -1,32 +1,38 @@
-<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
 
    
     <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Main_code')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-main_code" class="form-control" readonly="readonly" name="row[main_code]" type="text" value="{$row.main_code|htmlentities}">
+            
+        </div>
+    </div>
+    <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Point_id')}:</label>
-        <div class="col-xs-12 col-sm-7">
-            <input id="c-point_id" data-rule="required" class="form-control selectpage" data-source="trouble/base/point/getpoint" data-field="point_name" data-primary-key="id" name="row[point_id]"  type="text" value="">
+       <div class="col-xs-12 col-sm-7">
+            <input id="c-point_id" data-rule="required" class="form-control selectpage" data-source="trouble/base/point/getpoint" data-field="point_name" data-primary-key="id" name="row[point_id]"  type="text" value="{$row.point_id|htmlentities}">
             
         </div>
         <button type="button" class="btn btn-success btn-selectpoint ">{:__('确定隐患点')}</button>
     </div>
-    
+   
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Source_type')}:</label>
         <div class="col-xs-12 col-sm-8">
                         
             <select  id="c-source_type" class="form-control selectpicker" name="row[source_type]">
                 {foreach name="sourceTypeList" item="vo"}
-                    <option value="{$key}" {in name="key" value=""}selected{/in}>{$vo}</option>
+                    <option value="{$key}" {in name="key" value="$row.source_type"}selected{/in}>{$vo}</option>
                 {/foreach}
             </select>
 
         </div>
     </div>
-    
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_expression')}:</label>
         <div class="col-xs-12 col-sm-7">
-            <input id="c-trouble_expression" class="form-control" name="row[trouble_expression]" type="text">
+            <input id="c-trouble_expression" class="form-control" name="row[trouble_expression]" type="text" value="{$row.trouble_expression|htmlentities}">
         </div>
         <button type="button" class="btn btn-success btn-selectexpression ">{:__('选择隐患现象')}</button>
     </div>
@@ -34,20 +40,20 @@
         <label class="control-label col-xs-12 col-sm-2">{:__('Description')}:</label>
         <div class="col-xs-12 col-sm-8">
        
-            <textarea id="c-description" class="form-control " rows="5" name="row[description]" cols="50"></textarea>
+            <textarea id="c-description" class="form-control " rows="5" name="row[description]" cols="50">{$row.description|htmlentities}</textarea>
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_type_id')}:</label>
+        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_type_id')}:</label>  
         <div class="col-xs-12 col-sm-8">
-            <input id="c-trouble_type_id" data-rule="required" data-source="trouble/base/type/index" data-field="trouble_type" data-primary-key="id" class="form-control selectpage" name="row[trouble_type_id]" type="text" value="">
+            <input id="c-trouble_type_id" data-rule="required" data-source="trouble/base/type/index" data-field="trouble_type" data-primary-key="id" class="form-control selectpage" name="row[trouble_type_id]" type="text" value="{$row.trouble_type_id|htmlentities}">
         </div>
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_pic')}:</label>
         <div class="col-xs-12 col-sm-8">
             <div class="input-group">
-                <input id="c-trouble_pic" class="form-control" size="50" name="row[trouble_pic]" type="text" readonly="readonly" data-rule="">
+                <input id="c-trouble_pic" class="form-control" size="50" name="row[trouble_pic]" type="text" readonly="readonly" data-rule="" value="{$row.trouble_pic|htmlentities}">
                 <div class="input-group-addon no-border no-padding">
                     <span><button type="button" id="faupload-trouble_pic" class="btn btn-danger faupload" data-input-id="c-trouble_pic" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="true" data-preview-id="p-trouble_pic"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
                     <span><button type="button" id="fachoose-trouble_pic" class="btn btn-primary fachoose" data-input-id="c-trouble_pic" data-mimetype="image/*" data-multiple="true"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
@@ -59,20 +65,28 @@
     </div>
     
     
+    
+    
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Informer')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-informer" class="form-control" name="row[informer]" type="text">
+            <input id="c-informer" class="form-control" name="row[informer]" type="text" value="{$row.informer|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Recevier')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-recevier" class="form-control" readonly="readonly" name="row[recevier]" type="text" value="{$row.recevier|htmlentities}">
         </div>
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Remark')}:</label>
         <div class="col-xs-12 col-sm-8">
        
-            <textarea id="c-remark" class="form-control " rows="5" name="row[remark]" cols="50"></textarea>
+            <textarea id="c-remark" class="form-control " rows="5" name="row[remark]" cols="50">{$row.remark|htmlentities}</textarea>
         </div>
     </div>
-
+   
     <div class="form-group layer-footer">
         <label class="control-label col-xs-12 col-sm-2"></label>
         <div class="col-xs-12 col-sm-8">

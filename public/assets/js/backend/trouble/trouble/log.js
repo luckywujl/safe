@@ -5,13 +5,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'trouble/base/plan/index' + location.search,
-                    add_url: 'trouble/base/plan/add',
-                    edit_url: 'trouble/base/plan/edit',
-                    del_url: 'trouble/base/plan/del',
-                    multi_url: 'trouble/base/plan/multi',
-                    import_url: 'trouble/base/plan/import',
-                    table: 'trouble_plan',
+                    index_url: 'trouble/trouble/log/index' + location.search,
+                    add_url: 'trouble/trouble/log/add',
+                    edit_url: 'trouble/trouble/log/edit',
+                    del_url: 'trouble/trouble/log/del',
+                    multi_url: 'trouble/trouble/log/multi',
+                    import_url: 'trouble/trouble/log/import',
+                    table: 'trouble_log',
                 }
             });
 
@@ -25,10 +25,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 columns: [
                     [
                         {checkbox: true},
-                        //{field: 'id', title: __('Id')},
-                        {field: 'plan_name', title: __('Plan_name'), operate: 'LIKE'},
-                        {field: 'troublplan_content', title: __('Plan_content'), operate: 'LIKE'},
-                        //{field: 'compnay_id', title: __('Compnay_id')},
+                        {field: 'id', title: __('Id')},
+                        {field: 'main_id', title: __('Main_id')},
+                        {field: 'log_time', title: __('Log_time'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
+                        {field: 'log_operator', title: __('Log_operator'), operate: 'LIKE'},
+                        {field: 'log_content', title: __('Log_content'), operate: 'LIKE'},
+                        {field: 'company_id', title: __('Company_id')},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ]

@@ -27,18 +27,6 @@ class Type extends Model
     protected $append = [
 
     ];
-    public function typeplan()
-    {
-        return $this->belongsTo('app\admin\model\trouble\base\Plan', 'plan_id', 'id', [], 'LEFT')->setEagerlyType(0);
-    }
-    
-
-    
-
-
-
-
-
 
 
 }

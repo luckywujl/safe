@@ -2,11 +2,11 @@
 
 return [
     'Id'                               => '隐患告警ID',
-    'Draft_code'                       => '草稿编号',
     'Main_code'                        => '信息编号',
     'Point_id'                         => '隐患点',
     'Createtime'                       => '创建时间',
     'Updatetime'                       => '更新时间',
+    'Deletetime'                       => '删除时间',
     'Finishtime'                       => '完结时间',
     'Firtstduration'                   => '首次跟时间长',
     'Finishduration'                   => '完结时长',
@@ -29,13 +29,17 @@ return [
     'Main_status 5'                    => '完结',
     'Main_status 9'                    => '作废',
     'Informer'                         => '报警人',
-    'Recevier'                          => '接警人',
+    'Recevier'                         => '处警人',
+    'Liabler'                          => '隐患责任人',
     'Processer'                        => '处置人',
     'Checker'                          => '复核人',
+    'Insider'                          => '抄送人',
     'Together_id'                      => '并案ID',
     'Together_code'                    => '并案编号',
+    'Remark'                           => '备注',
     'Company_id'                       => '数据归属',
-    'Remark'                       => '备注',
+    'Verify'									=> '派单',
+    'Cancelverify'							=> '取消派单',
     'Troublepoint.point_code'          => '隐患点编码',
     'Troublepoint.point_name'          => '隐患点名称',
     'Troublepoint.point_description'   => '隐患点描述',
@@ -47,6 +51,5 @@ return [
     'Troubletype.id'                   => '类型ID',
     'Troubletype.trouble_type'         => '隐患类型',
     'Troubletype.plan_id'              => '预案ID',
-    'Troubletype.company_id'           => '数据归属',
-    'HandRecevie'								=> '手工接警'
+    'Troubletype.company_id'           => '数据归属'
 ];

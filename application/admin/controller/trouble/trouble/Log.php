@@ -1,30 +1,30 @@
 <?php
 
-namespace app\admin\controller\trouble\base;
+namespace app\admin\controller\trouble\trouble;
 
 use app\common\controller\Backend;
 
 /**
- * 区域信息
+ * 隐患处理日志
  *
  * @icon fa fa-circle-o
  */
-class Area extends Backend
+class Log extends Backend
 {
     
     /**
-     * Area模型对象
-     * @var \app\admin\model\trouble\base\Area
+     * Log模型对象
+     * @var \app\admin\model\trouble\trouble\Log
      */
     protected $model = null;
     protected $dataLimit = 'personal';
-	 protected $dataLimitField = 'company_id';
-	 protected $noNeedRight = ['index'];
+    protected $dataLimitField = 'company_id';
+    protected $noNeedRight = ['index'];
 
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = new \app\admin\model\trouble\base\Area;
+        $this->model = new \app\admin\model\trouble\trouble\Log;
 
     }
 

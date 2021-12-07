@@ -27,6 +27,7 @@ return [
     'Main_status 3'                    => '处理中',
     'Main_status 4'                    => '复核中',
     'Main_status 5'                    => '完结',
+    'Main_status 9'                    => '作废',
     'Informer'                         => '报警人',
     'Recevie'                          => '处警人',
     'Processer'                        => '处置人',

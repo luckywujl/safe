@@ -79,6 +79,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
                 sortName: 'id',
+                singleSelect: true,
                 columns: [
                     [
                         {checkbox: true},
@@ -123,6 +124,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
         	 	var ids = Table.api.selectedids(table);
         	 	Fast.api.close(ids);//将选中的值返回给调用者
         	 });
+        	  parent.window.$(".layui-layer-iframe").find(".layui-layer-close").on('click',function () {
+  				 var ids = Table.api.selectedids(table);
+        	 	Fast.api.close(ids);//将选中的值返回给调用者  
+			 });
 
         },
         add: function () {

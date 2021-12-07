@@ -23,6 +23,7 @@ class Point extends Backend
 	 protected $noNeedRight = ['getpoint','jstree'];
 
 
+
     public function _initialize()
     {
         parent::_initialize();
