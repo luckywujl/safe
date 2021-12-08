@@ -64,11 +64,28 @@ class User extends Frontend
         return $this->view->fetch();
     }
     /**
-     * 主界面
+     * 在线培训主界面
      */
     public function main()
     {
-        $this->view->assign('title', __('User center'));
+        $this->view->assign('title', __('在线培训'));
+        return $this->view->fetch();
+    }
+    
+	/**
+     * 隐患排查平台移动端主界面
+     */
+    public function trouble()
+    {
+        $this->view->assign('title', __('隐患排查'));
+        return $this->view->fetch();
+    }
+     /**
+     * 在线培训主界面
+     */
+    public function user()
+    {
+        $this->view->assign('title', __('员工中心'));
         return $this->view->fetch();
     }
     /**
@@ -172,6 +189,7 @@ class User extends Frontend
             $this->success(__('You\'ve logged in, do not login again'), $url ? $url : url('user/main'));
         }
         if ($this->request->isPost()) {
+        		$url_T = $this->request->post('url');
             $account = $this->request->post('account');
             $password = $this->request->post('password');
             $keeplogin = (int)$this->request->post('keeplogin');
@@ -200,7 +218,7 @@ class User extends Frontend
                 return false;
             }
             if ($this->auth->login($account, $password)) {
-                $this->success(__('Logged in successful'), $url ? $url : url('user/main'));
+                $this->success(__('Logged in successful'), $url_T ? $url_T : url('user/main'));
             } else {
                 $this->error($this->auth->getError(), null, ['token' => $this->request->token()]);
             }

@@ -1,0 +1,292 @@
+{layout name="common/layout7" /}
+<style data-render="style">
+    .example {
+        height: 100%;
+        position: relative;
+    }
+
+    .example>span {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
+
+    .fixed-table-container {
+        border: none !important;
+    }
+    .widget-user .widget-user-image {
+        top: 70px;
+    }
+    .widget-user-2 .widget-user-image>img {
+        width: 30px !important;
+        height: 30px !important;
+    }
+
+    .fc-event-main {
+        cursor: pointer;
+    }
+
+    .attachment-block {
+        border: none;
+        padding: 5px;
+        margin-bottom: 10px;
+        background: #ffffff;
+    }
+
+    .breadcrumb {
+        padding: 0px 0px;
+        margin-bottom: 0px;
+        list-style: none;
+        background-color: transparent !important;
+        border-radius: 3px;
+        line-height: 40px;
+    }
+
+    .table-template {
+        height: 770px;
+    }
+
+    .fixed-table-pagination {
+        margin: 0px 15px;
+    }
+
+    .tab-badge>.badge {
+        display: inline-block;
+        min-width: 10px;
+        padding: 2px 5px;
+        font-size: 7px !important;
+        font-weight: normal !important;
+        color: #fff;
+        line-height: 1;
+        vertical-align: middle;
+        white-space: nowrap;
+        text-align: center;
+        background-color: #777777;
+        border-radius: 10px;
+        position: absolute;
+        top: 0px;
+        right: -2px;
+    }
+
+    .description-header {
+        font-size: 24px !important;
+    }
+</style>
+<div class="container-fluid" id="content-container">
+    <div class="row">
+        
+        <div class="col-md-12 connectedSortable">
+            <div class="box box-widget widget-user-2">
+               
+                    <div class="widget-user-header bg-light-blue-gradient">
+                       
+                        <h3 class="widget-user-desc" style="margin-left: 0px;margin-top:0px">{$user.nickname},您好！</h3>
+                    </div>
+                   
+             
+            </div>
+            
+                <div class="widget-body no-padding">
+                <ul class="nav nav-tabs" id="tablist">
+                    
+               	  {foreach name="typeList" item="vo"}
+               	     <li class="{$vo.id==0?'active':''}"><a class="tab-link" href="#tab_{$vo.id}" aria-controls="{$vo.id}" data-toggle="tab">{$vo.name}<span class="tab-badge"></span></a></li>
+            		  {/foreach}
+            		  
+                    
+                    
+                   
+                    <li class="dropdown pull-right" id="selectYear">
+                        {assign name="year" value=':date("Y")' /}
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                            <span id="year" data-value="{$year}">{$year}年</span><span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li role="presentation"><a role="menuitem" href="#" data-value="">所有年份</a></li>
+                            <li role="presentation" class="divider"></li>
+                            {for start="$year-5" end="$year+1"}
+                            <li role="presentation"><a role="menuitem" href="#" data-value="{$i}">{$i}年</a></li>
+                            {/for}
+                        </ul>
+                    </li>
+                </ul>
+                  <table id="table" class="table table-striped table-hover" width="100%">
+
+                    </table>
+                </div>
+         
+        </div>
+    </div>
+
+    <script id="itemtpl" type="text/html">
+    <!--
+    如果启用了templateView,默认调用的是itemtpl这个模板，可以通过设置templateFormatter来修改
+    在当前模板中可以使用三个变量(item:行数据,i:当前第几行,data:所有的行数据)
+    此模板引擎使用的是art-template的native,可参考官方文档
+    -->
+
+    <div class="col-sm-12 col-md-2">
+        <!--下面四行是为了展示随机图片和标签，可移除-->
+        <% var imagearr = ['https://cdn.fastadmin.net/uploads/addons/blog.png', 'https://cdn.fastadmin.net/uploads/addons/cms.png', 'https://cdn.fastadmin.net/uploads/addons/vote.png', 'https://cdn.fastadmin.net/uploads/addons/blog.png', 'https://cdn.fastadmin.net/uploads/addons/alisms.png']; %>
+        <% var image = imagearr[item.id % 5]; %>
+        <% var labelarr = ['primary', 'success', 'info', 'danger', 'warning']; %>
+        <% var label = labelarr[item.id % 5]; %>
+        <div class="thumbnail example">
+            <span class="btn btn-<%=label%>">ID:<%=item.id%></span>
+            <!--<img src="<%=image%>" style="width:100%;" alt="<%=item.title%>">-->
+            <div class="caption">
+                <h4><%=item.name?item.name:'无'%></h4>
+                <!--<p class="text-muted">描述:<%=item.description%></p>-->
+                <p class="text-muted">创建时间:<%=Moment(item.createtime*1000).format("YYYY-MM-DD HH:mm:ss")%></p>
+                <p>
+                    <!--详情的事件需要在JS中手动绑定-->
+                    
+                     <a href="#" class="btn btn-success btn-open-course" data-description="<%=item.description%>"><i class="fa fa-camera"></i> 详情</a> 
+
+                    <!--如果需要响应编辑或删除事件，可以给元素添加 btn-edit或btn-del的类和data-id这个属性值-->
+                    
+                    <a href="<%=item.url%>" class="btn btn-primary btn-download" data-id="<%=item.id%>"><i class="fa fa-download"></i> 下载</a> 
+                    <!--<a href="#" class="btn btn-danger btn-selected" data-id="<%=item.id%>"><i class="fa fa-times"></i> 删除</a>-->
+                    <span class="pull-right" style="margin-top:10px;">
+                        <!--如果需要多选操作，请确保有下面的checkbox元素存在,可移除-->
+                        <!--<input name="checkbox" data-id="<%=item.id%>" type="checkbox" />-->
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+</script>
+    <script data-render="script">
+        require.callback = function() {
+            define('training/index', ['jquery', 'bootstrap', 'frontend', 'table', 'fullcalendar-lang', 'fullcalendar', 'moment', 'moment/locale/zh-cn', 'panelslider'], function($, undefined, Frontend, Table, CalendarLocale, Calendar, Moment, undefined, panelslider) {
+                var table = null;
+                var category_id = '#';
+                var Controller = {
+                    index: function() {
+                        $('#tablist a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+                            table.bootstrapTable('refresh', {})
+                        });
+                        // 初始化表格参数配置
+                        Table.api.init({
+                            extend: {
+                                index_url: "{:addon_url('materials/Index/index')}"
+                            }
+                        });
+                        table = $("#table");
+                        Template.helper("Moment", Moment);
+                        // 初始化表格
+                        table.bootstrapTable({
+                            url: $.fn.bootstrapTable.defaults.extend.index_url,
+                            sortName: 'id',
+                            classes: 'table',
+                            //是否启用模板渲染
+                            templateView: true,
+                            //数据格式化的模板ID或格式函数
+                            templateFormatter: "itemtpl",
+                            //添加的父类的class
+                            templateParentClass: "timeline",
+                            //向table添加的class
+                            templateTableClass: "table-template",
+                            queryParams: function(params) {
+                                //params.group = $('#tablist li[class="active"]').find('a[data-toggle="tab"]').attr('aria-controls')
+                                params.year = $('#year').data('value')
+                                params.category_id = $('#tablist li[class="active"]').find('a[data-toggle="tab"]').attr('aria-controls');
+                                return params;
+                            },
+                            
+                            columns: [
+                                [{
+                                        field: 'state',
+                                        checkbox: true,
+                                    }, {
+                                        field: 'id',
+                                        title: 'ID',
+                                        operate: false
+                                    },
+                                    //直接响应搜索
+                                    
+                                ],
+                            ],
+                            //禁用默认搜索
+                            search: false,
+                            //启用普通表单搜索
+                            commonSearch: false,
+                            //可以控制是否默认显示搜索单表,false则隐藏,默认为false
+                            searchFormVisible: false,
+                            //分页大小
+                            pageSize: 8,
+                            pageList: [8],
+                            showColumns: false,
+                            showToggle: false,
+                            showExport: false,
+                        });
+                        // 为表格绑定事件
+                        Table.api.bindevent(table);
+                        Controller.api.bindEvents();
+                    },
+                    api: {
+                        ajax: {
+                            getCount() {
+                                $.getJSON("{:addon_url('materials/index/getCount')}", {
+                                        year: $('#year').data('value'),
+                                        category_id: category_id
+                                    },
+                                    function(data, textStatus, jqXHR) {
+                                    
+                                        $.each(data, function(name, value) {
+                                            
+                                                var color = 'bg-green';
+                                                if (name == "learning") {
+                                                    color = 'bg-aqua';
+                                                } else if (name == "unlearned") {
+                                                    color = 'bg-red';
+                                                } else if (name == "future") {
+                                                    color = 'bg-yellow';
+                                                } else if (name == "past") {
+                                                    color = '';
+                                                } else if (name == "completed") {
+                                                    color = 'bg-green';
+                                                }
+                                                
+                                                if(value > 0){
+                                              		var badge = ' <span class="badge '+color+'">'+value+'</span>';
+                                                $('.tab-link[aria-controls=' + name + '] > .tab-badge').html(badge);
+                                           		}else {
+                                                $('.tab-link[aria-controls=' + name + '] > .tab-badge').html('');
+                                            		}
+
+                                                
+                                           // }
+                                        });
+                                    }
+                                );
+                            }
+                        },
+                     
+                        bindEvents() {
+                            Controller.api.ajax.getCount();
+                            
+                            
+                            $("#selectYear li>a").on("click", function (e) {
+                                var year = $(this).data('value');
+                                var str = year == '' ? '所有年份' : year + '年'
+                                $("#year").data('value', year).html(str);
+                                Controller.api.ajax.getCount();
+                                table.bootstrapTable('refresh', {})
+                            });
+
+
+                            $(document).on("click", ".btn-open-course", function() {
+                                var description = $(this).data('description');
+                                Layer.alert(description);
+                               
+                                   // Controller.api.openMain(id);
+                                
+                            });
+                        }
+                    }
+                };
+                return Controller;
+            });
+        }
+    </script>

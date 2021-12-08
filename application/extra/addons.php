@@ -7,11 +7,13 @@ return [
             'materials',
             'message',
             'training',
+            'trouble',
         ],
         'user_sidenav_after' => [
             'materials',
             'message',
             'training',
+            'trouble',
         ],
         'app_init' => [
             'qrcode',

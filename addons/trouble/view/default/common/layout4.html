@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>
+<html class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>
+<html class="lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>
+<html class="lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="">
+<!--<![endif]-->
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="renderer" content="webkit">
+    <title>{$config.trouble.sitename}</title>
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+
+    <link rel="shortcut icon" href="__CDN__/assets/img/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" media="screen" href="__CDN__/assets/css/frontend{$Think.config.app_debug?'':'.min'}.css?v={$site.version}">
+
+    <style>
+        body {
+            padding-top: 70px;
+        }
+    </style>
+ 
+    <!--[if lt IE 9]>
+    <script src="__CDN__/libs/html5shiv.js"></script>
+    <script src="__CDN__/libs/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+        var require = {
+            config: {$config|json_encode}
+        };
+    </script>
+    <!--@formatter:on-->
+</head>
+
+<body class="group-page">
+    <header class="header">
+        {include file="common/navbar4"/}
+    </header>
+    <main class="main-content">
+        {__CONTENT__}
+    </main>
+    <footer>
+        <div class="container-fluid" id="footer">
+            <div class="container">
+                <div class="row footer-inner">
+
+                </div>
+            </div>
+        </div>
+    </footer>
+   
+    <script type="text/javascript" src="__CDN__/assets/js/require{$Think.config.app_debug?'':'.min'}.js" data-main="__CDN__/assets/js/require-frontend{$Think.config.app_debug?'':'.min'}.js?v={$site.version}"></script>
+</body>
+
+</html>
