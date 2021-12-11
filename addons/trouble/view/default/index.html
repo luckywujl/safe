@@ -80,7 +80,7 @@
                
                     <div class="widget-user-header bg-light-blue-gradient">
                        
-                        <h3 class="widget-user-desc" style="margin-left: 0px;margin-top:0px">查看隐患,您好！</h3>
+                        <h3 class="widget-user-desc" style="margin-left: 0px;margin-top:0px">index,您好！</h3>
                     </div>
                    
              
@@ -169,7 +169,7 @@
                         // 初始化表格参数配置
                         Table.api.init({
                             extend: {
-                                index_url: "{:addon_url('materials/Index/index')}"
+                                index_url: "{:addon_url('trouble/index/viewtrouble')}"
                             }
                         });
                         table = $("#table");
@@ -227,7 +227,7 @@
                     api: {
                         ajax: {
                             getCount() {
-                                $.getJSON("{:addon_url('materials/index/getCount')}", {
+                                $.getJSON("{:addon_url('trouble/index/getCount')}", {
                                         year: $('#year').data('value'),
                                         category_id: category_id
                                     },

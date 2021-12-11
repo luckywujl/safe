@@ -4,7 +4,7 @@ namespace addons\trouble;
 use app\common\library\Menu;
 use think\Addons;
 use think\Request;
-use addons\materials\controller\Index;
+use addons\trouble\controller\Index;
 /**
  * 插件
  */
@@ -18,7 +18,7 @@ class Trouble extends Addons
     public function install()
     {
         $menu=[];
-        $config_file= ADDON_PATH ."training" . DS.'config'.DS. "menu.php";
+        $config_file= ADDON_PATH ."trouble" . DS.'config'.DS. "menu.php";
         if (is_file($config_file)) {
             $menu = include $config_file;
         }

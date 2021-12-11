@@ -1,18 +1,19 @@
 <?php
 
-namespace addons\materials\model;
+namespace addons\trouble\model;
 
 use think\Model;
-use addons\materials\model\Record as RecordModel;
-use traits\model\SoftDelete;
+
 
 class Main extends Model
 {
 
-    use SoftDelete;
+    
+
+    
 
     // 表名
-    protected $name = 'training_main';
+    protected $name = 'trouble_main';
     
     // 自动写入时间戳字段
     protected $autoWriteTimestamp = 'int';
@@ -20,104 +21,64 @@ class Main extends Model
     // 定义时间戳字段名
     protected $createTime = 'createtime';
     protected $updateTime = 'updatetime';
-    protected $deleteTime = 'deletetime';
+    protected $deleteTime = false;
 
     // 追加属性
     protected $append = [
-        'starttime_text',
-        'endtime_text',
-        'status_text',
-        'progress',
-        'complete'
+        'finishtime_text',
+        'source_type_text',
+        'main_status_text'
     ];
+    
 
-    protected static function init()
+    
+    public function getSourceTypeList()
     {
-        self::afterInsert(function ($row) {
-            $pk = $row->getPk();
-            $row->getQuery()->where($pk, $row[$pk])->update(['weigh' => $row[$pk]]);
-        });
-
-        self::afterWrite(function ($row) {
-            $pk = $row->getPk();
-            $row->course();
-            $duration = 0;
-            foreach ($row as $item){
-                $duration += $item['duration'];
-            }
-            $row->getQuery()->where($pk, $row[$pk])->update(['duration' => $duration]);
-        });
-
-    }
-    public function getProgressAttr($value, $data)
-    {
-        $user_id = \app\common\library\Auth::instance()->id;
-        $arr = RecordModel::where('user_id',$user_id)->where('training_main_id','in',$data['id'])->where('training_course_id','in',$data['training_course_ids'])->column('progress');
-        $sum = 0;
-        $progress = 0;
-        $count = count(explode(",", $data['training_course_ids']));
-        if($count>0){
-            foreach ($arr as $key => $value) {
-                $sum+=$value;
-            }
-            $progress = round($sum/$count,0);
-        }
-        
-        return $progress;
-    }
-    public function getCompleteAttr($value, $data)
-    {
-        $user_id = \app\common\library\Auth::instance()->id;
-        $arr = RecordModel::where('user_id',$user_id)->where('training_main_id','in',$data['id'])->where('training_course_id','in',$data['training_course_ids'])->column('complete');
-        $sum = 0;
-        $complete = 0;
-        $count = count(explode(",", $data['training_course_ids']));
-        if($count>0){
-            foreach ($arr as $key => $value) {
-                $sum+=$value;
-            }
-            $complete = $sum/$count==1?1:0;
-        }
-        
-        return $complete;
+        return ['0' => __('Source_type 0'), '1' => __('Source_type 1'), '2' => __('Source_type 2')];
     }
 
-    public function getStatusList()
+    public function getMainStatusList()
     {
-        return ['hidden' => __('Hidden'), 'normal' => __('Normal')];
+        return ['0' => __('Main_status 0'), '1' => __('Main_status 1'), '2' => __('Main_status 2'), '3' => __('Main_status 3'), '4' => __('Main_status 4'), '5' => __('Main_status 5'), '9' => __('Main_status 9')];
     }
 
-    public function getStatusTextAttr($value, $data)
+
+    public function getFinishtimeTextAttr($value, $data)
     {
-        $value = $value ? $value : $data['status'];
-        $list = $this->getStatusList();
+        $value = $value ? $value : (isset($data['finishtime']) ? $data['finishtime'] : '');
+        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+    }
+
+
+    public function getSourceTypeTextAttr($value, $data)
+    {
+        $value = $value ? $value : (isset($data['source_type']) ? $data['source_type'] : '');
+        $list = $this->getSourceTypeList();
         return isset($list[$value]) ? $list[$value] : '';
     }
 
-    public function getStarttimeTextAttr($value, $data)
+
+    public function getMainStatusTextAttr($value, $data)
     {
-        $value = $value ? $value : (isset($data['starttime']) ? $data['starttime'] : '');
-        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+        $value = $value ? $value : (isset($data['main_status']) ? $data['main_status'] : '');
+        $list = $this->getMainStatusList();
+        return isset($list[$value]) ? $list[$value] : '';
     }
 
-    protected function setStarttimeAttr($value)
-    {
-        return $value === '' ? null : ($value && !is_numeric($value) ? strtotime($value) : $value);
-    }
-    
-    public function getEndtimeTextAttr($value, $data)
-    {
-        $value = $value ? $value : (isset($data['endtime']) ? $data['endtime'] : '');
-        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
-    }
-
-    protected function setEndtimeAttr($value)
+    protected function setFinishtimeAttr($value)
     {
         return $value === '' ? null : ($value && !is_numeric($value) ? strtotime($value) : $value);
     }
 
-    public function course()
+
+    public function troublepoint()
     {
-        return $this->hasMany('Course','id','training_course_ids');
+        return $this->belongsTo('addons\trouble\model\Point', 'point_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
+
+
+    public function troubletype()
+    {
+        return $this->belongsTo('addons\trouble\model\Type', 'trouble_type_id', 'id', [], 'LEFT')->setEagerlyType(0);
     }
 }
