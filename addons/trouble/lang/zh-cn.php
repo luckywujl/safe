@@ -46,5 +46,8 @@ return [
     'Troubletype.id'                   => '类型ID',
     'Troubletype.trouble_type'         => '隐患类型',
     'Troubletype.plan_id'              => '预案ID',
-    'Troubletype.company_id'           => '数据归属'
+    'Troubletype.company_id'           => '数据归属',
+    'Point_address'							=> '隐患点地址',
+    'Recevier'							=> '接警人',
+    'Remark'							=> '备注',
 ];

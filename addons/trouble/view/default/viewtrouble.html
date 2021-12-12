@@ -80,7 +80,7 @@
                
                     <div class="widget-user-header bg-light-blue-gradient">
                        
-                        <h3 class="widget-user-desc" style="margin-left: 0px;margin-top:0px">查看隐患,您好！</h3>
+                        <h3 class="widget-user-desc" style="margin-left: 0px;margin-top:0px">{$user.nickname},您好！</h3>
                     </div>
                    
              
@@ -216,6 +216,7 @@
                         Table.api.bindevent(table);
                         Controller.api.bindEvents();
                     },
+                    
                     api: {
                         ajax: {
                             getCount() {
