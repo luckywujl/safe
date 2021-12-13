@@ -52,6 +52,7 @@
         				<div class="col-xs-12 col-sm-7">
             				<input id="c-trouble_expression" readonly="readonly" class="form-control" name="row[trouble_expression]" type="text" value="{$row.trouble_expression|htmlentities}">
         				</div>
+        				<button type="button" class="btn btn-success btn-selectexpression ">{:__('选择隐患现象')}</button>
  
     				</div>
     				<div class="form-group">
@@ -132,6 +133,13 @@
             			<textarea id="c-remark" class="form-control " readonly="readonly" rows="8" name="row[remark]" cols="50">{$row.log|htmlentities}</textarea>
         				</div>
     				</div>
+    				<div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
 				</form>
 			</div>
 		</div>
@@ -148,7 +156,25 @@
             define('training/index', ['jquery', 'bootstrap', 'frontend','backend', 'table', 'fullcalendar-lang', 'fullcalendar', 'moment', 'moment/locale/zh-cn', 'panelslider','form'], function($, undefined, Frontend, Backend,Table, CalendarLocale, Calendar, Moment, undefined, panelslider,Form) {
                 
                 var Controller = {
-                    showtrouble: function() {
+                    dispatchtrouble: function() {
+                    	//选择常用隐患现象
+				$(document).on("click",".btn-selectexpression",function () {
+				    //弹窗显示学员信息
+         	  Fast.api.open('trouble/base/expression/getexpression','选择隐患现象',{
+	           area:['50%', '80%'],
+		           callback: function (data) {	
+		           if ($("#c-trouble_expression").val()=='') {
+		           		$("#c-trouble_expression").val(data[0].trouble_expression);
+		           }else {
+		           		$("#c-trouble_expression").val($("#c-trouble_expression").val()+'/'+data[0].trouble_expression);
+		           }
+		           
+		           
+	       	    },function (data) {
+	       	    	
+	       	    }
+	            });
+	         });
                         Controller.api.bindEvents();
                     },             
                     api: {

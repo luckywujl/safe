@@ -110,9 +110,10 @@
                         </ul>
                     </li>
                 </ul>
+                
                   <table id="table" class="table table-striped table-hover" width="100%">
 
-                    </table>
+                 </table>
                 </div>
          
         </div>
@@ -130,27 +131,19 @@
         <% var imagearr = ['https://cdn.fastadmin.net/uploads/addons/blog.png', 'https://cdn.fastadmin.net/uploads/addons/cms.png', 'https://cdn.fastadmin.net/uploads/addons/vote.png', 'https://cdn.fastadmin.net/uploads/addons/blog.png', 'https://cdn.fastadmin.net/uploads/addons/alisms.png']; %>
         <% var image = imagearr[item.id % 5]; %>
         <% var labelarr = ['primary', 'success', 'info', 'danger', 'warning']; %>
-        <% var label = labelarr[item.id % 5]; %>
+        <% var label = labelarr[item.main_status % 3]; %>
         <div class="thumbnail example">
-            <span class="btn btn-<%=label%>">ID:<%=item.id%></span>
+            <span class="btn btn-<%=label%>">编号:<%=item.main_code%></span>
             <!--<img src="<%=image%>" style="width:100%;" alt="<%=item.title%>">-->
             <div class="caption">
-                <h4><%=item.name?item.name:'无'%></h4>
+                <h4><%=item.trouble_expression?item.trouble_expression:'无'%></h4>
                 <!--<p class="text-muted">描述:<%=item.description%></p>-->
                 <p class="text-muted">创建时间:<%=Moment(item.createtime*1000).format("YYYY-MM-DD HH:mm:ss")%></p>
-                <p>
-                    <!--详情的事件需要在JS中手动绑定-->
-                    
-                     <a href="#" class="btn btn-success btn-open-course" data-description="<%=item.description%>"><i class="fa fa-camera"></i> 详情</a> 
-
-                    <!--如果需要响应编辑或删除事件，可以给元素添加 btn-edit或btn-del的类和data-id这个属性值-->
-                    
-                    <a href="<%=item.url%>" class="btn btn-primary btn-download" data-id="<%=item.id%>"><i class="fa fa-download"></i> 下载</a> 
-                    <!--<a href="#" class="btn btn-danger btn-selected" data-id="<%=item.id%>"><i class="fa fa-times"></i> 删除</a>-->
-                    <span class="pull-right" style="margin-top:10px;">
-                        <!--如果需要多选操作，请确保有下面的checkbox元素存在,可移除-->
-                        <!--<input name="checkbox" data-id="<%=item.id%>" type="checkbox" />-->
-                    </span>
+                <p class="text-muted">隐患点:<%=item.point_name%>(<%=item.point_address%>)</p>
+                <p>              
+                    <a href="#" class="btn btn-success btn-open-course" data-id="<%=item.id%>" ><i class="fa fa-list-ol"></i>详情</a> 
+                    <a href="#" class="btn btn-danger btn-dispatch" data-id="<%=item.id%>"><i class="fa fa-fa"></i>派单</a>
+                    <span class="pull-right" style="margin-top:10px;"><%=item.trouble_type%></span>
                 </p>
             </div>
         </div>
@@ -162,14 +155,14 @@
                 var table = null;
                 var category_id = '#';
                 var Controller = {
-                    index: function() {
+                    dispatch: function() {
                         $('#tablist a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
                             table.bootstrapTable('refresh', {})
                         });
                         // 初始化表格参数配置
                         Table.api.init({
                             extend: {
-                                index_url: "{:addon_url('materials/Index/index')}"
+                                index_url: "{:addon_url('trouble/index/dispatch')}"
                             }
                         });
                         table = $("#table");
@@ -224,10 +217,11 @@
                         Table.api.bindevent(table);
                         Controller.api.bindEvents();
                     },
+                    
                     api: {
                         ajax: {
                             getCount() {
-                                $.getJSON("{:addon_url('materials/index/getCount')}", {
+                                $.getJSON("{:addon_url('trouble/index/getCount_dispatch')}", {
                                         year: $('#year').data('value'),
                                         category_id: category_id
                                     },
@@ -236,7 +230,7 @@
                                         $.each(data, function(name, value) {
                                             
                                                 var color = 'bg-green';
-                                                if (name == "learning") {
+                                                if (name == "全部") {
                                                     color = 'bg-aqua';
                                                 } else if (name == "unlearned") {
                                                     color = 'bg-red';
@@ -277,11 +271,15 @@
 
 
                             $(document).on("click", ".btn-open-course", function() {
-                                var description = $(this).data('description');
-                                Layer.alert(description);
-                               
-                                   // Controller.api.openMain(id);
-                                
+                                var id = $(this).data('id');
+                                window.location.href=Fast.api.fixurl("{:addon_url('trouble/Index/showtrouble')}&id="+id);
+
+                            });
+                            
+                            $(document).on("click", ".btn-dispatch", function() {
+                                var id = $(this).data('id');
+                                window.location.href=Fast.api.fixurl("{:addon_url('trouble/Index/dispatchtrouble')}&id="+id);
+
                             });
                         }
                     }

@@ -50,4 +50,6 @@ return [
     'Point_address'							=> '隐患点地址',
     'Recevier'							=> '接警人',
     'Remark'							=> '备注',
+    'Log'								=> '隐患处理记录',
+    'Main_text'
 ];
