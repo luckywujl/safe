@@ -23,7 +23,7 @@ return [
     'Main_status'                      => '告警状态',
     'Main_status 0'                    => '草稿',
     'Main_status 1'                    => '已接警',
-    'Main_status 2'                    => '流转中',
+    'Main_status 2'                    => '已派单',
     'Main_status 3'                    => '处理中',
     'Main_status 4'                    => '复核中',
     'Main_status 5'                    => '完结',

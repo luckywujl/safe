@@ -4,8 +4,10 @@ namespace addons\trouble\controller;
 
 use addons\trouble\model\Main as MainModel;
 use addons\trouble\model\Log as LogModel;
-use app\common\model\User;
+use app\common\model\User as UserModel;
 use Think\Db;
+use fast\Tree;
+use think\Validate;
 
 //use app\common\model\User;
 
@@ -27,10 +29,16 @@ class Index extends Base
     protected $group_id = null;
     protected $department_id = null;
     protected $user_id = null;
+    protected $model = null;
+    
+    protected $dataLimit = 'personal';
+    
+    protected $dataLimitField = 'company_id';
+    
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = new \app\admin\model\kaoshi\User;;
+        
         //$this->group_id = User::where('id', $this->auth->id)->value('group_id');
         $this->user_id = $this->auth->id;
         $this->company_id = $this->auth->company_id;
@@ -428,9 +436,7 @@ class Index extends Base
     public function dispatchtrouble()
     {
         $model = new MainModel;
-       
         $id = $this->request->param('id');
-        
         $trouble = $model->alias('a')
             	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
             	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
@@ -440,19 +446,26 @@ class Index extends Base
         $trouble['log'] = $this->getlog($id);//获取操作日志内容
         $trouble['main_text'] = $this->getstatus($trouble['main_status']);//将状态转换成文本
         if ($this->request->isPost()) {
-            $params = $this->request->post("row/a");
+        		 //$params = $this->request->param();//接收过滤条件	
+             $params = $this->request->post('row/a');
             if ($params) {
-                $params = $this->preExcludeFields($params);
+                $trouble_info = $model->where(['company_id'=>$this->auth->company_id,'id'=>$params['id']])->find();	
+                $data['id'] = $params['id'];
+                $data['processer'] = $params['processer'];
+                $data['checker'] = $params['checker'];
+                if($params['processer']!=='') {
+                	$data['main_status'] = 2;
+                }
+                
                 $result = false;
                 Db::startTrans();
                 try {
-                    //是否采用模型验证
-                    if ($this->modelValidate) {
-                        $name = str_replace("\\model\\", "\\validate\\", get_class($this->model));
-                        $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : $name) : $this->modelValidate;
-                        $row->validateFailException(true)->validate($validate);
-                    }
-                    $result = $row->allowField(true)->save($params);
+                    $result = $trouble_info->save($data);
+                    if($trouble['main_status']==1) {
+                    		LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'完成派单，等待处理...','company_id'=>$this->auth->company_id]);
+                	  }else {
+                 			LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'修改了派单信息，等待处理...','company_id'=>$this->auth->company_id]);
+                 	 }
                     Db::commit();
                 } catch (ValidateException $e) {
                     Db::rollback();
@@ -465,7 +478,7 @@ class Index extends Base
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
-                    $this->success();
+                    $this->success('派单成功');
                 } else {
                     $this->error(__('No rows were updated'));
                 }
@@ -476,6 +489,31 @@ class Index extends Base
         return $this->view->fetch('/dispatchtrouble');
     }
     
+    public function selectoperator() //选择人员
+    {
+        $model = new UserModel;
+        $department_id = $this->auth->department_id;
+        if ($this->request->isAjax()) {
+        		//如果发送的来源是Selectpage，则转发到Selectpage
+            if ($this->request->request('keyField')) {
+            	return $this->selectpage();
+            }
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams(null);
+            $total = $model
+            	 ->where(['department_id'=>$department_id,'company_id'=>$this->auth->company_id])
+                ->order($sort, $order)
+                ->count();
+            
+            $list = $model
+            	 ->where(['department_id'=>$department_id,'company_id'=>$this->auth->company_id])
+                ->order($sort, $order)
+                ->limit($offset, $limit)
+                ->select();
+            $result = array("total" => $total, "rows" => $list);
+            return json($result);          
+        }    
+        return $this->view->fetch('/selectoperator');
+    }
 
     public function alert()
     {
@@ -514,4 +552,111 @@ class Index extends Base
         }
         return $result;
     }
+    
+    /**
+     * Selectpage的实现方法
+     *
+     * 当前方法只是一个比较通用的搜索匹配,请按需重载此方法来编写自己的搜索逻辑,$where按自己的需求写即可
+     * 这里示例了所有的参数，所以比较复杂，实现上自己实现只需简单的几行即可
+     *
+     */
+    protected function selectpage()
+    {
+        //设置过滤方法
+        $this->request->filter(['trim', 'strip_tags', 'htmlspecialchars']);
+
+        //搜索关键词,客户端输入以空格分开,这里接收为数组
+        $word = (array)$this->request->request("q_word/a");
+        //当前页
+        $page = $this->request->request("pageNumber");
+        //分页大小
+        $pagesize = $this->request->request("pageSize");
+        //搜索条件
+        $andor = $this->request->request("andOr", "and", "strtoupper");
+        //排序方式
+        $orderby = (array)$this->request->request("orderBy/a");
+        //显示的字段
+        $field = $this->request->request("showField");
+        //主键
+        $primarykey = $this->request->request("keyField");
+        //主键值
+        $primaryvalue = $this->request->request("keyValue");
+        //搜索字段
+        $searchfield = (array)$this->request->request("searchField/a");
+        //自定义搜索条件
+        $custom = (array)$this->request->request("custom/a");
+        //是否返回树形结构
+        $istree = $this->request->request("isTree", 0);
+        $ishtml = $this->request->request("isHtml", 0);
+        if ($istree) {
+            $word = [];
+            $pagesize = 999999;
+        }
+        $order = [];
+        foreach ($orderby as $k => $v) {
+            $order[$v[0]] = $v[1];
+        }
+        $field = $field ? $field : 'name';
+        
+        //如果有primaryvalue,说明当前是初始化传值
+        if ($primaryvalue !== null) {
+            $where = [$primarykey => ['in', $primaryvalue]];
+            $pagesize = 999999;
+        } else {
+            $where = function ($query) use ($word, $andor, $field, $searchfield, $custom) {
+                $logic = $andor == 'AND' ? '&' : '|';
+                $searchfield = is_array($searchfield) ? implode($logic, $searchfield) : $searchfield;
+                $searchfield = str_replace(',', $logic, $searchfield);
+                $word = array_filter(array_unique($word));
+                if (count($word) == 1) {
+                    $query->where($searchfield, "like", "%" . reset($word) . "%");
+                } else {
+                    $query->where(function ($query) use ($word, $searchfield) {
+                        foreach ($word as $index => $item) {
+                            $query->whereOr(function ($query) use ($item, $searchfield) {
+                                $query->where($searchfield, "like", "%{$item}%");
+                            });
+                        }
+                    });
+                }
+                if ($custom && is_array($custom)) {
+                    foreach ($custom as $k => $v) {
+                        if (is_array($v) && 2 == count($v)) {
+                            $query->where($k, trim($v[0]), $v[1]);
+                        } else {
+                            $query->where($k, '=', $v);
+                        }
+                    }
+                }
+            };
+        }
+        $model = new UserModel;
+        $total = $model->where($where)->count();
+        if ($total > 0) {
+           
+            //如果有primaryvalue,说明当前是初始化传值,按照选择顺序排序
+            if ($primaryvalue !== null && preg_match("/^[a-z0-9_\-]+$/i", $primarykey)) {
+                $primaryvalue = array_unique(is_array($primaryvalue) ? $primaryvalue : explode(',', $primaryvalue));
+                //修复自定义data-primary-key为字符串内容时，给排序字段添加上引号
+                $primaryvalue = array_map(function ($value) {
+                    return '\'' . $value . '\'';
+                }, $primaryvalue);
+
+                $primaryvalue = implode(',', $primaryvalue);
+
+                $model->orderRaw("FIELD(`{$primarykey}`, {$primaryvalue})");
+            } else {
+                $model->order($order);
+            }
+            
+            $datalist = $model->where($where)
+            	 ->where(['department_id'=>$this->auth->department_id,'company_id'=>$this->auth->company_id])
+                ->page($page, $pagesize)
+                ->select();
+        }
+        //这里一定要返回有list这个字段,total是可选的,如果total<=list的数量,则会隐藏分页按钮
+        return json(['list' => $datalist, 'total' => $total]);
+    }
+    
+    
 }

@@ -17,6 +17,8 @@ class Main extends Backend
      * @var \app\admin\model\trouble\trouble\Main
      */
     protected $model = null;
+    protected $dataLimit = 'personal';
+    protected $dataLimitField = 'company_id';
 
     public function _initialize()
     {
