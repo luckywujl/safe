@@ -93,7 +93,7 @@ class User extends Frontend
      */
     public function photo()
     {
-        $jssdk = new Jssdk("wx4f79233878b9f770", "e6a3c7af5767c53ec68bf07df1ca5d69");
+        $jssdk = new Jssdk("wx4f79233878b9f770", "10eb3f75adafacbaa3c584908395c982");
         $signPackage = $jssdk->GetSignPackage();
         $this->view->assign('signPackage',$signPackage);
         return $this->view->fetch();
@@ -413,7 +413,7 @@ class User extends Frontend
         //获取access_token，并缓存
         $file = RUNTIME_PATH.'/access_token1';//缓存文件名access_token1
         $appid='wx4f79233878b9f770'; // 填写自己的appid
-        $secret='e6a3c7af5767c53ec68bf07df1ca5d69'; // 填写自己的appsecret
+        $secret='10eb3f75adafacbaa3c584908395c982'; // 填写自己的appsecret
         $expires = 3600;//缓存时间1个小时
         if(file_exists($file)) {
             $time = filemtime($file);

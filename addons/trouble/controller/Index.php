@@ -8,6 +8,7 @@ use app\common\model\User as UserModel;
 use Think\Db;
 use fast\Tree;
 use think\Validate;
+use addons\trouble\controller\Jssdk;
 
 //use app\common\model\User;
 
@@ -47,52 +48,6 @@ class Index extends Base
         
     }
 
-    public function index()
-    {
-        if ($this->request->isAjax()) {
-            $model = new Materials;
-            $year = $this->request->param('year', date('Y'));
-            $category_id = $this->request->param('category_id', 0);
-            $time = date("Y-m-d H:i:s");
-            list($where, $sort, $order, $offset, $limit) = $this->buildparams(null);
-            $total = $model
-                ->where($where)
-                ->where('company_id',$this->auth->company_id);
-            if ($category_id>0) {
-                $total = $total->where('materials_category_id', $category_id);
-            }
-            if ($year !== '') {
-                $total = $total->whereTime('createtime', 'between', ["{$year}-1-1","{$year}-12-31"]);
-            }
-                
-            $total = $total->where(function ($query) {
-                	$query->where('find_in_set('.$this->user_id.',user_ids)')->whereor('find_in_set('.$this->group_id.',user_group_ids)');
-            		})
-                ->order($sort, $order)
-                ->count();
-            $list = $model
-                ->where($where)
-                ->where('company_id',$this->auth->company_id);
-            if ($category_id>0) {
-                $list = $list->where('materials_category_id', $category_id);
-            }
-            if ($year !== '') {
-                $list = $list->whereTime('createtime', 'between', ["{$year}-1-1","{$year}-12-31"]);
-            }    
-            $list = $list->where(function ($query) {
-                	$query->where('find_in_set('.$this->user_id.',user_ids)')->whereor('find_in_set('.$this->group_id.',user_group_ids)');
-            		})
-                ->order($sort, $order)
-                ->limit($offset, $limit)
-                ->select();
-            $result = array("total" => $total, "rows" => $list);
-
-            return json($result);          
-        }
-        $type = [0 => ['id' => '0', 'name' => '全部'],1 => ['id' => '1', 'name' => '未结单'],2 => ['id' => '2', 'name' => '已完结']];
-        $this->view->assign("typeList", $type);
-        return $this->view->fetch('/index');
-    }
     
     public function vcheck() //人工巡查
     {
@@ -199,61 +154,9 @@ class Index extends Base
     public function viewtrouble()//查看隐患
     {
         if ($this->request->isAjax()) {
-            $main = new MainModel;
-            $year = $this->request->param('year', date('Y'));
-            $category_id = $this->request->param('category_id', 0);
-            $time = date("Y-m-d H:i:s");
-            list($where, $sort, $order, $offset, $limit) = $this->buildparams(null);
-            $total = $main
-                ->where($where)
-                ->where('company_id',$this->auth->company_id);
-            if ($category_id==0) {
-                $total = $total->where('main_status','in','1,2,3,4,5,9');
-            }
-            if ($category_id==1) {
-                $total = $total->where('main_status','in','1,2,3,4');
-            }
-            if ($category_id==2) {
-                $total = $total->where('main_status','in','5,9');
-            }
-            if ($year !== '') {
-                $total = $total->whereTime('createtime', 'between', ["{$year}-1-1","{$year}-12-31"]);
-            }
-                
-            $total = $total->where(function ($query) {
-                	$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
-            		})
-                ->order($sort, $order)
-                ->count();
-            $list = $main->alias('a')
-            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
-            	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
-            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
-                ->where($where)
-                ->where('a.company_id',$this->auth->company_id);
-            if ($category_id==0) {
-                $list = $list->where('a.main_status','in','1,2,3,4,5,9');
-            }
-            if ($category_id==1) {
-                $list = $list->where('a.main_status','in','1,2,3,4');
-            }
-            if ($category_id==2) {
-                $list = $list->where('a.main_status','in','5,9');
-            }
-            if ($year !== '') {
-                $list = $list->whereTime('a.createtime', 'between', ["{$year}-1-1","{$year}-12-31"]);
-            }    
-            $list = $list->where(function ($query) {
-                	$query->where('find_in_set('.$this->user_id.',a.liabler)')->whereor('find_in_set('.$this->user_id.',a.processer)')->whereor('find_in_set('.$this->user_id.',a.checker)')->whereor('find_in_set('.$this->user_id.',a.insider)');
-            		})
-                ->order($sort, $order)
-                ->limit($offset, $limit)
-                ->select();
-            $result = array("total" => $total, "rows" => $list);
-
-            return json($result);          
-        }
-        $type = [0 => ['id' => '0', 'name' => '全部'],1 => ['id' => '1', 'name' => '未结单'],2 => ['id' => '2', 'name' => '已完结']];
+            return $this->getdata('1,2,3,4,5,9','1,2,3,4','5,9',0);
+      }
+        $type = [0 => ['id' => '0', 'name' => '全部'],1 => ['id' => '1', 'name' => '进行中'],2 => ['id' => '2', 'name' => '已完结']];
         $this->view->assign("typeList", $type);
         return $this->view->fetch('/viewtrouble');
     }
@@ -261,61 +164,9 @@ class Index extends Base
     public function dispatch()//分派任务
     { 
     	 if ($this->request->isAjax()) {
-            $main = new MainModel;
-            $year = $this->request->param('year', date('Y'));
-            $category_id = $this->request->param('category_id', 0);
-            $time = date("Y-m-d H:i:s");
-            list($where, $sort, $order, $offset, $limit) = $this->buildparams(null);
-            $total = $main
-                ->where($where)
-                ->where('company_id',$this->auth->company_id);
-            if ($category_id==0) {
-                $total = $total->where('main_status','in','1,2,3');
-            }
-            if ($category_id==1) {
-                $total = $total->where('main_status','in','1');
-            }
-            if ($category_id==2) {
-                $total = $total->where('main_status','in','2,3');
-            }
-            if ($year !== '') {
-                $total = $total->whereTime('createtime', 'between', ["{$year}-1-1","{$year}-12-31"]);
-            }
-                
-            $total = $total->where(function ($query) {
-                	$query->where('find_in_set('.$this->user_id.',liabler)');//仅隐患负责人可见
-            		})
-                ->order($sort, $order)
-                ->count();
-            $list = $main->alias('a')
-            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
-            	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
-            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
-                ->where($where)
-                ->where('a.company_id',$this->auth->company_id);
-            if ($category_id==0) {
-                $list = $list->where('a.main_status','in','1,2,3');
-            }
-            if ($category_id==1) {
-                $list = $list->where('a.main_status','in','1');
-            }
-            if ($category_id==2) {
-                $list = $list->where('a.main_status','in','2,3');
-            }
-            if ($year !== '') {
-                $list = $list->whereTime('a.createtime', 'between', ["{$year}-1-1","{$year}-12-31"]);
-            }    
-            $list = $list->where(function ($query) {
-                	$query->where('find_in_set('.$this->user_id.',liabler)');//仅隐患负责人可见
-            		})
-                ->order($sort, $order)
-                ->limit($offset, $limit)
-                ->select();
-            $result = array("total" => $total, "rows" => $list);
-
-            return json($result);          
-        }
-        $type = [0 => ['id' => '0', 'name' => '全部'],1 => ['id' => '1', 'name' => '未派单'],2 => ['id' => '2', 'name' => '已派单']];
+            return $this->getdata('1,2,4','1,4','2',1);
+      }
+        $type = [0 => ['id' => '0', 'name' => '全部'],1 => ['id' => '1', 'name' => '待派单'],2 => ['id' => '2', 'name' => '已派单']];
         $this->view->assign("typeList", $type);
     
         return $this->view->fetch('/dispatch');
@@ -323,19 +174,42 @@ class Index extends Base
     
     public function solve() //处理隐患
     {
+    	if ($this->request->isAjax()) {
+            return $this->getdata('2,3,4','2','3,4',2);
+      }
+        $type = [0 => ['id' => '0', 'name' => '全部'],1 => ['id' => '1', 'name' => '待处理'],2 => ['id' => '2', 'name' => '已处理']];
+        $this->view->assign("typeList", $type);
     	return $this->view->fetch('/solve');
-    }
+    } 
+     
     public function roam() //任务流转
     {
+    	if ($this->request->isAjax()) {
+            return $this->getdata('2,3,4','2,3','4',3);
+      }
+        $type = [0 => ['id' => '0', 'name' => '全部'],1 => ['id' => '1', 'name' => '待流转'],2 => ['id' => '2', 'name' => '已流转']];
+        $this->view->assign("typeList", $type);
     	return $this->view->fetch('/roam');
-    }
-    public function feedback() //隐患反馈
-    {
-    	return $this->view->fetch('/feedback');
-    }
+    } 
+    
     public function review() //隐患复核
     {
+    	if ($this->request->isAjax()) {
+            return $this->getdata('5,6','5','6',4);
+      }
+        $type = [0 => ['id' => '0', 'name' => '全部'],1 => ['id' => '1', 'name' => '待复核'],2 => ['id' => '2', 'name' => '已复核']];
+        $this->view->assign("typeList", $type);
     	return $this->view->fetch('/review');
+    }
+    
+    public function feedback() //隐患反馈
+    {
+    	if ($this->request->isAjax()) {
+            return $this->getdata('6,7','6','7',5);
+      }
+        $type = [0 => ['id' => '0', 'name' => '全部'],1 => ['id' => '1', 'name' => '待反馈'],2 => ['id' => '2', 'name' => '已反馈']];
+        $this->view->assign("typeList", $type);
+    	return $this->view->fetch('/feedback');
     }
     
     public function getCount()
@@ -343,6 +217,10 @@ class Index extends Base
             
             $main = new MainModel;
             $year = $this->request->param('year', date('Y'));
+            $all = $this->request->param('all');
+            $no = $this->request->param('no');
+            $already = $this->request->param('already');
+            $operator = $this->request->param('operator');
             $time = date("Y-m-d H:i:s");
             $count=[];
             $map = [];
@@ -350,23 +228,126 @@ class Index extends Base
                 $map['createtime']=['between time',["{$year}-1-1","{$year}-12-31"]];
             }
         		$type = [0 => ['id' => '0', 'name' => '全部'],1 => ['id' => '1', 'name' => '未结单'],2 => ['id' => '2', 'name' => '已完结']];
-            foreach($type as $k=>$v){
-            	if($v['id']==1) {
-            	$count[$v['id']] = $main->where($map)->where(function ($query) {
-                	$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
-            		})->where('main_status','in','1,2,3,4')->where('company_id',$this->auth->company_id)->count();
+            if($operator==0) { //查看隐患
+            	foreach($type as $k=>$v){
+            		if($v['id']==0) {//全部
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
+            			})->where('main_status','in',$all)->where('company_id',$this->auth->company_id)->count();
+            		}
+            		if($v['id']==1) {//未
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
+            			})->where('main_status','in',$no)->where('company_id',$this->auth->company_id)->count();
+            		}
+             		if($v['id']==2) {//已
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
+            			})->where('main_status','in',$already)->where('company_id',$this->auth->company_id)->count();
+            		}
+            		
             	}
-             	if($v['id']==2) {
-            	$count[$v['id']] = $main->where($map)->where(function ($query) {
-                	$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
-            		})->where('main_status','in','5,9')->where('company_id',$this->auth->company_id)->count();
+         	}
+         	if($operator==1) { //任务分派
+            	foreach($type as $k=>$v){
+            		if($v['id']==0) {//全部
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',liabler)');
+            			})->where('main_status','in',$all)->where('company_id',$this->auth->company_id)->count();
+            		}
+            		if($v['id']==1) {//未
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',liabler)');
+            			})->where('main_status','in',$no)->where('company_id',$this->auth->company_id)->count();
+            		}
+             		if($v['id']==2) {//已
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',liabler)');
+            			})->where('main_status','in',$already)->where('company_id',$this->auth->company_id)->count();
+            		}
+            		
             	}
-            	if($v['id']==0) {
-            	$count[$v['id']] = $main->where($map)->where(function ($query) {
-                	$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
-            		})->where('main_status','in','1,2,3,4,5,9')->where('company_id',$this->auth->company_id)->count();
+         	}
+         	if($operator==2) { //任务处理
+            	foreach($type as $k=>$v){
+            		if($v['id']==0) {//全部
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',processer)');
+            			})->where('main_status','in',$all)->where('company_id',$this->auth->company_id)->count();
+            		}
+            		if($v['id']==1) {//未
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',processer)');
+            			})->where('main_status','in',$no)->where('company_id',$this->auth->company_id)->count();
+            		}
+             		if($v['id']==2) {//已
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',processer)');
+            			})->where('main_status','in',$already)->where('company_id',$this->auth->company_id)->count();
+            		}
+            		
             	}
-            }
+         	}
+         	if($operator==3) { //任务流转
+            	foreach($type as $k=>$v){
+            		if($v['id']==0) {//全部
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',processer)');
+            			})->where('main_status','in',$all)->where('company_id',$this->auth->company_id)->count();
+            		}
+            		if($v['id']==1) {//未
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',processer)');
+            			})->where('main_status','in',$no)->where('company_id',$this->auth->company_id)->count();
+            		}
+             		if($v['id']==2) {//已
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',processer)');
+            			})->where('main_status','in',$already)->where('company_id',$this->auth->company_id)->count();
+            		}
+            		
+            	}
+         	}
+         	if($operator==4) { //任务复核
+            	foreach($type as $k=>$v){
+            		if($v['id']==0) {//全部
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',checker)');
+            			})->where('main_status','in',$all)->where('company_id',$this->auth->company_id)->count();
+            		}
+            		if($v['id']==1) {//未
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',checker)');
+            			})->where('main_status','in',$no)->where('company_id',$this->auth->company_id)->count();
+            		}
+             		if($v['id']==2) {//已
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',checker)');
+            			})->where('main_status','in',$already)->where('company_id',$this->auth->company_id)->count();
+            		}
+            		
+            	}
+         	}
+         	if($operator==5) { //任务反馈
+            	foreach($type as $k=>$v){
+            		if($v['id']==0) {//全部
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',liabler)');
+            			})->where('main_status','in',$all)->where('company_id',$this->auth->company_id)->count();
+            		}
+            		if($v['id']==1) {//未
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',liabler)');
+            			})->where('main_status','in',$no)->where('company_id',$this->auth->company_id)->count();
+            		}
+             		if($v['id']==2) {//已
+            		$count[$v['id']] = $main->where($map)->where(function ($query) {
+                		$query->where('find_in_set('.$this->user_id.',liabler)');
+            			})->where('main_status','in',$already)->where('company_id',$this->auth->company_id)->count();
+            		}
+            		
+            	}
+         	}
             
             
             if ($this->request->isAjax()) {
@@ -376,44 +357,8 @@ class Index extends Base
             }
     }
     
-    public function getCount_dispatch()
-    {
-            
-            $main = new MainModel;
-            $year = $this->request->param('year', date('Y'));
-            $time = date("Y-m-d H:i:s");
-            $count=[];
-            $map = [];
-            if ($year !== '') {
-                $map['createtime']=['between time',["{$year}-1-1","{$year}-12-31"]];
-            }
-        		$type = [0 => ['id' => '0', 'name' => '全部'],1 => ['id' => '1', 'name' => '未结单'],2 => ['id' => '2', 'name' => '已完结']];
-            foreach($type as $k=>$v){
-            	if($v['id']==1) {
-            	$count[$v['id']] = $main->where($map)->where(function ($query) {
-                	$query->where('find_in_set('.$this->user_id.',liabler)');
-            		})->where('main_status','in','1')->where('company_id',$this->auth->company_id)->count();
-            	}
-             	if($v['id']==2) {
-            	$count[$v['id']] = $main->where($map)->where(function ($query) {
-                	$query->where('find_in_set('.$this->user_id.',liabler)');
-            		})->where('main_status','in','2,3')->where('company_id',$this->auth->company_id)->count();
-            	}
-            	if($v['id']==0) {
-            	$count[$v['id']] = $main->where($map)->where(function ($query) {
-                	$query->where('find_in_set('.$this->user_id.',liabler)');
-            		})->where('main_status','in','1,2,3')->where('company_id',$this->auth->company_id)->count();
-            	}
-            }
-            
-            
-            if ($this->request->isAjax()) {
-                return json($count);
-            }else{
-                return $count;
-            }
-    }
-    public function showtrouble()
+    
+    public function showtrouble() //查看隐患详情
     {
         $model = new MainModel;
        
@@ -430,10 +375,10 @@ class Index extends Base
         $trouble['main_text'] = $this->getstatus($trouble['main_status']);//将状态转换成文本
         $this->view->assign('row', $trouble);
        
-        return $this->view->fetch('/showtrouble');
+        return $this->view->fetch('/child/showtrouble');
     }
     
-    public function dispatchtrouble()
+    public function dispatchtrouble() //任务分派详情
     {
         $model = new MainModel;
         $id = $this->request->param('id');
@@ -456,7 +401,9 @@ class Index extends Base
                 if($params['processer']!=='') {
                 	$data['main_status'] = 2;
                 }
-                
+                if($params['word']!=='') {
+                	$data['remark'] = $params['remark']."\n"."派单留言：".$params['word'];
+                }          
                 $result = false;
                 Db::startTrans();
                 try {
@@ -486,9 +433,70 @@ class Index extends Base
             $this->error(__('Parameter %s can not be empty', ''));
         }
         $this->view->assign('row', $trouble);
-        return $this->view->fetch('/dispatchtrouble');
+        return $this->view->fetch('/child/dispatchtrouble');
     }
     
+    public function solvetrouble() //任务处理详情
+    {
+        $model = new MainModel;
+        $id = $this->request->param('id');
+        $trouble = $model->alias('a')
+            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
+            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+            	 ->where(['a.id'=>$id,'a.company_id'=>$this->auth->company_id])
+            	 ->find();
+        $trouble['log'] = $this->getlog($id);//获取操作日志内容
+        $trouble['main_text'] = $this->getstatus($trouble['main_status']);//将状态转换成文本
+        if ($this->request->isPost()) {
+        		 //$params = $this->request->param();//接收过滤条件	
+             $params = $this->request->post('row/a');
+            if ($params) {
+                $trouble_info = $model->where(['company_id'=>$this->auth->company_id,'id'=>$params['id']])->find();	
+                $data['id'] = $params['id'];
+                
+                if($params['processer']!=='') {
+                	$data['main_status'] = 2;
+                }
+                if($params['word']!=='') {
+                	$data['remark'] = $params['remark']."\n"."处理留言：".$params['word'];
+                }          
+                $result = false;
+                Db::startTrans();
+                try {
+                    $result = $trouble_info->save($data);
+                    if($trouble['main_status']==1) {
+                    		LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'完成隐患处理，等待复核...','company_id'=>$this->auth->company_id]);
+                	  }else {
+                 			LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'修改了隐患处理信息，等待复核...','company_id'=>$this->auth->company_id]);
+                 	 }
+                    Db::commit();
+                } catch (ValidateException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (PDOException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (Exception $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                }
+                if ($result !== false) {
+                    $this->success('隐患排除!');
+                } else {
+                    $this->error(__('No rows were updated'));
+                }
+            }
+            
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        //加入微信API调用
+        $jssdk = new Jssdk("wx4f79233878b9f770", "10eb3f75adafacbaa3c584908395c982");
+        $signPackage = $jssdk->GetSignPackage();
+        $this->view->assign('signPackage',$signPackage);
+        $this->view->assign('row', $trouble);
+        return $this->view->fetch('/child/solvetrouble');
+    }
     public function selectoperator() //选择人员
     {
         $model = new UserModel;
@@ -512,15 +520,10 @@ class Index extends Base
             $result = array("total" => $total, "rows" => $list);
             return json($result);          
         }    
-        return $this->view->fetch('/selectoperator');
+        return $this->view->fetch('/child/selectoperator');
     }
 
-    public function alert()
-    {
-        $params = $this->request->param();
-        $this->view->assign('params', $params);
-        return $this->view->fetch('/alert');
-    }
+    
     
     public function getlog($id)
     {
@@ -547,10 +550,126 @@ class Index extends Base
         		$result= __("Main_status 4");
         }elseif($status ==5) {
         		$result= __("Main_status 5");
+        }elseif($status ==6) {
+        		$result= __("Main_status 6");
+        }elseif($status ==7) {
+        		$result= __("Main_status 7");
         }else {
         		$result= __("Main_status 9");
         }
         return $result;
+    }
+    
+    public function getdata($all,$no,$already,$operator) //获取数据
+    {
+    	
+            $main = new MainModel;
+            //$operator = 'processer';
+            $year = $this->request->param('year', date('Y'));
+            $category_id = $this->request->param('category_id', 0);
+            $time = date("Y-m-d H:i:s");
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams(null);
+            $total = $main
+                ->where($where)
+                ->where('company_id',$this->auth->company_id);
+            if ($category_id==0) {
+                $total = $total->where('main_status','in',$all);
+            }
+            if ($category_id==1) {
+                $total = $total->where('main_status','in',$no);
+            }
+            if ($category_id==2) {
+                $total = $total->where('main_status','in',$already);
+            }
+            if ($year !== '') {
+                $total = $total->whereTime('createtime', 'between', ["{$year}-1-1","{$year}-12-31"]);
+            }
+            if($operator==0) {    
+            	$total = $total->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
+            		});
+            }
+            if($operator==1) {    
+            	$total = $total->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',liabler)');//仅隐患负责人可见
+            		});
+            }
+            if($operator==2) {    
+            	$total = $total->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',processer)');//仅隐患负责人可见
+            		});
+            }
+            if($operator==3) {    
+            	$total = $total->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',processer)');//仅隐患负责人可见
+            		});
+            }
+            if($operator==4) {    
+            	$total = $total->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',checker)');//仅隐患负责人可见
+            		});
+            }
+            if($operator==5) {    
+            	$total = $total->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',liabler)');//仅隐患负责人可见
+            		});
+            }
+             $total =  $total->order($sort, $order)
+                ->count();
+            $list = $main->alias('a')
+            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
+            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+                ->where($where)
+                ->where('a.company_id',$this->auth->company_id);
+            if ($category_id==0) {
+                $list = $list->where('a.main_status','in',$all);
+            }
+            if ($category_id==1) {
+                $list = $list->where('a.main_status','in',$no);
+            }
+            if ($category_id==2) {
+                $list = $list->where('a.main_status','in',$already);
+            }
+            if ($year !== '') {
+                $list = $list->whereTime('a.createtime', 'between', ["{$year}-1-1","{$year}-12-31"]);
+            }
+            if($operator==0) {    
+            	$list = $list->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
+            		});
+            }
+            if($operator==1) {    
+            	$list = $list->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',liabler)');//仅隐患负责人可见
+            		});
+            }
+            if($operator==2) {    
+            	$list = $list->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',processer)');//仅处置人可见
+            		});
+            }   
+            if($operator==3) {    
+            	$list = $list->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',processer)');//仅处置人可见
+            		});
+            } 
+            if($operator==4) {    
+            	$list = $list->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',checker)');//仅处置人可见
+            		});
+            }
+            if($operator==5) {    
+            	$list = $list->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',liabler)');//仅处置人可见
+            		});
+            }
+            
+            $list = $list->order($sort, $order)
+                ->limit($offset, $limit)
+                ->select();
+            $result = array("total" => $total, "rows" => $list);
+            return json($result);            
     }
     
     /**

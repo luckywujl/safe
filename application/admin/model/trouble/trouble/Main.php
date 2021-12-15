@@ -39,7 +39,7 @@ class Main extends Model
 
     public function getMainStatusList()
     {
-        return ['0' => __('Main_status 0'), '1' => __('Main_status 1'), '2' => __('Main_status 2'), '3' => __('Main_status 3'), '4' => __('Main_status 4'), '5' => __('Main_status 5'), '9' => __('Main_status 9')];
+        return ['0' => __('Main_status 0'), '1' => __('Main_status 1'), '2' => __('Main_status 2'), '3' => __('Main_status 3'), '4' => __('Main_status 4'), '5' => __('Main_status 5'), '6' => __('Main_status 6'), '9' => __('Main_status 9')];
     }
 
 

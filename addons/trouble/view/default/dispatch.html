@@ -131,7 +131,7 @@
         <% var imagearr = ['https://cdn.fastadmin.net/uploads/addons/blog.png', 'https://cdn.fastadmin.net/uploads/addons/cms.png', 'https://cdn.fastadmin.net/uploads/addons/vote.png', 'https://cdn.fastadmin.net/uploads/addons/blog.png', 'https://cdn.fastadmin.net/uploads/addons/alisms.png']; %>
         <% var image = imagearr[item.id % 5]; %>
         <% var labelarr = ['primary', 'success', 'info', 'danger', 'warning']; %>
-        <% var label = labelarr[item.main_status % 3]; %>
+        <% var label = labelarr[item.main_status % 5]; %>
         <div class="thumbnail example">
             <span class="btn btn-<%=label%>">编号:<%=item.main_code%></span>
             <!--<img src="<%=image%>" style="width:100%;" alt="<%=item.title%>">-->
@@ -223,9 +223,13 @@
                     api: {
                         ajax: {
                             getCount() {
-                                $.getJSON("{:addon_url('trouble/index/getCount_dispatch')}", {
+                                $.getJSON("{:addon_url('trouble/index/getCount')}", {
                                         year: $('#year').data('value'),
-                                        category_id: category_id
+                                        category_id: category_id,
+                                        all:'1,2,4',
+                                        no:'1,4',
+                                        already:'2',
+                                        operator:1
                                     },
                                     function(data, textStatus, jqXHR) {
                                     

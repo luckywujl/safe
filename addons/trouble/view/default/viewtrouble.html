@@ -222,7 +222,11 @@
                             getCount() {
                                 $.getJSON("{:addon_url('trouble/index/getCount')}", {
                                         year: $('#year').data('value'),
-                                        category_id: category_id
+                                        category_id: category_id,
+                                        all:'1,2,3,4,5,6,7,9',
+                                        no:'1,2,3,4,5,6',
+                                        already:'7,9',
+                                        operator:0
                                     },
                                     function(data, textStatus, jqXHR) {
                                     
