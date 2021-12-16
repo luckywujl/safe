@@ -121,6 +121,20 @@
         				</div>
     				</div>
     				<div class="form-group">
+        				<label class="control-label col-xs-12 col-sm-2">{:__('Processer')}:</label>
+        				<div class="col-xs-12 col-sm-8">
+            			<input id="c-processer" disabled="disabled" data-source="{:addon_url('trouble/index/selectoperator')}" data-multiple="true" data-field="nickname" data-primary-key='id' class="form-control selectpage" readonly="readonly" name="row[processer]" type="text" value="{$row.processer|htmlentities}">
+            	
+        				</div>
+    				</div>
+    				<div class="form-group">
+        				<label class="control-label col-xs-12 col-sm-2">{:__('Checker')}:</label>
+        				<div class="col-xs-12 col-sm-8">
+            			<input id="c-checker" disabled="disabled" data-source="{:addon_url('trouble/index/selectoperator')}" data-multiple="true" data-field="nickname" class="form-control selectpage" readonly="readonly" name="row[checker]" type="text" value="{$row.checker|htmlentities}">
+            	
+        				</div>
+    				</div>
+    				<div class="form-group">
         				<label class="control-label col-xs-12 col-sm-2">{:__('Remark')}:</label>
         				<div class="col-xs-12 col-sm-8">
             			<textarea id="c-remark" class="form-control " readonly="readonly" rows="5" name="row[remark]" cols="50">{$row.remark|htmlentities}</textarea>
@@ -149,6 +163,7 @@
                 
                 var Controller = {
                     showtrouble: function() {
+                    
                         Controller.api.bindEvents();
                     },             
                     api: {

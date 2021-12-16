@@ -142,7 +142,8 @@
                 <p class="text-muted">隐患点:<%=item.point_name%>(<%=item.point_address%>)</p>
                 <p>              
                     <a href="#" class="btn btn-success btn-open-course" data-id="<%=item.id%>" data-description="<%=item.description%>"><i class="fa fa-list-ol"></i>详情</a> 
-                    <span class="pull-right" style="margin-top:10px;"><%=item.trouble_type%></span>
+                    <span class="pull-right" style="margin-top:10px;"><%=item.status%></span>
+                    <span class="pull-right" style="margin-top:10px;"><%=item.trouble_type%>&#12288;&#12288;</span>
                 </p>
             </div>
         </div>
@@ -154,14 +155,14 @@
                 var table = null;
                 var category_id = '#';
                 var Controller = {
-                    viewtrouble: function() {
+                    view: function() {
                         $('#tablist a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
                             table.bootstrapTable('refresh', {})
                         });
                         // 初始化表格参数配置
                         Table.api.init({
                             extend: {
-                                index_url: "{:addon_url('trouble/index/viewtrouble')}"
+                                index_url: "{:addon_url('trouble/index/view')}"
                             }
                         });
                         table = $("#table");

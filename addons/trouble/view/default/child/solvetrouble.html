@@ -25,11 +25,7 @@
          			
          			<div class="form-group">
         				<label class="control-label col-xs-12 col-sm-2">{:__('任务处理')}</label>
-        				
-        				
-        				<button type="submit" class="btn btn-success btn-embossed">{:__('排除隐患')}</button>
-            
-        				
+        				<button type="submit" class="btn btn-success btn-embossed">{:__('排除隐患')}</button>   				
     				</div>
     				</div>
     				<div class="form-group">
@@ -39,15 +35,17 @@
                 				<input id="c-process_pic" class="form-control"   name="row[process_pic]" type="text" readonly="readonly"  data-rule="" placeholder="暂无照片" value="{:$row.process_pic}">
                 				<div class="input-group-addon no-border no-padding">
                     				<span><button type="button"  id="faupload-process_pic" class="btn btn-danger faupload" data-input-id="c-process_pic" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="true" data-preview-id="p-process_pic"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
-                    				<span><button type="button"  id="facamera-process_pic" class="btn btn-primary "  data-mimetype="image/*" ><i class="fa fa-camera"></i> {:__('photo')}</button></span>
+                    				<span><button type="button"  id="facamera-process_pic" class="btn btn-primary faupload" data-input-id="c-process_pic" data-mimetype="image/*" data-multiple="true"><i class="fa fa-camera"></i> {:__('photo')}</button></span>
                 				</div>
                 				<span class="msg-box n-right" for="c-process_pic"></span>
             				</div>
-            				<ul class="row list-inline faupload-preview" id="p-process_pic" ></ul>
+            				<ul class="row list-inline faupload-preview" id="p-process_pic" data-template="customtpl_1" ></ul>
         				</div>
     				</div>
+    				<div id = "photo">
+      			</div>
     				<div class="form-group">
-        				<label class="control-label col-xs-12 col-sm-2">{:__('处理隐患：')}:</label>
+        				<label class="control-label col-xs-12 col-sm-2">{:__('备注：')}:</label>
         				<div class="col-xs-12 col-sm-8">
             				<textarea id="c-word" class="form-control " rows="5" name="row[word]" cols="50"></textarea>
         				</div>
@@ -155,10 +153,7 @@
     				</div>
     				<div class="form-group layer-footer">
         <label class="control-label col-xs-12 col-sm-2"></label>
-        <div class="col-xs-12 col-sm-8">
-            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
-            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
-        </div>
+        
     </div>
 				</form>
 			</div>
@@ -168,80 +163,31 @@
 <script type="text/html" id="customtpl">
 
 <li class="col-xs-3">
-    <a href="<%=fullurl%>" data-url="<%=url%>" target="_blank" class="thumbnail"><img src="<%=fullurl%>" class="img-responsive"></a>
+    <a  data-url="<%=url%>" target="_blank" class="thumbnail"><img src="<%=fullurl%>" class="img-responsive"></a>
 </li>
 </script>
-<script src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
-<script type="text/javascript">
- wx.config({
-	  debug: true,
-      appId: '<?php echo $signPackage["appId"];?>',
-    	timestamp: <?php echo $signPackage["timestamp"];?>,
-    	nonceStr: '<?php echo $signPackage["nonceStr"];?>',
-    	signature: '<?php echo $signPackage["signature"];?>',
-      jsApiList: [
-        'checkJsApi',
-        'onMenuShareTimeline',
-        'onMenuShareAppMessage',
-        'onMenuShareQQ',
-        'onMenuShareWeibo',
-        'hideMenuItems',
-        'showMenuItems',
-        'hideAllNonBaseMenuItem',
-        'showAllNonBaseMenuItem',
-        'translateVoice',
-        'startRecord',
-        'stopRecord',
-        'onRecordEnd',
-        'playVoice',
-        'pauseVoice',
-        'stopVoice',
-        'uploadVoice',
-        'downloadVoice',
-        'chooseImage',
-        'previewImage',
-        'uploadImage',
-        'downloadImage',
-        'getNetworkType',
-        'openLocation',
-        'getLocation',
-        'hideOptionMenu',
-        'showOptionMenu',
-        'closeWindow',
-        'scanQRCode',
-        'chooseWXPay',
-        'openProductSpecificView',
-        'addCard',
-        'chooseCard',
-        'openCard'
-      ]
-  });
+<script type="text/html" id="customtpl_1">
+
+<li class="col-xs-3">
+    <a  data-url="<%=url%>" target="_blank" class="thumbnail"><img src="<%=fullurl%>" class="img-responsive"></a><a href="javascript:;" class="btn btn-danger btn-xs btn-trash"><i class="fa fa-trash"></i></a>
+</li>
 </script>
+
 <script data-render="script">
         require.callback = function() {
-            define('training/index', ['jquery', 'bootstrap', 'frontend','backend', 'table', 'fullcalendar-lang', 'fullcalendar', 'moment', 'moment/locale/zh-cn', 'panelslider','form','layer'], function($, undefined, Frontend, Backend,Table, CalendarLocale, Calendar, Moment, undefined, panelslider,Form,Layer) {
+            define('training/index', ['jquery', 'bootstrap', 'frontend','backend', 'table', 'fullcalendar-lang', 'fullcalendar', 'moment', 'moment/locale/zh-cn', 'panelslider','form','layer','template'], function($, undefined, Frontend, Backend,Table, CalendarLocale, Calendar, Moment, undefined, panelslider,Form,Layer,Template) {
                 
                 var Controller = {
                     solvetrouble: function() {
-                    		var images = {
-    								localId: [],
-    								serverId: []
-  								};
-  								document.querySelector('#facamera-process_pic').onclick = function () {
-    								wx.chooseImage({
-      								success: function (res) {
-        								images.localId = res.localIds;
-        								alert('已选择 ' + res.localIds.length + ' 张图片');
-      							   }  
-    							   });
-  						      };
+                    		
+  						     
                         Controller.api.bindEvent();
                     },             
                     api: {
                         bindEvent() {
                             Form.api.bindevent($("form[role=form]"),function(data,ret){
                              alert(ret.msg);
-                             window.location.href=Fast.api.fixurl("{:addon_url('trouble/Index/dispatch')}");
+                             window.location.href=Fast.api.fixurl("{:addon_url('trouble/Index/solve')}");
                             });
                         }  
                     }

@@ -151,14 +151,14 @@ class Index extends Base
         return $this->view->fetch('/scheck');
     }
     
-    public function viewtrouble()//查看隐患
+    public function view()//查看隐患
     {
         if ($this->request->isAjax()) {
-            return $this->getdata('1,2,3,4,5,9','1,2,3,4','5,9',0);
+            return $this->getdata('1,2,3,4,5,6,7,9','1,2,3,4,5,6','7,9',0);
       }
         $type = [0 => ['id' => '0', 'name' => '全部'],1 => ['id' => '1', 'name' => '进行中'],2 => ['id' => '2', 'name' => '已完结']];
         $this->view->assign("typeList", $type);
-        return $this->view->fetch('/viewtrouble');
+        return $this->view->fetch('/view');
     }
     
     public function dispatch()//分派任务
@@ -175,7 +175,7 @@ class Index extends Base
     public function solve() //处理隐患
     {
     	if ($this->request->isAjax()) {
-            return $this->getdata('2,3,4','2','3,4',2);
+            return $this->getdata('2,3,5','2,3','5',2);
       }
         $type = [0 => ['id' => '0', 'name' => '全部'],1 => ['id' => '1', 'name' => '待处理'],2 => ['id' => '2', 'name' => '已处理']];
         $this->view->assign("typeList", $type);
@@ -402,7 +402,7 @@ class Index extends Base
                 	$data['main_status'] = 2;
                 }
                 if($params['word']!=='') {
-                	$data['remark'] = $params['remark']."\n"."派单留言：".$params['word'];
+                	$data['remark'] = $params['remark']."\n"."派单留言：".$params['word'].'('.$this->auth->nickname.')';
                 }          
                 $result = false;
                 Db::startTrans();
@@ -454,21 +454,19 @@ class Index extends Base
             if ($params) {
                 $trouble_info = $model->where(['company_id'=>$this->auth->company_id,'id'=>$params['id']])->find();	
                 $data['id'] = $params['id'];
-                
-                if($params['processer']!=='') {
-                	$data['main_status'] = 2;
-                }
+                $data['process_pic'] =$params['process_pic'];
+                $data['main_status'] = 5;//完成任务，等待复核
                 if($params['word']!=='') {
-                	$data['remark'] = $params['remark']."\n"."处理留言：".$params['word'];
+                	$data['remark'] = $params['remark']."\n"."处理留言：".$params['word'].'('.$this->auth->nickname.')';
                 }          
                 $result = false;
                 Db::startTrans();
                 try {
                     $result = $trouble_info->save($data);
-                    if($trouble['main_status']==1) {
-                    		LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'完成隐患处理，等待复核...','company_id'=>$this->auth->company_id]);
+                    if($trouble['main_status']==5) {
+                    		LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'重新排除隐患，等待复核...','company_id'=>$this->auth->company_id]);
                 	  }else {
-                 			LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'修改了隐患处理信息，等待复核...','company_id'=>$this->auth->company_id]);
+                 			LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'排除隐患，等待复核...','company_id'=>$this->auth->company_id]);
                  	 }
                     Db::commit();
                 } catch (ValidateException $e) {
@@ -491,12 +489,188 @@ class Index extends Base
             $this->error(__('Parameter %s can not be empty', ''));
         }
         //加入微信API调用
-        $jssdk = new Jssdk("wx4f79233878b9f770", "10eb3f75adafacbaa3c584908395c982");
-        $signPackage = $jssdk->GetSignPackage();
-        $this->view->assign('signPackage',$signPackage);
+        //$jssdk = new Jssdk("wx4f79233878b9f770", "10eb3f75adafacbaa3c584908395c982");
+        //$signPackage = $jssdk->GetSignPackage();
+        //$this->view->assign('signPackage',$signPackage);
         $this->view->assign('row', $trouble);
         return $this->view->fetch('/child/solvetrouble');
     }
+    
+    public function reviewtrouble() //复核处理详情
+    {
+        $model = new MainModel;
+        $id = $this->request->param('id');
+        $trouble = $model->alias('a')
+            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
+            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+            	 ->where(['a.id'=>$id,'a.company_id'=>$this->auth->company_id])
+            	 ->find();
+        $trouble['log'] = $this->getlog($id);//获取操作日志内容
+        $trouble['main_text'] = $this->getstatus($trouble['main_status']);//将状态转换成文本
+        if ($this->request->isPost()) {
+        		 //$params = $this->request->param();//接收过滤条件	
+             $params = $this->request->post('row/a');
+            if ($params) {
+                $trouble_info = $model->where(['company_id'=>$this->auth->company_id,'id'=>$params['id']])->find();	
+                $data['id'] = $params['id'];
+                $data['finish_pic'] =$params['finish_pic'];
+                if($params['type']=='0') {
+                		$data['main_status'] = 6;//完成任务，等待复核
+             		}else {
+             			$data['main_status'] = 3;//重新处理
+             		}
+                if($params['word']!=='') {
+                	$data['remark'] = $params['remark']."\n"."复核留言：".$params['word'].'('.$this->auth->nickname.')';
+                }          
+                $result = false;
+                Db::startTrans();
+                try {
+                    $result = $trouble_info->save($data);
+                    if($params['type']=='0') {
+                    	$msg = '隐患排除情况已复核通过!';
+                    if($trouble['main_status']==5) {
+                    		LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'复核隐患排除情况通过，等待反馈结单...','company_id'=>$this->auth->company_id]);
+                	  }else {
+                 			LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'重新复核隐患排除情况通过，等待反馈结单...','company_id'=>$this->auth->company_id]);
+                 	 }
+                 }else {
+                 		$msg = '隐患排除情况已复核未通过!';
+                 		LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'复核隐患排除情况未通过，等待重新处理...','company_id'=>$this->auth->company_id]);
+                 }
+                    Db::commit();
+                } catch (ValidateException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (PDOException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (Exception $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                }
+                if ($result !== false) {
+                    $this->success($msg);
+                } else {
+                    $this->error(__('No rows were updated'));
+                }
+            }
+            
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        
+        $this->view->assign('row', $trouble);
+        return $this->view->fetch('/child/reviewtrouble');
+    }
+    public function roamtrouble() //流转任务
+    {
+        $model = new MainModel;
+        $id = $this->request->param('id');
+        $trouble = $model->alias('a')
+            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
+            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+            	 ->where(['a.id'=>$id,'a.company_id'=>$this->auth->company_id])
+            	 ->find();
+        $trouble['log'] = $this->getlog($id);//获取操作日志内容
+        $trouble['main_text'] = $this->getstatus($trouble['main_status']);//将状态转换成文本
+        if ($this->request->isPost()) {
+        		 //$params = $this->request->param();//接收过滤条件	
+             $params = $this->request->post('row/a');
+            if ($params) {
+                $trouble_info = $model->where(['company_id'=>$this->auth->company_id,'id'=>$params['id']])->find();	
+                $data['id'] = $params['id'];
+             	 $data['main_status'] = 4;//进入流转状态，等待重新派单
+                if($params['word']!=='') {
+                	$data['remark'] = $params['remark']."\n"."流转留言：".$params['word'].'('.$this->auth->nickname.')';
+                }          
+                $result = false;
+                Db::startTrans();
+                try {
+                    $result = $trouble_info->save($data);     
+                    	$msg = '隐患排除任务已流转!';
+                    	LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'隐患排除任务已流转，等待重新派单...','company_id'=>$this->auth->company_id]); 
+                    Db::commit();
+                } catch (ValidateException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (PDOException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (Exception $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                }
+                if ($result !== false) {
+                    $this->success($msg);
+                } else {
+                    $this->error(__('No rows were updated'));
+                }
+            }
+            
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        
+        $this->view->assign('row', $trouble);
+        return $this->view->fetch('/child/roamtrouble');
+    }
+    
+    public function feedbacktrouble() //反馈隐患
+    {
+        $model = new MainModel;
+        $id = $this->request->param('id');
+        $trouble = $model->alias('a')
+            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
+            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+            	 ->where(['a.id'=>$id,'a.company_id'=>$this->auth->company_id])
+            	 ->find();
+        $trouble['log'] = $this->getlog($id);//获取操作日志内容
+        $trouble['main_text'] = $this->getstatus($trouble['main_status']);//将状态转换成文本
+        if ($this->request->isPost()) {
+        		 //$params = $this->request->param();//接收过滤条件	
+             $params = $this->request->post('row/a');
+             if ($params) {
+                $trouble_info = $model->where(['company_id'=>$this->auth->company_id,'id'=>$params['id']])->find();	
+                $data['id'] = $params['id'];
+                $data['main_status'] = 7;//完成任务，等待复核	
+                if($params['word']!=='') {
+                	$data['remark'] = $params['remark']."\n"."反馈留言：".$params['word'].'('.$this->auth->nickname.')';
+                }          
+                $result = false;
+                Db::startTrans();
+                try {
+                    $result = $trouble_info->save($data);
+                    if($trouble['main_status']==6) {
+                    		LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'隐患处理已完结，任务完成！','company_id'=>$this->auth->company_id]);
+                    		$msg = '隐患反馈完成，任务结单!';
+                	  }
+                	  
+                    Db::commit();
+                } catch (ValidateException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (PDOException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (Exception $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                }
+                if ($result !== false) {
+                    $this->success($msg);
+                } else {
+                    $this->error(__('操作失败'));
+                }
+            }
+            
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        
+        $this->view->assign('row', $trouble);
+        return $this->view->fetch('/child/feedbacktrouble');
+    }
+    
     public function selectoperator() //选择人员
     {
         $model = new UserModel;
@@ -668,6 +842,9 @@ class Index extends Base
             $list = $list->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
+            foreach($list as $k=>$v){
+            	$v['status'] = $this->getstatus($v['main_status']);
+            }
             $result = array("total" => $total, "rows" => $list);
             return json($result);            
     }
@@ -775,6 +952,97 @@ class Index extends Base
         }
         //这里一定要返回有list这个字段,total是可选的,如果total<=list的数量,则会隐藏分页按钮
         return json(['list' => $datalist, 'total' => $total]);
+    }
+    
+    /**
+     * 下载保存微信图片素材
+     * @param  [string] $serverid 微信服务器上的素材ID
+     * @return [string] 返回保存本地之后的图片路径
+     */
+    function getimg(){
+        $serverid=$this->request->param('serverid');
+        if(empty($serverid)) return false;
+        $access_token=$this->getimg_token();
+        $content = $this->https_request('https://api.weixin.qq.com/cgi-bin/media/get?access_token='.$access_token.'&media_id='.$serverid);
+        if(json_decode($content,true)['errcode']){
+            return json_decode($content,true)['errmsg'];
+        }
+        $filename = time().rand(001,999).'.jpg';			//保存的文件名
+        $dateStr = date('Ymd');
+        $file_dir =  './uploads/'.date("Ymd").'/'; //保存文件的目录
+        if (!is_dir($file_dir)){       			//创建保存文件的目录
+            mkdir(iconv("GBK","UTF-8", $file_dir),0777,true);
+        }
+
+        $path = $file_dir.$filename;			//文件路径
+        if(file_exists($path)){
+            unlink($path); 						//如果文件已经存在则删除已有的
+        }
+
+        $fp = fopen($path, 'w');
+        $state = fwrite($fp,$content);  		//写入数据
+        fclose($fp);
+
+        if(!$state) return false;
+        $path='/uploads/'.date("Ymd").'/'.$filename;
+        return $path;
+    }
+
+
+    public function getimg_token(){
+        //获取access_token，并缓存
+        $file = RUNTIME_PATH.'/access_token1';//缓存文件名access_token1
+        $appid='wx4f79233878b9f770'; // 填写自己的appid
+        $secret='10eb3f75adafacbaa3c584908395c982'; // 填写自己的appsecret
+        $expires = 3600;//缓存时间1个小时
+        if(file_exists($file)) {
+            $time = filemtime($file);
+            if(time() - $time > $expires) {
+                $token = null;
+            }else {
+                $token = file_get_contents($file);
+            }
+        }else{
+            fopen("$file", "w+");
+            $token = null;
+        }
+        if (!$token || strlen($token) < 6) {
+            $res = file_get_contents("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$appid."&secret=".$secret."");
+            $res = json_decode($res, true);
+            $token = $res['access_token'];
+            @file_put_contents($file, $token);
+        }
+        return $token;
+    }
+
+
+    function https_request($url, $data = null,$time_out=60,$out_level="s",$headers=array())
+    {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_NOSIGNAL, 1);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        if (!empty($data)){
+            curl_setopt($curl, CURLOPT_POST, 1);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        }
+        if($out_level=="s")
+        {
+            //超时以秒设置
+            curl_setopt($curl, CURLOPT_TIMEOUT,$time_out);//设置超时时间
+        }elseif ($out_level=="ms")
+        {
+            curl_setopt($curl, CURLOPT_TIMEOUT_MS,$time_out);  //超时毫秒，curl 7.16.2中被加入。从PHP 5.2.3起可使用
+        }
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        if($headers)
+        {
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);//如果有header头 就发送header头信息
+        }
+        $output = curl_exec($curl);
+        curl_close($curl);
+        return $output;
     }
     
     

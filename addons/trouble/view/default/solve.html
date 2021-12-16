@@ -143,9 +143,8 @@
                 <p>              
                     <a href="#" class="btn btn-success btn-open-course" data-id="<%=item.id%>" ><i class="fa fa-list-ol"></i>详情</a> 
                     <a href="#" class="btn btn-info btn-solve" data-id="<%=item.id%>"><i class="fa fa-fa"></i>处理</a>
-                    
-                    	
-                    <span class="pull-right" style="margin-top:10px;"><%=item.trouble_type%></span>
+                    <span class="pull-right" style="margin-top:10px;"><%=item.status%></span>
+                    <span class="pull-right" style="margin-top:10px;"><%=item.trouble_type%>&#12288;&#12288;</span>
                 </p>
             </div>
         </div>
@@ -226,9 +225,9 @@
                                 $.getJSON("{:addon_url('trouble/index/getCount')}", {
                                         year: $('#year').data('value'),
                                         category_id: category_id,
-                                        all:'2,3,4',
-                                        no:'2,4',
-                                        already:'3',
+                                        all:'2,3,5',
+                                        no:'2,3',
+                                        already:'5',
                                         operator:2
                                     },
                                     function(data, textStatus, jqXHR) {
