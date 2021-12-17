@@ -31,6 +31,7 @@ return [
     'Main_status 7'                    => '完结',
     'Main_status 9'                    => '作废',
     'Informer'                         => '报警人',
+    'Informer_name'                    => '报警人姓名',
     'Recevie'                          => '处警人',
     'Processer'                        => '处置人',
     'Checker'                          => '复核人',

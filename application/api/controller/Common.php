@@ -16,7 +16,7 @@ use think\Hook;
  */
 class Common extends Api
 {
-    protected $noNeedLogin = ['init'];
+    protected $noNeedLogin = ['init','upload'];
     protected $noNeedRight = '*';
 
     /**

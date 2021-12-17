@@ -1,0 +1,126 @@
+<style>
+    .panel-post {
+        position: relative;
+    }
+
+    .btn-post {
+        position: absolute;
+        right: 0;
+        bottom: 10px;
+    }
+
+    .img-border {
+        border-radius: 3px;
+        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+    }
+</style>
+
+<div class="container mt-20">  
+	<div class="col-md-9">
+		<div class="panel panel-default panel-user">
+			<div class="panel-body">
+				<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+					{layout name="common/layout31" /}
+    				<div class="page-header panel-post">
+         			
+         			<div class="form-group">
+        				<label class="control-label col-xs-12 col-sm-2">{$row.type}</label>
+        				<button type="submit" class="btn btn-success btn-embossed">{:__('提交隐患')}</button>   				
+    				</div>
+    				</div>
+    				<div class="form-group">
+        				<label class="control-label col-xs-12 col-sm-2">{:__('Trouble_pic')}:</label>
+        				<div class="col-xs-12 col-sm-8">
+            				<div class="input-group">
+                				<input id="c-trouble_pic" class="form-control"   name="row[trouble_pic]" type="text" readonly="readonly"  data-rule="" placeholder="暂无照片" >
+                				<div class="input-group-addon no-border no-padding">
+                    				<span><button type="button"  id="faupload-process_pic" class="btn btn-danger faupload" data-input-id="c-trouble_pic" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="true" data-preview-id="p-trouble_pic"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
+                    				<span><button type="button"  id="facamera-process_pic" class="btn btn-primary faupload" data-input-id="c-trouble_pic" data-mimetype="image/*" data-multiple="true"><i class="fa fa-camera"></i> {:__('photo')}</button></span>
+                				</div>
+                				<span class="msg-box n-right" for="c-trouble_pic"></span>
+            				</div>
+            				<ul class="row list-inline faupload-preview" id="p-trouble_pic" data-template="customtpl_1" ></ul>
+        				</div>
+    				</div>
+    				
+    				
+    				<div class="form-group">
+        				<label class="control-label col-xs-12 col-sm-2">{:__('Point_id')}:</label>
+       				<div class="col-xs-12 col-sm-7">
+            				<input  readonly="readonly" class="form-control "   type="text" >  
+        				</div>
+    				</div>
+    				<div class="form-group">
+        				<label class="control-label col-xs-12 col-sm-2">{:__('Point_address')}:</label>
+       				<div class="col-xs-12 col-sm-7">
+            				<input  readonly="readonly" class="form-control "  type="text"value="{$row.point_address}" >  
+        				</div>
+    				</div>
+    				<div class="form-group">
+        				<label class="control-label col-xs-12 col-sm-2">{:__('Trouble_expression')}:</label>
+        				<div class="col-xs-12 col-sm-7">
+            				<input id="c-trouble_expression"  class="form-control" name="row[trouble_expression]" type="text" placeholder="请简要描述隐患现象">
+        				</div>
+        				
+ 
+    				</div>
+    				<div class="form-group">
+        				<label class="control-label col-xs-12 col-sm-2">{:__('Description')}:</label>
+        				<div class="col-xs-12 col-sm-8">
+            				<textarea id="c-description" class="form-control "  rows="3" name="row[description]" cols="50"></textarea>
+        				</div>
+    				</div>
+    				
+    				
+    				<div class="form-group">
+        				<label class="control-label col-xs-12 col-sm-2">{:__('Informer_name')}:</label>
+        				<div class="col-xs-12 col-sm-8">
+            			<input id="c-informer_name" class="form-control" name="row[informer_name]" type="text" placeholder="您可以在这里留下您的姓名和联系方式" >
+        				</div>
+    				</div>
+    				
+    				
+    				
+    				
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/html" id="customtpl">
+
+<li class="col-xs-3">
+    <a  data-url="<%=url%>" target="_blank" class="thumbnail"><img src="<%=fullurl%>" class="img-responsive"></a>
+</li>
+</script>
+<script type="text/html" id="customtpl_1">
+
+<li class="col-xs-3">
+    <a  data-url="<%=url%>" target="_blank" class="thumbnail"><img src="<%=fullurl%>" class="img-responsive"></a><a href="javascript:;" class="btn btn-danger btn-xs btn-trash"><i class="fa fa-trash"></i></a>
+</li>
+</script>
+
+<script data-render="script">
+        require.callback = function() {
+            define('training/index', ['jquery', 'bootstrap', 'frontend','backend', 'table', 'fullcalendar-lang', 'fullcalendar', 'moment', 'moment/locale/zh-cn', 'panelslider','form','layer','template'], function($, undefined, Frontend, Backend,Table, CalendarLocale, Calendar, Moment, undefined, panelslider,Form,Layer,Template) {
+                
+                var Controller = {
+                    report: function() {
+                    		
+  						     
+                        Controller.api.bindEvent();
+                    },             
+                    api: {
+                        bindEvent() {
+                            Form.api.bindevent($("form[role=form]"),function(data,ret){
+                             alert(ret.msg);
+                             window.location.href=Fast.api.fixurl("{:addon_url('trouble/Index/solve')}");
+                            });
+                        }  
+                    }
+                };
+                return Controller;
+            });
+        }
+</script>
+
