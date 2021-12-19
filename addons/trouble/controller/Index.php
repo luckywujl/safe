@@ -5,6 +5,7 @@ namespace addons\trouble\controller;
 use addons\trouble\model\Main as MainModel;
 use addons\trouble\model\Log as LogModel;
 use addons\trouble\model\Point as PointModel;
+use addons\trouble\model\Type as TypeModel;
 use app\common\model\User as UserModel;
 use Think\Db;
 use fast\Tree;
@@ -631,7 +632,7 @@ class Index extends Base
         return $this->view->fetch('/child/feedbacktrouble');
     }
     
-    public function report() //反馈隐患
+    public function report() //扫码报警
     {	
     	 $point_id = $this->request->param('point_id');
     	 if(isset($point_id)) {
@@ -639,22 +640,28 @@ class Index extends Base
     	 	$model = new MainModel;
     	 	$point = $point_info->where('id',$point_id)->find();
     	 	if($point) {
-       	if ($this->auth->id) {
-       		$point['type'] = '安全检查';
-       	} else {
-       		$point['type'] = '路人报警';
-       	}
-       		
-       } 
+       		if ($this->user_id) {
+       			$point['type'] = '1';  //自己人
+       		} else {
+       			$point['type'] = '0';	//路人
+       		}	
+       	} 
        if ($this->request->isPost()) {
             $params = $this->request->post("row/a");
             if ($params) {
-                $params = $this->preExcludeFields($params);
                 $params['main_status'] = 0; //草稿状态
+                if($this->user_id) {  //如果有用户信息，则视为自己人
+                	$params['informer'] = $this->user_id;
+                	$params['informer_name'] = $this->auth->jobnumber.'-'.$this->auth->nickname.'('.$this->auth->mobile.')';	
+                } else {
+                	if($params['informer_name']=='') {
+                		$params['informer_name'] = '匿名';
+                	}	  
+                }
                 //加入信息编码生成代码
                 $main = $model
                 ->where('createtime','between time',[date('Y-m-01 00:00:01'),date('Y-m-31 23:59:59')])
-                ->where(['company_id'=>$this->auth->company_id]) //出库单
+                ->where(['company_id'=>$point['company_id']]) //出库单
             	 -> order('main_code','desc')->limit(1)->select();
         	       if (count($main)>0) {
         	       $item = $main[0];
@@ -664,17 +671,14 @@ class Index extends Base
         	      	} else {
         	  	   	$params['main_code']='YH'.date('Ym').'0001';
         	      	}
-                
-                
+        	       $params['company_id'] = $point['company_id'];
                 //完成信息编码生成
                 $result = false;
                 Db::startTrans();
                 try {
-                    //是否采用模型验证
-                    
                     $result = $model->allowField(true)->save($params);
                     $id = $model->id;
-                    LogModel::create(['main_id'=>$id,'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'完成手工接警，等待派单...','company_id'=>$this->auth->company_id]);
+                    LogModel::create(['main_id'=>$id,'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'提交报警信息，等待接警处理...','company_id'=>$this->auth->company_id]);
                     Db::commit();
                 } catch (ValidateException $e) {
                     Db::rollback();
@@ -687,7 +691,7 @@ class Index extends Base
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
-                    $this->success();
+                    $this->success('报警完成！谢谢您的支持');
                 } else {
                     $this->error(__('No rows were inserted'));
                 }
@@ -695,8 +699,8 @@ class Index extends Base
             $this->error(__('Parameter %s can not be empty', ''));
         }
         $this->view->assign('row', $point);
-        return $this->view->fetch('/report');
-    	 }
+        return $this->view->fetch('/report');	
+    	}
     	 
     }
     
@@ -726,7 +730,19 @@ class Index extends Base
         return $this->view->fetch('/child/selectoperator');
     }
 
-    
+    public function selecttroubletype() //选择隐患类型
+    {
+        $model = new TypeModel;
+        
+        if ($this->request->isAjax()) {
+        		//如果发送的来源是Selectpage，则转发到Selectpage
+            if ($this->request->request('keyField')) {
+            	return $this->selecttype();
+            }
+            
+        }    
+        //return $this->view->fetch('/child/selectoperator');
+    }
     
     public function getlog($id)
     {
@@ -988,6 +1004,104 @@ class Index extends Base
             
             $datalist = $model->where($where)
             	 ->where(['department_id'=>$this->auth->department_id,'company_id'=>$this->auth->company_id])
+                ->page($page, $pagesize)
+                ->select();
+        }
+        //这里一定要返回有list这个字段,total是可选的,如果total<=list的数量,则会隐藏分页按钮
+        return json(['list' => $datalist, 'total' => $total]);
+    }
+    
+    protected function selecttype()
+    {
+        //设置过滤方法
+        $this->request->filter(['trim', 'strip_tags', 'htmlspecialchars']);
+
+        //搜索关键词,客户端输入以空格分开,这里接收为数组
+        $word = (array)$this->request->request("q_word/a");
+        //当前页
+        $page = $this->request->request("pageNumber");
+        //分页大小
+        $pagesize = $this->request->request("pageSize");
+        //搜索条件
+        $andor = $this->request->request("andOr", "and", "strtoupper");
+        //排序方式
+        $orderby = (array)$this->request->request("orderBy/a");
+        //显示的字段
+        $field = $this->request->request("showField");
+        //主键
+        $primarykey = $this->request->request("keyField");
+        //主键值
+        $primaryvalue = $this->request->request("keyValue");
+        //搜索字段
+        $searchfield = (array)$this->request->request("searchField/a");
+        //自定义搜索条件
+        $custom = (array)$this->request->request("custom/a");
+        //是否返回树形结构
+        $istree = $this->request->request("isTree", 0);
+        $ishtml = $this->request->request("isHtml", 0);
+        if ($istree) {
+            $word = [];
+            $pagesize = 999999;
+        }
+        $order = [];
+        foreach ($orderby as $k => $v) {
+            $order[$v[0]] = $v[1];
+        }
+        $field = $field ? $field : 'name';
+        
+        //如果有primaryvalue,说明当前是初始化传值
+        if ($primaryvalue !== null) {
+            $where = [$primarykey => ['in', $primaryvalue]];
+            $pagesize = 999999;
+        } else {
+            $where = function ($query) use ($word, $andor, $field, $searchfield, $custom) {
+                $logic = $andor == 'AND' ? '&' : '|';
+                $searchfield = is_array($searchfield) ? implode($logic, $searchfield) : $searchfield;
+                $searchfield = str_replace(',', $logic, $searchfield);
+                $word = array_filter(array_unique($word));
+                if (count($word) == 1) {
+                    $query->where($searchfield, "like", "%" . reset($word) . "%");
+                } else {
+                    $query->where(function ($query) use ($word, $searchfield) {
+                        foreach ($word as $index => $item) {
+                            $query->whereOr(function ($query) use ($item, $searchfield) {
+                                $query->where($searchfield, "like", "%{$item}%");
+                            });
+                        }
+                    });
+                }
+                if ($custom && is_array($custom)) {
+                    foreach ($custom as $k => $v) {
+                        if (is_array($v) && 2 == count($v)) {
+                            $query->where($k, trim($v[0]), $v[1]);
+                        } else {
+                            $query->where($k, '=', $v);
+                        }
+                    }
+                }
+            };
+        }
+        $model = new TypeModel;
+        $total = $model->where($where)->count();
+        if ($total > 0) {
+           
+            //如果有primaryvalue,说明当前是初始化传值,按照选择顺序排序
+            if ($primaryvalue !== null && preg_match("/^[a-z0-9_\-]+$/i", $primarykey)) {
+                $primaryvalue = array_unique(is_array($primaryvalue) ? $primaryvalue : explode(',', $primaryvalue));
+                //修复自定义data-primary-key为字符串内容时，给排序字段添加上引号
+                $primaryvalue = array_map(function ($value) {
+                    return '\'' . $value . '\'';
+                }, $primaryvalue);
+
+                $primaryvalue = implode(',', $primaryvalue);
+
+                $model->orderRaw("FIELD(`{$primarykey}`, {$primaryvalue})");
+            } else {
+                $model->order($order);
+            }
+            
+            $datalist = $model->where($where)
+            	 ->where(['company_id'=>$this->auth->company_id])
                 ->page($page, $pagesize)
                 ->select();
         }

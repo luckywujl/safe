@@ -177,7 +177,7 @@ return [
         'title' => 'Logo大小',
         'type' => 'number',
         'content' => [],
-        'value' => '50',
+        'value' => '80',
         'rule' => 'required',
         'msg' => '',
         'tip' => '',
@@ -207,6 +207,7 @@ return [
         'value' => [
             'index/index' => '/qrcode$',
             'index/build' => '/qrcode/build$',
+            
         ],
         'rule' => 'required',
         'msg' => '',

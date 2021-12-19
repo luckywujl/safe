@@ -54,5 +54,7 @@ return [
     'Recevier'							=> '接警人',
     'Remark'							=> '备注',
     'Log'								=> '隐患处理记录',
-    'Main_text'
+    'Upload'								  => '上传',
+    'Photo'									  => '拍照',
+    
 ];

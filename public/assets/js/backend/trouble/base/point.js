@@ -1,7 +1,7 @@
-define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefined, Backend, Table, Form) {
+define(['jquery', 'bootstrap', 'backend', 'table', 'form','jszip','filesaver'], function ($, undefined, Backend, Table, Form,Jszip,Filesaver) {
 
     var Controller = {
-        index: function () {
+        index: function () {	  
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
@@ -61,6 +61,47 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 为表格绑定事件
             Table.api.bindevent(table);
             Controller.api.tree.init(table);
+            //批量修改部门
+				$(document).on("click",".btn-buildqrcode",function () {
+                var all = table.bootstrapTable('getSelections'); // 获取表格全部选中的数据
+                var websit = Config.company.company_websit;
+                if(all.length < 1){
+                    Layer.msg("请选择要下载的二维码");
+                    return false;
+                }
+                for(var i=0; i< all.length ;i++)
+                {
+                	
+                	$.post("/addons/qrcode/index/build", {
+                			write:1,
+                			company:all[i].company_id,
+                			code:all[i].point_code,
+                			label:'('+all[i].point_code+')'+all[i].point_name,
+                			text: websit+'/addons/trouble/index/report.html?point_id='+all[i].id,
+                			logo:1
+                		 },function(response){
+            				
+             			}, 'json');          		   
+                  }   
+                  Toastr.success('二维码已生成，可进行下载！');      
+                });	
+                
+                $(document).on("click",".btn-downloadqrcode",function () {			 
+                	 //Fast.api.open('trouble/base/point/downqrcode','正在下载，完成后请关闭窗口',{//下载文件夹下全部内容
+                  var ids = Table.api.selectedids(table);
+                  Fast.api.open('trouble/base/point/downqrcode?ids='+ids,'正在下载，完成后请关闭窗口',{
+	           			area:['20%', '10%'],
+	           			maxmin: false,
+    						moveOut: false, 
+		           		callback: function (data) {	
+		           		
+	       	    		},function (data) {	
+	       	   	 }
+	       	   	
+	              }); 
+                }); 
+	        
+	        
         },
         getpoint: function () {
             // 初始化表格参数配置
@@ -133,6 +174,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
         add: function () {
             Controller.api.bindevent();
         },
+       
         edit: function () {
             Controller.api.bindevent();
         },

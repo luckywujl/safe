@@ -2,8 +2,13 @@
 
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Point_code')}:</label>
+        <div class="col-xs-12 col-sm-8" hidden="hidden">
+            <input id="c-id" data-rule="required" class="form-control" name="row[id]" type="text" value="{$row.id|htmlentities}">
+            
+        </div>
         <div class="col-xs-12 col-sm-8">
             <input id="c-point_code" data-rule="required" class="form-control" name="row[point_code]" type="text" value="{$row.point_code|htmlentities}">
+            
         </div>
     </div>
     <div class="form-group">
@@ -47,6 +52,16 @@
             <input id="c-point_area_id" data-rule="required" data-source="trouble/base/area/index" data-field="area_name" data-primary-key="id" class="form-control selectpage" name="row[point_area_id]" type="text" value="{$row.point_area_id|htmlentities}">
         </div>
     </div>
+    <div class="col-xs-12 col-sm-8" hidden="hidden">
+            <input id="c-company_id" class="form-control" name="row[company_id]" type="text" value="{$row.company_id|htmlentities}">
+        </div>
+    <div class="form-group user-select ">
+      <label class="control-label col-xs-12 col-sm-2">隐患点报警码:</label>
+   	<div class="col-xs-12 col-sm-8">
+    		<img src="" alt="" id='qrcodeimg' />
+    		
+    	</div>
+   </div>
     
     <div class="form-group layer-footer">
         <label class="control-label col-xs-12 col-sm-2"></label>
@@ -56,3 +71,15 @@
         </div>
     </div>
 </form>
+<script src="__CDN__/assets/libs/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript">
+            $(function () {
+                $("form").submit(function () {
+                	 var t = 'http://192.168.0.4:9010/addons/trouble/index/report.html?point_id='+$("#c-id").val();
+                	// var t = 'http://safe.haxxj.com/addons/trouble/index/report.html?point_id='+$("#c-id").val();
+                    $("#qrcodeimg").prop("src", "{:addon_url('qrcode/index/build',[],false)}?" + 'label='+'('+$("#c-point_code").val()+')'+$("#c-point_name").val()+'&logo=1&logopath=.'+$("#c-coverimage").val()+'&text='+t+'&company='+$("#c-company_id").val()+'&code='+$("#c-point_code").val()+'&write=1');;
+                    return false;
+                });
+                $("form").trigger('submit');
+            });
+</script>

@@ -27,5 +27,7 @@ return [
     'Userdepartment.weigh'         => '权重',
     'Userdepartment.status'        => '状态',
     'Userdepartment.company_id'    => '数据归属',
+    'Buildqrcode'						  => '生成二维码',
+    'Downloadqrcode'						  => '下载二维码',
     'Department'						  => '所属部门'
 ];

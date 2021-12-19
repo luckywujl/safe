@@ -5,6 +5,7 @@ namespace app\admin\controller\trouble\base;
 use app\common\controller\Backend;
 use Think\Db;
 use fast\Tree;
+use app\admin\model\setting\Company as CompanyModel;
 /**
  * 隐患点信息
  *
@@ -28,8 +29,10 @@ class Point extends Backend
     {
         parent::_initialize();
         $this->model = new \app\admin\model\trouble\base\Point;
+        $company = new \app\admin\model\setting\Company;
         
         $department = new \app\admin\model\user\Department;
+        
         $tree = Tree::instance();
         $tree->init(collection($department->where(['company_id'=>$this->auth->company_id])->order('weigh desc,id desc')->select())->toArray(), 'pid');
         $this->departmentlist = $tree->getTreeList($tree->getTreeArray(0), 'name');
@@ -37,7 +40,9 @@ class Point extends Backend
         foreach ($this->departmentlist as $k => $v) {
             $departmentdata[$v['id']] = $v;
         }
-       
+        
+        $company_info = $company->where('company_id',$this->auth->company_id)->find();
+        $this->assignconfig("company",$company_info);      
         $this->view->assign("parentList", $departmentdata);
 
     }
@@ -85,6 +90,7 @@ class Point extends Backend
 
             return json($result);
         }
+        
         return $this->view->fetch();
     }
     
@@ -103,9 +109,8 @@ class Point extends Backend
                     $params[$this->dataLimitField] = $this->auth->company_id;
                 }
                 $salt = \fast\Random::alnum();
-                $params['password'] = \app\common\library\Auth::instance()->getEncryptPassword($params['password'], $salt);
-                $params['salt'] = $salt;
-                $params['jointime'] = time();
+                
+              
                 $result = false;
                 Db::startTrans();
                 try {
@@ -135,7 +140,7 @@ class Point extends Backend
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
-        
+       
         $department = $this->request->request("department_id",'');
         $this->view->assign("department_id", $department);
         return $this->view->fetch();
@@ -174,5 +179,90 @@ class Point extends Backend
         }
         return $this->view->fetch();
      }
+     /**
+     * 下载全部二维码
+     */
+     public function downqrpic()
+     {
+        require_once "Zipfile.php";
+        $dfile = tempnam('/tmp', 'tmp');//产生一个临时文件，用于缓存下载文件 
+        $zip = new Zipfile();
+        $filename = '隐患点报警二维码.zip'; //下载的默认文件名
+        $zip->add_path(ROOT_PATH . 'public/uploads/qrcode/2/');
+        $zip->output($dfile);
+        // 下载文件 
+        ob_clean(); 
+        header('Pragma: public'); 
+        header('Last-Modified:'.gmdate('D, d M Y H:i:s') . 'GMT'); 
+        header('Cache-Control:no-store, no-cache, must-revalidate'); 
+        header('Cache-Control:pre-check=0, post-check=0, max-age=0'); 
+        header('Content-Transfer-Encoding:binary'); 
+        header('Content-Encoding:none'); 
+        header('Content-type:multipart/form-data'); 
+        header('Content-Disposition:attachment; filename="'.$filename.'"'); 
+        //设置下载的默认文件名 
+        header('Content-length:'. filesize($dfile)); 
+        $fp = fopen($dfile, 'r'); 
+        while(connection_status() == 0 && $buf = @fread($fp, 8192)){
+        	 echo $buf;
+        }
+        fclose($fp); 
+        @unlink($dfile); 
+        @flush(); 
+        @ob_flush(); 
+        exit();
+    }
+    /**
+     * 下载选中二维码
+     */
+    public function downqrcode($ids = "")//下载选中的二维码
+    {
+        require_once "Zipfile.php";
+        $dfile = tempnam('/tmp', 'tmp');//产生一个临时文件，用于缓存下载文件 
+        $zip = new Zipfile();
+        $filename = '隐患点报警二维码.zip'; //下载的默认文件名
+        $ids = $ids ? $ids : $this->request->get("ids");
+        if ($ids) {
+            $pk = $this->model->getPk();
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                $this->model->where($this->dataLimitField, 'in', $adminIds);
+            }
+            $list = $this->model->where($pk, 'in', $ids)->select();
+            $count = 0;
+                foreach ($list as $k => $v) {
+        				$zip->add_file(file_get_contents(ROOT_PATH . 'public/uploads/qrcode/2/'.$v['point_code'].'.png'), $v['point_code']);
+        				$count+=1;
+                }
+
+            if ($count) {
+                $zip->output($dfile);
+        			// 下载文件 
+        			ob_clean(); 
+        			header('Pragma: public'); 
+        			header('Last-Modified:'.gmdate('D, d M Y H:i:s') . 'GMT'); 
+        			header('Cache-Control:no-store, no-cache, must-revalidate'); 
+        			header('Cache-Control:pre-check=0, post-check=0, max-age=0'); 
+        			header('Content-Transfer-Encoding:binary'); 
+        			header('Content-Encoding:none'); 
+        			header('Content-type:multipart/form-data'); 
+        			header('Content-Disposition:attachment; filename="'.$filename.'"'); 
+        			//设置下载的默认文件名 
+        			header('Content-length:'. filesize($dfile)); 
+        			$fp = fopen($dfile, 'r'); 
+        			while(connection_status() == 0 && $buf = @fread($fp, 8192)){
+        	 			echo $buf;
+        			}
+        			fclose($fp); 
+        			@unlink($dfile); 
+        			@flush(); 
+        			@ob_flush(); 
+        			exit();
+            } else {
+                $this->error(__('No rows were deleted'));
+            }
+        }
+        return $this->view->fetch();
+    }
 
 }
