@@ -359,6 +359,7 @@ class Index extends Base
                 $data['id'] = $params['id'];
                 $data['processer'] = $params['processer'];
                 $data['checker'] = $params['checker'];
+                $data['updatetime'] = time();
                 if($params['processer']!=='') {
                 	$data['main_status'] = 2;
                 }
@@ -416,7 +417,9 @@ class Index extends Base
                 $trouble_info = $model->where(['company_id'=>$this->auth->company_id,'id'=>$params['id']])->find();	
                 $data['id'] = $params['id'];
                 $data['process_pic'] =$params['process_pic'];
+                $data['updatetime'] = time();
                 $data['main_status'] = 5;//完成任务，等待复核
+                $data['processer'] = $this->user_id;
                 if($params['word']!=='') {
                 	$data['remark'] = $params['remark']."\n"."处理留言：".$params['word'].'('.$this->auth->nickname.')';
                 }          
@@ -476,6 +479,7 @@ class Index extends Base
                 $trouble_info = $model->where(['company_id'=>$this->auth->company_id,'id'=>$params['id']])->find();	
                 $data['id'] = $params['id'];
                 $data['finish_pic'] =$params['finish_pic'];
+                $data['updatetime'] = time();
                 if($params['type']=='0') {
                 		$data['main_status'] = 6;//完成任务，等待复核
              		}else {
@@ -542,6 +546,7 @@ class Index extends Base
                 $trouble_info = $model->where(['company_id'=>$this->auth->company_id,'id'=>$params['id']])->find();	
                 $data['id'] = $params['id'];
              	 $data['main_status'] = 4;//进入流转状态，等待重新派单
+             	 $data['updatetime'] = time();
                 if($params['word']!=='') {
                 	$data['remark'] = $params['remark']."\n"."流转留言：".$params['word'].'('.$this->auth->nickname.')';
                 }          
@@ -595,6 +600,9 @@ class Index extends Base
                 $trouble_info = $model->where(['company_id'=>$this->auth->company_id,'id'=>$params['id']])->find();	
                 $data['id'] = $params['id'];
                 $data['main_status'] = 7;//完成任务，等待复核	
+                $data['updatetime'] = time();
+                $data['finishtime'] = time();//更新完成时间
+                $data['finishduration'] = round((time()-$trouble['createtime'])/3600,2);;//更新完结时间
                 if($params['word']!=='') {
                 	$data['remark'] = $params['remark']."\n"."反馈留言：".$params['word'].'('.$this->auth->nickname.')';
                 }          
@@ -773,6 +781,8 @@ class Index extends Base
         		$result= __("Main_status 6");
         }elseif($status ==7) {
         		$result= __("Main_status 7");
+        }elseif($status ==8) {
+        		$result= __("Main_status 8");
         }else {
         		$result= __("Main_status 9");
         }
@@ -803,11 +813,15 @@ class Index extends Base
             if ($year !== '') {
                 $total = $total->whereTime('createtime', 'between', ["{$year}-1-1","{$year}-12-31"]);
             }
-            if($operator==0) {    
-            	$total = $total->where('informer',$this->user_id)->where('source_type',1);
+            if($operator==0) {   
+             	$total = $total->where('source_type',1)->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',informer)');
+            		});
             }
             if($operator==1) {    
-            	$total = $total->where('informer',$this->user_id)->where('source_type',2);
+            	$total = $total->where('source_type',2)->where(function ($query) {
+                	$query->where('find_in_set('.$this->user_id.',informer)');
+            		});
             }
             if($operator==2) {    
             	$total = $total->where(function ($query) {

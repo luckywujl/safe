@@ -3,39 +3,40 @@
    
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Main_code')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-main_code" class="form-control" name="row[main_code]" type="text" value="{$row.main_code|htmlentities}">
+        <div class="col-xs-12 col-sm-3">
+            <input id="c-main_code" class="form-control" readonly="readonly" name="row[main_code]" type="text" value="{$row.main_code|htmlentities}">
+            
         </div>
+        <div class="col-xs-12 col-sm-8" hidden="hidden">
+            <input id="c-id" class="form-control" readonly="readonly" name="row[id]" type="text" value="{$row.id|htmlentities}">
+            
+        </div>
+   
+        <label class="control-label col-xs-12 col-sm-2">{:__('Createtime')}:</label>
+        <div class="col-xs-12 col-sm-3">
+            <input id="c-createtime" class="form-control" readonly="readonly" name="row[createtime]" type="text" value="{:date('Y-m-d HH:m:s',$row.createtime)}">
+            
+        </div>     
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Point_id')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-point_id" data-rule="required" data-source="point/index" class="form-control selectpage" name="row[point_id]" type="text" value="{$row.point_id|htmlentities}">
+       <div class="col-xs-12 col-sm-3">
+            <input id="c-point_id" data-rule="required" disabled="disabled" class="form-control selectpage" data-source="trouble/base/point/getpoint" data-field="point_name" data-primary-key="id" name="row[point_id]"  type="text" value="{$row.point_id|htmlentities}">
+            
         </div>
+        <label class="control-label col-xs-12 col-sm-2">{:__('Main_status')}:</label>
+        <div class="col-xs-12 col-sm-3">
+            <input id="c-main_status" class="form-control" readonly="readonly" name="row[status]" type="text" value="{$row.status}">
+            
+        </div>    
+        
     </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Finishtime')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-finishtime" class="form-control datetimepicker" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="row[finishtime]" type="text" value="{:$row.finishtime?datetime($row.finishtime):''}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Firtstduration')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-firtstduration" class="form-control" name="row[firtstduration]" type="number" value="{$row.firtstduration|htmlentities}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Finishduration')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-finishduration" class="form-control" name="row[finishduration]" type="number" value="{$row.finishduration|htmlentities}">
-        </div>
-    </div>
+   
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Source_type')}:</label>
         <div class="col-xs-12 col-sm-8">
                         
-            <select  id="c-source_type" class="form-control selectpicker" name="row[source_type]">
+            <select  id="c-source_type" disabled="disabled" class="form-control selectpicker" name="row[source_type]">
                 {foreach name="sourceTypeList" item="vo"}
                     <option value="{$key}" {in name="key" value="$row.source_type"}selected{/in}>{$vo}</option>
                 {/foreach}
@@ -44,100 +45,101 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_type_id')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-trouble_type_id" data-rule="required" data-source="trouble/type/index" class="form-control selectpage" name="row[trouble_type_id]" type="text" value="{$row.trouble_type_id|htmlentities}">
-        </div>
-    </div>
-    <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_expression')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-trouble_expression" class="form-control" name="row[trouble_expression]" type="text" value="{$row.trouble_expression|htmlentities}">
+        <div class="col-xs-12 col-sm-7">
+            <input id="c-trouble_expression" disabled="disabled" class="form-control" name="row[trouble_expression]" type="text" value="{$row.trouble_expression|htmlentities}">
         </div>
+       
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Description')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-description" class="form-control" name="row[description]" type="text" value="{$row.description|htmlentities}">
+       
+            <textarea id="c-description" class="form-control " disabled="disabled" rows="3" name="row[description]" cols="50">{$row.description|htmlentities}</textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_type_id')}:</label>  
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-trouble_type_id" data-rule="required" disabled="disabled" data-source="trouble/base/type/index" data-field="trouble_type" data-primary-key="id" class="form-control selectpage" name="row[trouble_type_id]" type="text" value="{$row.trouble_type_id|htmlentities}">
         </div>
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_pic')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-trouble_pic" class="form-control" name="row[trouble_pic]" type="text" value="{$row.trouble_pic|htmlentities}">
+            <div class="input-group">
+                <input id="c-trouble_pic" class="form-control" style="{:$row.trouble_pic==''?"":"display: none;"}" placeholder="暂无照片" size="50" name="row[trouble_pic]" type="text" readonly="readonly" data-rule="" value="{$row.trouble_pic|htmlentities}">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" id="faupload-trouble_pic" style="display: none;" class="btn btn-danger faupload" data-input-id="c-trouble_pic" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="true" data-preview-id="p-trouble_pic"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
+                    <span><button type="button" id="fachoose-trouble_pic" style="display: none;" class="btn btn-primary fachoose" data-input-id="c-trouble_pic" data-mimetype="image/*" data-multiple="true"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
+                </div>
+                <span class="msg-box n-right" for="c-trouble_pic"></span>
+            </div>
+            <ul class="row list-inline faupload-preview" id="p-trouble_pic" data-template="customtpl"></ul>
         </div>
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Process_pic')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-process_pic" class="form-control" name="row[process_pic]" type="text" value="{$row.process_pic|htmlentities}">
+            <div class="input-group">
+                <input id="c-process_pic" class="form-control" style="{:$row.process_pic==''?"":"display: none;"}" placeholder="暂无照片" size="50" name="row[process_pic]" type="text" readonly="readonly" data-rule="" value="{$row.process_pic|htmlentities}">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" id="faupload-process_pic" style="display: none;" class="btn btn-danger faupload" data-input-id="c-process_pic" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="true" data-preview-id="p-process_pic"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
+                    <span><button type="button" id="fachoose-process_pic" style="display: none;" class="btn btn-primary fachoose" data-input-id="c-process_pic" data-mimetype="image/*" data-multiple="true"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
+                </div>
+                <span class="msg-box n-right" for="c-process_pic"></span>
+            </div>
+            <ul class="row list-inline faupload-preview" id="p-process_pic" data-template="customtpl"></ul>
         </div>
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Finish_pic')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-finish_pic" class="form-control" name="row[finish_pic]" type="text" value="{$row.finish_pic|htmlentities}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Main_status')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            
-            <div class="radio">
-            {foreach name="mainStatusList" item="vo"}
-            <label for="row[main_status]-{$key}"><input id="row[main_status]-{$key}" name="row[main_status]" type="radio" value="{$key}" {in name="key" value="$row.main_status"}checked{/in} /> {$vo}</label> 
-            {/foreach}
+            <div class="input-group">
+                <input id="c-finish_pic" class="form-control" style="{:$row.finish_pic==''?"":"display: none;"}" placeholder="暂无照片" size="50" name="row[finish_pic]" type="text" readonly="readonly" data-rule="" value="{$row.finish_pic|htmlentities}">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" id="faupload-finish_pic" style="display: none;" class="btn btn-danger faupload" data-input-id="c-finish_pic" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="true" data-preview-id="p-finish_pic"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
+                    <span><button type="button" id="fachoose-finish_pic" style="display: none;" class="btn btn-primary fachoose" data-input-id="c-finish_pic" data-mimetype="image/*" data-multiple="true"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
+                </div>
+                <span class="msg-box n-right" for="c-finish_pic"></span>
             </div>
-
+            <ul class="row list-inline faupload-preview" id="p-finish_pic" data-template="customtpl"></ul>
         </div>
     </div>
+    
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Informer')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-informer" class="form-control" name="row[informer]" type="text" value="{$row.informer|htmlentities}">
+            <input id="c-informer_name" class="form-control" disabled="disabled" name="row[informer_name]" type="text" value="{$row.informer_name|htmlentities}">
         </div>
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Recevier')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-recevier" class="form-control" name="row[recevier]" type="text" value="{$row.recevier|htmlentities}">
+            <input id="c-recevier" class="form-control" readonly="readonly" name="row[recevier]" type="text" value="{$row.recevier|htmlentities}">
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Processer')}:</label>
+        <label class="control-label col-xs-12 col-sm-2">{:__('Remark')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-processer" class="form-control" name="row[processer]" type="text" value="{$row.processer|htmlentities}">
+       
+            <textarea id="c-remark" class="form-control " disabled="disabled" rows="5" name="row[remark]" cols="50">{$row.remark|htmlentities}</textarea>
         </div>
     </div>
+    
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Checker')}:</label>
+        <label class="control-label col-xs-12 col-sm-2">{:__('日志')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-checker" class="form-control" name="row[checker]" type="text" value="{$row.checker|htmlentities}">
+       
+            <textarea id="c-log" class="form-control " readonly="readonly" rows="7" name="row[log]" cols="50">{$row.log|htmlentities}</textarea>
         </div>
     </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Together_id')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-together_id" data-rule="required" data-source="together/index" class="form-control selectpage" name="row[together_id]" type="text" value="{$row.together_id|htmlentities}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Together_code')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-together_code" class="form-control" name="row[together_code]" type="text" value="{$row.together_code|htmlentities}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Company_id')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-company_id" data-rule="required" data-source="company/index" class="form-control selectpage" name="row[company_id]" type="text" value="{$row.company_id|htmlentities}">
-        </div>
-    </div>
-    <div class="form-group layer-footer">
-        <label class="control-label col-xs-12 col-sm-2"></label>
-        <div class="col-xs-12 col-sm-8">
-            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
-            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
-        </div>
-    </div>
+   
+    
 </form>
+<script type="text/html" id="customtpl">
+
+<li class="col-xs-3">
+    <a href="<%=fullurl%>" data-url="<%=url%>" target="_blank" class="thumbnail"><img src="<%=fullurl%>" class="img-responsive"></a>
+</li>
+</script>

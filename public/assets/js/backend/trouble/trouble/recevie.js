@@ -2,8 +2,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','selectpage'], functio
 
     var Controller = {
         index: function () {
-        	$(".btn-add").data("area",["98%","98%"]);
-        		$(".btn-edit").data("area",["98%","98%"]);
+        	$(".btn-add").data("area",["90%","90%"]);
+        		$(".btn-edit").data("area",["90%","90%"]);
         		$(".btn-edit").data("title",'修改');
             // 初始化表格参数配置
             Table.api.init({
@@ -31,22 +31,26 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','selectpage'], functio
                         //{field: 'id', title: __('Id')},
                         
                         {field: 'main_code', title: __('Main_code'), operate: 'LIKE'},
+                        {field: 'troubletype.trouble_type', title: __('Troubletype.trouble_type'), operate: 'LIKE'},
+                        {field: 'source_type', title: __('Source_type'), searchList: {"0":__('Source_type 0'),"1":__('Source_type 1'),"2":__('Source_type 2')}, formatter: Table.api.formatter.normal},
+                        {field: 'informer_name', title: __('Informer'), operate: 'LIKE'},
+                        {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         {field: 'troublepoint.point_code', title: __('Troublepoint.point_code'), operate: 'LIKE'},
                         {field: 'troublepoint.point_name', title: __('Troublepoint.point_name'), operate: 'LIKE'},
-                        {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
+                        
                         //{field: 'updatetime', title: __('Updatetime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         //{field: 'finishtime', title: __('Finishtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         //{field: 'firtstduration', title: __('Firtstduration')},
                         //{field: 'finishduration', title: __('Finishduration')},
-                        {field: 'source_type', title: __('Source_type'), searchList: {"0":__('Source_type 0'),"1":__('Source_type 1'),"2":__('Source_type 2')}, formatter: Table.api.formatter.normal},
-                        {field: 'troubletype.trouble_type', title: __('Troubletype.trouble_type'), operate: 'LIKE'},
+                        
+                        
                         {field: 'trouble_expression', title: __('Trouble_expression'), operate: 'LIKE'},
                         {field: 'description', title: __('Description'), operate: 'LIKE',visible:false},
                         //{field: 'trouble_pic', title: __('Trouble_pic')},
                         //{field: 'process_pic', title: __('Process_pic')},
                         //{field: 'finish_pic', title: __('Finish_pic')},
                         {field: 'main_status', title: __('Main_status'), searchList: {"0":__('Main_status 0'),"1":__('Main_status 1'),"2":__('Main_status 2'),"3":__('Main_status 3'),"4":__('Main_status 4'),"5":__('Main_status 5'),"6":__('Main_status 6'),"7":__('Main_status 7'),"9":__('Main_status 9')}, formatter: Table.api.formatter.status},
-                        {field: 'informer', title: __('Informer'), operate: 'LIKE'},
+                        
                        // {field: 'recevier', title: __('Recevier'), operate: 'LIKE'},
                        // {field: 'processer', title: __('Processer'), operate: 'LIKE'},
                        // {field: 'checker', title: __('Checker'), operate: 'LIKE'},
@@ -57,7 +61,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','selectpage'], functio
                         
                         //{field: 'troublepoint.point_description', title: __('Troublepoint.point_description'), operate: 'LIKE'},
                         {field: 'troublepoint.point_address', title: __('Troublepoint.point_address'), operate: 'LIKE'},
-                        {field: 'troublepoint.point_position', title: __('Troublepoint.point_position'), operate: 'LIKE'},
+                        //{field: 'troublepoint.point_position', title: __('Troublepoint.point_position'), operate: 'LIKE'},
                         {field: 'department_name', title: __('Troublepoint.point_department_id')},
                         {field: 'department_pname', title: __('上级部门')},
                         {field: 'area_name', title: __('Troublepoint.point_area_id')},
@@ -74,9 +78,53 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','selectpage'], functio
             // 为表格绑定事件
             Table.api.bindevent(table);
             table.on('post-body.bs.table',function () {
-            	$(".btn-editone").data("area",["98%","98%"]);
+            	$(".btn-editone").data("area",["90%","90%"]);
             	$(".btn-editone").data("title",'修改');
             })
+            $(document).on("click", ".btn-verify", function () {
+                //在table外不可以使用添加.btn-change的方法
+                //只能自己调用Table.api.multi实现
+                var ids = Table.api.selectedids(table);
+    								layer.confirm('确定要将选中的隐患信息进行接警操作吗?', {btn: ['是','否'] },
+       							 function(index){
+        					    layer.close(index);
+          						  $.post("trouble/trouble/recevie/verify", {ids:ids , action:'success', reply:''},function(response){
+             				   if(response.code == 1){
+                 	   Toastr.success(response.msg)
+                    $(".btn-refresh").trigger('click');
+                }else{
+                    Toastr.error(response.msg)
+                }
+            }, 'json')
+             },
+        function(index){
+            layer.close(index);
+        }
+          );
+            });
+            
+         $(document).on("click", ".btn-cancelverify", function () {
+              //在table外不可以使用添加.btn-change的方法
+                //只能自己调用Table.api.multi实现
+              var ids = Table.api.selectedids(table);
+    			  layer.confirm('确定要将选中的隐患信息取消接警吗?', {btn: ['是','否'] },
+       					function(index){
+        					   layer.close(index);
+          					$.post("trouble/trouble/recevie/cancelverify", {ids:ids , action:'success', reply:''},function(response){
+             					if(response.code == 1){
+                 	   			Toastr.success(response.msg)
+                    				$(".btn-refresh").trigger('click');
+                				}else{
+                    				Toastr.error(response.msg)
+                				}
+            				}, 'json')
+        					},
+        			function(index){
+            		layer.close(index);
+       			}			
+    			);
+            });
+            Controller.api.bindevent();
         },
         recyclebin: function() {
             // 初始化表格参数配置
@@ -139,6 +187,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','selectpage'], functio
             parent.window.$(".layui-layer-iframe").find(".layui-layer-close").on('click',function () {
   				   parent.$("a.btn-refresh").trigger("click");
 			 });
+			 
         },
         add: function () {
         		//选择隐患点
@@ -199,13 +248,58 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','selectpage'], functio
 		           }else {
 		           		$("#c-trouble_expression").val($("#c-trouble_expression").val()+'/'+data[0].trouble_expression);
 		           }
-		           
-		           
 	       	    },function (data) {
 	       	    	
 	       	    }
 	            });
 	         });
+	         //在编辑介面接警
+	         $(document).on("click", ".btn-ver", function () {
+	         	var ids = $("#c-id").val();
+                //在table外不可以使用添加.btn-change的方法
+                //只能自己调用Table.api.multi实现
+                //var ids = Table.api.selectedids(table);
+    								layer.confirm('确定对该条隐患告警信息进行接警接操作?', {btn: ['是','否'] },
+       							 function(index){
+        					    layer.close(index);
+          						  $.post("trouble/trouble/recevie/verify", {ids:ids , action:'success', reply:''},function(response){
+             				   if(response.code == 1){
+                 	   Toastr.success(response.msg)
+                     parent.$(".btn-refresh").trigger('click');
+                     Fast.api.close();
+                }else{
+                    Toastr.error(response.msg)
+                }
+            }, 'json')
+             },
+        function(index){
+            layer.close(index);
+        }
+          );
+            });
+            //在编辑介面下取消接警
+            $(document).on("click", ".btn-cancelver", function () {
+              //在table外不可以使用添加.btn-change的方法
+                //只能自己调用Table.api.multi实现
+              var ids = $("#c-id").val();
+    			  layer.confirm('确定要将该条隐患信息取消接警吗?', {btn: ['是','否'] },
+       					function(index){
+        					   layer.close(index);
+          					$.post("trouble/trouble/recevie/cancelverify", {ids:ids , action:'success', reply:''},function(response){
+             					if(response.code == 1){
+                 	   			Toastr.success(response.msg)
+                    				parent.$(".btn-refresh").trigger('click');
+                    				Fast.api.close();
+                				}else{
+                    				Toastr.error(response.msg)
+                				}
+            				}, 'json')
+        					},
+        			function(index){
+            		layer.close(index);
+       			}			
+    			);
+            });
             Controller.api.bindevent();
         },
         api: {

@@ -15,12 +15,13 @@ class Recevie extends Backend
 {
     
     /**
-     * Recevie模型对象
+     * Dispatch模型对象
      * @var \app\admin\model\trouble\trouble\Recevie
      */
     protected $model = null;
     protected $dataLimit = 'personal';
     protected $dataLimitField = 'company_id';
+    protected $noNeedRight = ['getlog'];
 
     public function _initialize()
     {
@@ -75,7 +76,7 @@ class Recevie extends Backend
             $list = $this->model
                     ->with(['troublepoint','troubletype'])
                     ->where($where)
-                    ->where('main_status',0)
+                    ->where('main_status','in','0,1')
                     ->order($sort, $order)
                     ->paginate($limit);
 
@@ -172,11 +173,16 @@ class Recevie extends Backend
             if (!in_array($row[$this->dataLimitField], $adminIds)) {
                 $this->error(__('You have no permission'));
             }
-        }
+        }   
         if ($this->request->isPost()) {
             $params = $this->request->post("row/a");
             if ($params) {
                 $params = $this->preExcludeFields($params);
+                if($params['informer_name']=='') { //如果不填写报警人信息，则用当前用户
+                	$params['informer'] = $this->user_id;
+                	$params['informer_name'] = $this->auth->jobnumber.'-'.$this->auth->nickname.'('.$this->auth->mobile.')';
+                } 
+                
                 $result = false;
                 Db::startTrans();
                 try {
@@ -188,7 +194,7 @@ class Recevie extends Backend
                     }
                     $result = $row->allowField(true)->save($params);
                     $id = $row['id'];
-                    LogModel::create(['main_id'=>$id,'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'完成隐患信息编辑，等待派单...','company_id'=>$this->auth->company_id]);
+                    LogModel::create(['main_id'=>$id,'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'完成隐患信息内容修改，未改变隐患信息状态...','company_id'=>$this->auth->company_id]);
                     Db::commit();
                 } catch (ValidateException $e) {
                     Db::rollback();
@@ -208,6 +214,7 @@ class Recevie extends Backend
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
+        $row['log'] = $this->getlog($row['id']);
         $this->view->assign("row", $row);
         return $this->view->fetch();
     }
@@ -233,6 +240,9 @@ class Recevie extends Backend
             Db::startTrans();
             try {
                 foreach ($list as $k => $v) {
+                	  if($v['main_status']==1) {
+                	  	  $this->error(__('选中的删除列表中有已接警的隐患信息，不能删除！'));
+                	  }
                 	//添加日志 
                 	  $id = $v['id'];
                     LogModel::create(['main_id'=>$id,'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'隐患报警信息作废，任务终止...','company_id'=>$this->auth->company_id]);
@@ -255,7 +265,7 @@ class Recevie extends Backend
             }
         }
         $this->error(__('Parameter %s can not be empty', 'ids'));
-    }
+    } 
     /**
      * 回收站
      */
@@ -281,7 +291,6 @@ class Recevie extends Backend
         }
         return $this->view->fetch();
     }
-    
     /**
      * 真实删除
      */
@@ -366,5 +375,179 @@ class Recevie extends Backend
         }
         $this->error(__('No rows were updated'));
     }
+    /**
+    *接警
+    */
+    public function verify($ids="")
+    {
+    	if (!$this->request->isPost()) {
+            $this->error(__("Invalid parameters"));
+        }
+        $ids = $ids ? $ids : $this->request->post("ids");
+        
+        if ($ids) {
+            $pk = $this->model->getPk();
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                $this->model->where($this->dataLimitField, 'in', $adminIds);
+            }
+            $list = $this->model->where($pk, 'in', $ids)->select();
+            
+            //完成隐患类型封装，便于快速查找
+            $type = new  \app\admin\model\trouble\base\Type;
+            $type_info = $type->where('company_id',$this->auth->company_id)->select();
+            $type_id = array_column($type_info,'id');
+            $plan_content = array_column($type_info,'plan_content');
+            $plan_info = array_combine($plan_content,$type_id);
+            
+            //完成部门信息封装，便 于快速查找
+            $department = new  \app\admin\model\user\Department;
+            $depart_info = $department->where('company_id',$this->auth->company_id)->select();
+            $depart_id = array_column($depart_info,'id');//部门ID
+            $depart_leader = array_column($depart_info,'leader');//部门负责人
+            $depart_person = array_column($depart_info,'person');//部门安全员
+            $depart_pid = array_column($depart_info,'pid');//上级部门ID
+            
+            $leader = array_combine($depart_leader,$depart_id);
+            $person = array_combine($depart_person,$depart_id);
+            $pid = array_combine($depart_pid,$depart_id);//上级部门ID
+            
+            //完成隐患点封装，便于快速查找
+            $point = new  \app\admin\model\trouble\base\Point;
+            $point_info = $point->where('company_id',$this->auth->company_id)->select();
+            $point_id = array_column($point_info,'id');
+            $point_department_id = array_column($point_info,'point_department_id');
+            $department_info = array_combine($point_department_id,$point_id);
+            $data = [];
+
+            $result = 0;
+            Db::startTrans();
+            try {
+                foreach ($list as $k => $v) {
+                	if($v['main_status']==0) {
+                		$item =[];
+                	  //添加日志 
+                	  $id = $v['id'];
+                	  
+                    LogModel::create(['main_id'=>$id,'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'隐患报警信息已经完成接警，并已派单，等待处理...','company_id'=>$this->auth->company_id]);
+                    //派单操作，添加责任人，进入流转环节 1、先确定信息点所属部门，隐患等级，获得预案内容 2、根据预案内容，完成liabler（责任人字段内容）3、更新责任人内容
+                    //1、获取预案内容
+                    
+                    $plan = array_search($v['trouble_type_id'],$plan_info);
+                    //获取部门ID
+                    $department_id = array_search($v['point_id'],$department_info);
+                    //获取部门负责人及安全员以及上级部门的负责人和上级部门的安全员
+                    $leader_d = explode(',',array_search($department_id,$leader));//本部门负责人
+                    $person_d = explode(',',array_search($department_id,$person));//本部门安全员
+                    $department_pid = array_search($department_id,$pid);
+                    $leader_p = explode(',',array_search($department_pid,$leader));//上级负责人
+                    $person_p = explode(',',array_search($department_pid,$person));//上级安全员
+                    //定义一个数组，用于存放liabler内容
+                    $liabler = [];
+                    $liabler=array_merge($liabler,$person_d);//责任人由部门安全员负责，下面根据不同一隐患等级，抄送不同的人
+                    $liabler=array_merge($liabler,$leader_d);
+                    
+                    $insider =[];
+                    //$liabler[] ='0';
+                    //循环运行，根据$plan内容，将负责人添加到liabler中
+                    if(substr($plan, 0, 1)=='1')$insider=array_merge($insider,$person_d);
+                    if(substr($plan, 1, 1)=='1')$insider=array_merge($insider,$leader_d);
+                    if(substr($plan, 2, 1)=='1')$insider=array_merge($insider,$person_p);
+                    if(substr($plan, 3, 1)=='1')$insider=array_merge($insider,$leader_p);
+                    
+                    
+                   
+                    $liabler_s = trim(implode(',',$liabler),',');
+                    $insider_s = trim(implode(',',$insider),',');
+                    //更新表 因为锁表状态，改用saveall
+                    //$result = $this->model->where('id',$id)->update(['main_status'=>1,'updatetime'=>time(),'firstduration'=>$firstduration,'liabler'=>$liabler_s,'insider'=>$insider_s,'recevier'=>$this->auth->nickname]);//完成派单,更新接单时间以及首次跟进时长
+                    $item['id'] = $v['id'];
+                    $item['main_status'] = 1;
+                    $item['updatetime'] = time();
+                    $item['firstduration'] = round((time()-$v['createtime'])/3600,2);
+                    $item['liabler'] = $liabler_s;
+                    $item['insider'] = $insider_s;
+                    $item['recevier'] = $this->auth->nickname;
+                    $data[] = $item;
+                    
+                 }  
+                }
+
+                $result = $this->model->allowField(true)->saveall($data);
+                Db::commit();
+            } catch (PDOException $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            } catch (Exception $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            }
+            if ($result) {
+            	$this->success('接警成功！');
+                //$this->success($id.'-'.$type_id.'-'.$plan.'-'.$department_id.'-'.array_search($department_id,$leader).'-'.array_search($department_id,$person).'-'.array_search($department_pid,$leader).'-'.array_search($department_pid,$person));
+            } else {
+                $this->error($liabler);
+            }
+        }
+        $this->error(__('Parameter %s can not be empty', 'ids'));
+    }
+    /**
+    *取消接警
+    */
+    public function cancelverify($ids="")
+    {
+    	if (!$this->request->isPost()) {
+            $this->error(__("Invalid parameters"));
+        }
+        $ids = $ids ? $ids : $this->request->post("ids");
+        if ($ids) {
+            $pk = $this->model->getPk();
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                $this->model->where($this->dataLimitField, 'in', $adminIds);
+            }
+            $list = $this->model->where($pk, 'in', $ids)->select();
+
+            $count = 0;
+            Db::startTrans();
+            try {
+                foreach ($list as $k => $v) {
+                	if($v['main_status']==1) {
+                	//添加日志 
+                	  $id = $v['id'];
+                    LogModel::create(['main_id'=>$id,'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'隐患报警信息已经取消派单，等待重新派单...','company_id'=>$this->auth->company_id]);
+                    $count+=1; 
+                 }  
+                }
+                $result = $this->model->where('id','in',$ids)->update(['main_status'=>0,'liabler'=>'','insider'=>'']);//完成取消派单,并清空任务接收人
+                Db::commit();
+            } catch (PDOException $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            } catch (Exception $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            }
+            if ($result) {
+                $this->success('取消派单！');
+            } else {
+                $this->error(__('没有隐患信息被派单！'));
+            }
+        }
+        $this->error(__('Parameter %s can not be empty', 'ids'));
+    }
+    
+    public function getlog($id)
+    {
+        $log = new LogModel;
+        $log_info = $log->where('main_id',$id)->order('id')->select();
+        $result = '';
+        foreach($log_info as $k=>$v){
+        		$result = $result.date("Y-m-d H:i:s",$v['log_time']).':('.$v['log_operator'].')'.$v['log_content']."\n";
+        }
+        return $result;
+    }
+   
+    
 
 }

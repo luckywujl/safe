@@ -1,6 +1,14 @@
 <div class="panel panel-default panel-intro">
-    {:build_heading()}
-
+    <div class="panel-heading">
+        {:build_heading(null,FALSE)}
+        <ul class="nav nav-tabs" data-field="main_status">
+            <li class="{:$Think.get.main_status === null ? 'active' : ''}"><a href="#t-all" data-value="" data-toggle="tab">{:__('All')}</a></li>
+            {foreach name="mainStatusList" item="vo"}
+            <li class="{:$Think.get.main_status === (string)$key ? 'active' : ''}"><a href="#t-{$key}" data-value="{$key}" data-toggle="tab">{$vo}</a></li>
+            {/foreach}
+        </ul>
+    </div>
+    
     <div class="panel-body">
         <div id="myTabContent" class="tab-content">
             <div class="tab-pane fade active in" id="one">
@@ -11,7 +19,10 @@
                         <a href="javascript:;" class="btn btn-success btn-edit btn-disabled disabled {:$auth->check('trouble/trouble/recevie/edit')?'':'hide'}" title="{:__('Edit')}" ><i class="fa fa-pencil"></i> {:__('Edit')}</a>
                         <a href="javascript:;" class="btn btn-danger btn-del btn-disabled disabled {:$auth->check('trouble/trouble/recevie/del')?'':'hide'}" title="{:__('Delete')}" ><i class="fa fa-trash"></i> {:__('Delete')}</a>
                         <a href="javascript:;" class="btn btn-danger btn-import {:$auth->check('trouble/trouble/recevie/import')?'':'hide'}" title="{:__('Import')}" id="btn-import-file" data-url="ajax/upload" data-mimetype="csv,xls,xlsx" data-multiple="false"><i class="fa fa-upload"></i> {:__('Import')}</a>
-
+								
+                        <a href="javascript:;" class="btn btn-success btn-verify btn-disabled disabled {:$auth->check('trouble/trouble/recevie/verify')?'':'hide'}" title="{:__('verify')}" ><i class="fa fa-legal"></i> {:__('verify')}</a>
+                        <a href="javascript:;" class="btn btn-danger btn-cancelverify btn-disabled disabled {:$auth->check('trouble/trouble/recevie/cancelverify')?'':'hide'}" title="{:__('cancelverify')}" ><i class="fa fa-repeat"></i> {:__('cancelverify')}</a>
+                       
                        
 
                         <a class="btn btn-success btn-recyclebin btn-dialog {:$auth->check('trouble/trouble/recevie/recyclebin')?'':'hide'}" href="trouble/trouble/recevie/recyclebin" title="{:__('Recycle bin')}"><i class="fa fa-recycle"></i> {:__('Recycle bin')}</a>
