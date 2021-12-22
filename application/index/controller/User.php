@@ -107,7 +107,7 @@ class User extends Frontend
     {
         $url = $this->request->request('url', '', 'trim');
         if ($this->auth->id) {
-            $this->success(__('You\'ve logged in, do not login again'), $url ? $url : url('user/main'));
+            $this->success(__('You\'ve logged in, do not login again'), $url ? $url : url('user/user'));
         }
         if ($this->request->isPost()) {
             $username = $this->request->post('username');
@@ -162,7 +162,7 @@ class User extends Frontend
                 $this->error(__($validate->getError()), null, ['token' => $this->request->token()]);
             }
             if ($this->auth->register($username, $password, $email, $mobile)) {
-                $this->success(__('Sign up successful'), $url ? $url : url('user/main'));
+                $this->success(__('Sign up successful'), $url ? $url : url('user/user'));
             } else {
                 $this->error($this->auth->getError(), null, ['token' => $this->request->token()]);
             }
@@ -186,7 +186,7 @@ class User extends Frontend
     {
         $url = $this->request->request('url', '', 'trim');
         if ($this->auth->id) {
-            $this->success(__('You\'ve logged in, do not login again'), $url ? $url : url('user/main'));
+            $this->success(__('You\'ve logged in, do not login again'), $url ? $url : url('user/user'));
         }
         if ($this->request->isPost()) {
         		$url_T = $this->request->post('url');
@@ -218,7 +218,7 @@ class User extends Frontend
                 return false;
             }
             if ($this->auth->login($account, $password)) {
-                $this->success(__('Logged in successful'), $url_T ? $url_T : url('user/main'));
+                $this->success(__('Logged in successful'), $url_T ? $url_T : url('user/user'));
             } else {
                 $this->error($this->auth->getError(), null, ['token' => $this->request->token()]);
             }

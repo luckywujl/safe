@@ -32,7 +32,7 @@ return [
     'Main_status 8'                    => '并案',
     'Main_status 9'                    => '作废',
     'Informer_name'                    => '报警人姓名',
-    'Informer'                         => '报警人',
+    'Number'                         => '隐患数量',
     'Recevier'                         => '处警人',
     'Liabler'                          => '隐患责任人',
     'Processer'                        => '处置人',

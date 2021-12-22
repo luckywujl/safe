@@ -33,10 +33,10 @@
                         <div class="widget-body no-padding">
                             <div id="toolbar" class="toolbar">
                                 <a href="javascript:;" class="btn btn-primary btn-refresh" title="{:__('Refresh')}" ><i class="fa fa-refresh"></i> </a>
-                                <a href="javascript:;" class="btn btn-success btn-selectmain {:$auth->check('user/plan/selectmain')?'':'hide'}" title="{:__('Select')}" ><i class="fa fa-plus"></i> {:__('Select')}</a>
+                                <a href="javascript:;" style="display: none;" class="btn btn-success btn-selectmain {:$auth->check('user/plan/selectmain')?'':'hide'}" title="{:__('Select')}" ><i class="fa fa-plus"></i> {:__('Select')}</a>
                             	  <a href="javascript:;" class="btn btn-default" style="font-size:14px;color:dodgerblue;">
     											<span class="extend">
-        											<input id="c-user_ids"  class="form-control"  type="text" value="{$ids}">
+        											<input id="c-user_ids" style="display: none;" class="form-control"  type="text" value="{$ids}">
      											</span>
 										  </a>
                             </div>

@@ -50,8 +50,9 @@ return [
     'Troublepoint.point_department_id' => '所属部门',
     'Troublepoint.point_area_id'       => '所属区域',
     'Troublepoint.company_id'          => '数据归属',
-    'Troubletype.id'                   => '类型ID',
-    'Troubletype.trouble_type'         => '隐患类型',
-    'Troubletype.plan_content'         => '预案',
+    'Department_name'          => '部门名称',
+    'Number'                   => '隐患数量',
+    'Department_pname'         => '上级部门',
+    'area_name'         => '所属区域',
     'Troubletype.company_id'           => '数据归属'
 ];

@@ -17,6 +17,8 @@ class Typical extends Backend
      * @var \app\admin\model\trouble\report\Typical
      */
     protected $model = null;
+    protected $dataLimit = 'personal';
+    protected $dataLimitField = 'company_id';
 
     public function _initialize()
     {
@@ -44,7 +46,7 @@ class Typical extends Backend
     public function index()
     {
         //当前是否为关联查询
-        $this->relationSearch = true;
+        $this->relationSearch = false;
         //设置过滤方法
         $this->request->filter(['strip_tags', 'trim']);
         if ($this->request->isAjax()) {
@@ -55,10 +57,13 @@ class Typical extends Backend
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
 
             $list = $this->model
-                    ->with(['troublepoint','troubletype'])
+                    //->with(['troublepoint','troubletype'])
+                    ->field('trouble_expression,count(id) as number')     
                     ->where($where)
-                    ->order($sort, $order)
+                    ->group('trouble_expression')
+                    ->order('number desc')
                     ->paginate($limit);
+                
 
             foreach ($list as $row) {
                 

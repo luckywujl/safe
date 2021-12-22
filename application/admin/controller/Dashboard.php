@@ -4,6 +4,9 @@ namespace app\admin\controller;
 
 use app\admin\model\Admin;
 use app\admin\model\User;
+use app\admin\model\training\Main;
+use app\admin\model\kaoshi\examination\KaoshiPlan;
+use app\admin\model\trouble\trouble\Main as TroubleMain;
 use app\common\controller\Backend;
 use app\common\model\Attachment;
 use fast\Date;
@@ -47,9 +50,12 @@ class Dashboard extends Backend
         $dbTableList = Db::query("SHOW TABLE STATUS");
         $this->view->assign([
             'totaluser'       => User::count(),
-            'totaladdon'      => count(get_addon_list()),
-            'totaladmin'      => Admin::count(),
-            'totalcategory'   => \app\common\model\Category::count(),
+            'totaladdon'      => Main::where('company_id',$this->auth->company_id)->count(),
+            'totaladmin'      => Admin::where('company_id',$this->auth->company_id)->count(),
+            'totalcategory'   => KaoshiPlan::where('company_id',$this->auth->company_id)->count(),
+            'totaltrouble'		=> TroubleMain::where('company_id',$this->auth->company_id)->count(),
+            'totaltrouble_in' => TroubleMain::where(['company_id'=>$this->auth->company_id,'main_status'=>['not in','0,7,8,9']])->count(),
+            'totaltrouble_ok' => TroubleMain::where(['company_id'=>$this->auth->company_id,'main_status'=>['in','0,7,8,9']])->count(),
             'todayusersignup' => User::whereTime('jointime', 'today')->count(),
             'todayuserlogin'  => User::whereTime('logintime', 'today')->count(),
             'sevendau'        => User::whereTime('jointime|logintime|prevtime', '-7 days')->count(),

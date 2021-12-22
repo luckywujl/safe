@@ -43,7 +43,7 @@ class Type extends Backend
      */
     public function index()
     {
-        //当前是否为关联查询
+        ///当前是否为关联查询
         $this->relationSearch = true;
         //设置过滤方法
         $this->request->filter(['strip_tags', 'trim']);
@@ -55,10 +55,13 @@ class Type extends Backend
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
 
             $list = $this->model
-                    ->with(['troublepoint','troubletype'])
+                    ->with(['troubletype'])
+                    ->field('troubletype.trouble_type,count(trouble_type_id) as number')     
                     ->where($where)
-                    ->order($sort, $order)
+                    ->group('troubletype.trouble_type')
+                    ->order('troubletype.trouble_type asc')
                     ->paginate($limit);
+                
 
             foreach ($list as $row) {
                 
@@ -70,6 +73,5 @@ class Type extends Backend
             return json($result);
         }
         return $this->view->fetch();
-    }
-
+   }
 }

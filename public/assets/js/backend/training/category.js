@@ -30,13 +30,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 columns: [
                     [
                         {checkbox: true},
-                        {field: 'id', title: __('Id')},
-                        {field: 'type', title: __('Type'), operate: false, searchList: Config.searchList, formatter: Controller.api.table.formatter.label},
+                        //{field: 'id', title: __('Id')},
+                        //{field: 'type', title: __('Type'), operate: false, searchList: Config.searchList, formatter: Controller.api.table.formatter.label},
                         {field: 'name', title: __('Name'), align: 'left', formatter:function (value, row, index) {
                                 return value.toString().replace(/(&|&amp;)nbsp;/g, '&nbsp;');
                             }
                         },
-                        {field: 'image', title: __('Image'), operate: false, events: Table.api.events.image, formatter: Table.api.formatter.image},
+                        {field: 'image', title: __('Image'), visible:false,operate: false, events: Table.api.events.image, formatter: Table.api.formatter.image},
                         {field: 'weigh', title: __('Weigh')},
                         {field: 'status', title: __('Status'), operate: false, formatter: Table.api.formatter.status},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}

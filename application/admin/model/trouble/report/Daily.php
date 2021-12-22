@@ -73,12 +73,12 @@ class Daily extends Model
 
     public function troublepoint()
     {
-        return $this->belongsTo('app\admin\model\TroublePoint', 'point_id', 'id', [], 'LEFT')->setEagerlyType(0);
+        return $this->belongsTo('app\admin\model\trouble\base\Point', 'point_id', 'id', [], 'LEFT')->setEagerlyType(0);
     }
 
 
     public function troubletype()
     {
-        return $this->belongsTo('app\admin\model\TroubleType', 'trouble_type_id', 'id', [], 'LEFT')->setEagerlyType(0);
+        return $this->belongsTo('app\admin\model\trouble\base\Type', 'trouble_type_id', 'id', [], 'LEFT')->setEagerlyType(0);
     }
 }

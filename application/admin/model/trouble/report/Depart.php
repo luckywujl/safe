@@ -3,12 +3,12 @@
 namespace app\admin\model\trouble\report;
 
 use think\Model;
-use traits\model\SoftDelete;
+//use traits\model\SoftDelete;
 
 class Depart extends Model
 {
 
-    use SoftDelete;
+    //use SoftDelete;
 
     
 
@@ -21,7 +21,7 @@ class Depart extends Model
     // 定义时间戳字段名
     protected $createTime = 'createtime';
     protected $updateTime = 'updatetime';
-    protected $deleteTime = 'deletetime';
+    //protected $deleteTime = 'deletetime';
 
     // 追加属性
     protected $append = [
@@ -73,12 +73,12 @@ class Depart extends Model
 
     public function troublepoint()
     {
-        return $this->belongsTo('app\admin\model\TroublePoint', 'point_id', 'id', [], 'LEFT')->setEagerlyType(0);
+        return $this->belongsTo('app\admin\model\trouble\base\Point', 'point_id', 'id', [], 'LEFT')->setEagerlyType(0);
     }
 
 
     public function troubletype()
     {
-        return $this->belongsTo('app\admin\model\TroubleType', 'trouble_type_id', 'id', [], 'LEFT')->setEagerlyType(0);
+        return $this->belongsTo('app\admin\model\trouble\base\Type', 'trouble_type_id', 'id', [], 'LEFT')->setEagerlyType(0);
     }
 }

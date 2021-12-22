@@ -34,8 +34,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template'], function
                         {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         {field: 'updatetime', title: __('Updatetime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         {field: 'finishtime', title: __('Finishtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
-                        {field: 'firstduration', title: __('Firstduration')},
-                        {field: 'finishduration', title: __('Finishduration')},
+                        {field: 'firstduration', title: __('Firstduration'),formatter:function (value,row,index) {
+                        		return value;
+                        }},
+                        {field: 'finishduration', title: __('Finishduration'),formatter:function (value,row,index) {
+                        		return value;
+                        }},
                         
                         {field: 'troubletype.trouble_type', title: __('Trouble_type_id')},
                         {field: 'trouble_expression', title: __('Trouble_expression'), visible:false,operate: 'LIKE'},
@@ -48,6 +52,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template'], function
                         {field: 'recevier', title: __('Recevier'), operate: 'LIKE'},
                         //{field: 'processer', title: __('Processer'), operate: 'LIKE'},
                         //{field: 'checker', title: __('Checker'), operate: 'LIKE'},
+                        {field: 'troublepoint.point_address', title: __('Troublepoint.point_address'), operate: 'LIKE'},
+                        //{field: 'troublepoint.point_position', title: __('Troublepoint.point_position'), operate: 'LIKE'},
+                        {field: 'department_name', title: __('Troublepoint.point_department_id')},
+                        {field: 'department_pname', title: __('上级部门')},
+                        {field: 'area_name', title: __('Troublepoint.point_area_id')},
                         {field: 'together_id', title: __('Together_id'),visible:false},
                         {field: 'together_code', title: __('Together_code'), visible:false, operate: 'LIKE'},
                         //{field: 'company_id', title: __('Company_id')},

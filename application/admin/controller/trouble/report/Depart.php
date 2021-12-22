@@ -53,15 +53,33 @@ class Depart extends Backend
                 return $this->selectpage();
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+            $department = new  \app\admin\model\user\Department;
+            $area = new  \app\admin\model\trouble\base\Area;
+            
+            $department_info = $department->where('company_id',$this->auth->company_id)->select();
+            $depart_id = array_column($department_info,'id');//部门ID
+            $depart_name = array_column($department_info,'name');//部门名称
+            $depart_pname = array_column($department_info,'pname');//上级部门
+            $name = array_combine($depart_name,$depart_id);
+            $pname = array_combine($depart_pname,$depart_id);
+            
+            $area_info = $area->where('company_id',$this->auth->company_id)->select();
+            $area_id = array_column($area_info,'id');
+            $area_name = array_column($area_info,'area_name');
+            $areaname = array_combine($area_name,$area_id);
 
             $list = $this->model
-                    ->with(['troublepoint','troubletype'])
+                    ->with(['troublepoint'])
+                    ->field('troublepoint.point_department_id,troublepoint.point_area_id,count(*) as number')     
                     ->where($where)
+                    ->group('troublepoint.point_department_id')
                     ->order($sort, $order)
                     ->paginate($limit);
 
             foreach ($list as $row) {
-                
+                $row['department_name'] = array_search($row['troublepoint']['point_department_id'],$name);
+                $row['department_pname'] = array_search($row['troublepoint']['point_department_id'],$pname);
+                $row['area_name'] = array_search($row['troublepoint']['point_area_id'],$areaname);
                 
             }
 

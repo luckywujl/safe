@@ -52,6 +52,6 @@ return [
     'Troublepoint.company_id'          => '数据归属',
     'Troubletype.id'                   => '类型ID',
     'Troubletype.trouble_type'         => '隐患类型',
-    'Troubletype.plan_content'         => '预案',
+    'Number'         => '隐患数量',
     'Troubletype.company_id'           => '数据归属'
 ];
