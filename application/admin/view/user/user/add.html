@@ -7,7 +7,7 @@
             {$groupList}
         </div>
         
-        <label for="c-group_id" class="control-label col-xs-12 col-sm-2">{:__('Department_id')}:</label>
+        <label for="c-group_id" class="control-label col-xs-12 col-sm-1">{:__('Department_id')}:</label>
         <div class="col-xs-12 col-sm-4">
             <select id="c-department_id" data-rule="required" class="form-control selectpicker" name="row[department_id]">
                 {foreach name="departmentList" item="vo"}
@@ -21,7 +21,7 @@
         <div class="col-xs-12 col-sm-4">
             <input id="c-username" data-rule="required" class="form-control" name="row[username]" type="text" value="">
         </div>
-        <label for="c-password" class="control-label col-xs-12 col-sm-2">{:__('Password')}:</label>
+        <label for="c-password" class="control-label col-xs-12 col-sm-1">{:__('Password')}:</label>
         <div class="col-xs-12 col-sm-4">
             <input id="c-password" data-rule="password" class="form-control" name="row[password]" type="text" value="" placeholder="{:__('Leave password blank if dont want to change')}" autocomplete="new-password" />
         </div>
@@ -31,7 +31,7 @@
         <div class="col-xs-12 col-sm-4">
             <input id="c-jobnumber" data-rule="required" class="form-control" name="row[jobnumber]" type="text" value="">
         </div>
-        <label for="c-nickname" class="control-label col-xs-12 col-sm-2">{:__('Nickname')}:</label>
+        <label for="c-nickname" class="control-label col-xs-12 col-sm-1">{:__('Nickname')}:</label>
         <div class="col-xs-12 col-sm-4">
             <input id="c-nickname" data-rule="required" class="form-control" name="row[nickname]" type="text" value="">
         </div>
@@ -41,41 +41,45 @@
         <div class="col-xs-12 col-sm-4">
             {:build_radios('row[gender]', ['1'=>__('Male'), '0'=>__('Female')])}
         </div>
-        <label for="c-mobile" class="control-label col-xs-12 col-sm-2">{:__('Mobile')}:</label>
+        <label for="c-mobile" class="control-label col-xs-12 col-sm-1">{:__('Mobile')}:</label>
         <div class="col-xs-12 col-sm-4">
-            <input id="c-mobile" data-rule="" class="form-control" name="row[mobile]" type="text" value="">
+            <input id="c-mobile"  class="form-control" name="row[mobile]" type="text" value="">
         </div>
     </div>
     <div class="form-group">
         <label for="c-job" class="control-label col-xs-12 col-sm-2">{:__('Job')}:</label>
         <div class="col-xs-12 col-sm-4">
-            <input id="c-job" data-rule="required" class="form-control" name="row[job]" type="text" value="">
+            <input id="c-job"  class="form-control" name="row[job]" type="text" value="">
         </div>
-        <label for="c-usertype" class="control-label col-xs-12 col-sm-2">{:__('Usertype')}:</label>
+        <label for="c-usertype" class="control-label col-xs-12 col-sm-1">{:__('Usertype')}:</label>
         <div class="col-xs-12 col-sm-4">
-            <input id="c-usertype" data-rule="required" class="form-control" name="row[usertype]" type="text" value="">
+            <input id="c-usertype"  class="form-control" name="row[usertype]" type="text" value="">
         </div>
     </div>
     <div class="form-group">
         <label for="c-isspecial" class="control-label col-xs-12 col-sm-2">{:__('Isspecial')}:</label>
-        <div class="col-xs-12 col-sm-4">
+        <div class="col-xs-12 col-sm-2">
             {:build_radios('row[isspecial]', ['是'=>__('是'), '否'=>__('否')])}
             
         </div>
-        <label for="c-score" class="control-label col-xs-12 col-sm-2">{:__('Score')}:</label>
+        <label for="c-score" class="control-label col-xs-12 col-sm-1">{:__('Studytime')}:</label>
+        <div class="col-xs-12 col-sm-1">
+            <input id="c-studytime"  class="form-control" name="row[studytime]" type="number" value="">
+        </div>
+        <label for="c-score" class="control-label col-xs-12 col-sm-1">{:__('Score')}:</label>
         <div class="col-xs-12 col-sm-4">
-            <input id="c-score" data-rule="required" class="form-control" name="row[score]" type="text" value="">
+            <input id="c-score"  class="form-control" name="row[score]" type="number" value="">
         </div>
     </div>
     <div class="form-group">
         
         <label for="c-birthday" class="control-label col-xs-12 col-sm-2">{:__('Birthday')}:</label>
         <div class="col-xs-12 col-sm-4">
-            <input id="c-birthday" data-rule="" class="form-control datetimepicker" data-date-format="YYYY-MM-DD" data-use-current="true" name="row[birthday]" type="text" value="">
+            <input id="c-birthday"  class="form-control datetimepicker" data-date-format="YYYY-MM-DD" data-use-current="true" name="row[birthday]" type="text" value="">
         </div>
-        <label for="c-email" class="control-label col-xs-12 col-sm-2">{:__('Email')}:</label>
+        <label for="c-email" class="control-label col-xs-12 col-sm-1">{:__('Email')}:</label>
         <div class="col-xs-12 col-sm-4">
-            <input id="c-email" data-rule="" class="form-control" name="row[email]" type="text" value="">
+            <input id="c-email" d class="form-control" name="row[email]" type="text" value="">
         </div>
     </div>
     <div class="form-group">
@@ -83,9 +87,9 @@
     </div>
     <div class="form-group">
         <label for="c-avatar" class="control-label col-xs-12 col-sm-2">{:__('Avatar')}:</label>
-        <div class="col-xs-12 col-sm-10">
+        <div class="col-xs-12 col-sm-4">
             <div class="input-group">
-                <input id="c-avatar" data-rule="" class="form-control" size="50" name="row[avatar]" type="text" value="">
+                <input id="c-avatar"  class="form-control" size="50" name="row[avatar]" type="text" value="">
                 <div class="input-group-addon no-border no-padding">
                     <span><button type="button" id="faupload-avatar" class="btn btn-danger faupload" data-input-id="c-avatar" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="false" data-preview-id="p-avatar"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
                     <span><button type="button" id="fachoose-avatar" class="btn btn-primary fachoose" data-input-id="c-avatar" data-mimetype="image/*" data-multiple="false"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
@@ -94,11 +98,9 @@
             </div>
             <ul class="row list-inline faupload-preview" id="p-avatar"></ul>
         </div>
-    </div>
-    
-    <div class="form-group">
-        <label for="c-idphoto" class="control-label col-xs-12 col-sm-2">{:__('Idphoto')}:</label>
-        <div class="col-xs-12 col-sm-10"  >
+
+        <label for="c-idphoto" class="control-label col-xs-12 col-sm-1">{:__('Idphoto')}:</label>
+        <div class="col-xs-12 col-sm-4"  >
             <div class="input-group">
                 <input id="c-idphoto" readonly="readonly" class="form-control" size="50" name="row[idphoto]" type="text" value="">
                 <div class="input-group-addon no-border no-padding">
@@ -114,9 +116,9 @@
     <div class="form-group">
         <label for="c-address" class="control-label col-xs-12 col-sm-2">{:__('Address')}:</label>
         <div class="col-xs-12 col-sm-4">
-            <input id="c-address" data-rule="required" class="form-control" name="row[address]" type="text" value="">
+            <input id="c-address"  class="form-control" name="row[address]" type="text" value="">
         </div>  
-        <label for="content" class="control-label col-xs-12 col-sm-2">{:__('Status')}:</label>
+        <label for="content" class="control-label col-xs-12 col-sm-1">{:__('Status')}:</label>
         <div class="col-xs-12 col-sm-4">
             {:build_radios('row[status]', ['normal'=>__('Normal'), 'hidden'=>__('Hidden')], )}
         </div>
@@ -124,27 +126,34 @@
     <div class="form-group">
         <label for="c-idcard" class="control-label col-xs-12 col-sm-2">{:__('Idcard')}:</label>
         <div class="col-xs-12 col-sm-4">
-            <input id="c-idcard" data-rule="required" class="form-control" name="row[idcard]" type="text" value="">
+            <input id="c-idcard"  class="form-control" name="row[idcard]" type="text" value="">
         </div>
-        <label for="c-education" class="control-label col-xs-12 col-sm-2">{:__('Education')}:</label>
+        <label for="c-education" class="control-label col-xs-12 col-sm-1">{:__('Education')}:</label>
         <div class="col-xs-12 col-sm-4">
-            <input id="c-education" data-rule="required" class="form-control" name="row[education]" type="text" value="">
+            <input id="c-education"  class="form-control" name="row[education]" type="text" value="">
         </div>
     </div>
     <div class="form-group">
-        <label for="c-contact" class="control-label col-xs-12 col-sm-2">{:__('Contact')}:</label>
+   	  <label for="c-contact" class="control-label col-xs-12 col-sm-2">{:__('Age')}:</label>
         <div class="col-xs-12 col-sm-4">
-            <input id="c-contact" data-rule="required" class="form-control" name="row[contact]" type="text" value="">
+            <input id="c-age"  class="form-control" name="row[age]" type="text" value="">
         </div>
-        <label for="c-relation" class="control-label col-xs-12 col-sm-2">{:__('Relation')}:</label>
+    
+        <label for="c-contact" class="control-label col-xs-12 col-sm-1">{:__('Contact')}:</label>
         <div class="col-xs-12 col-sm-4">
-            <input id="c-relation" data-rule="required" class="form-control" name="row[relation]" type="text" value="">
+            <input id="c-contact"  class="form-control" name="row[contact]" type="text" value="">
         </div>
+        
     </div>
     <div class="form-group">
+    
         <label for="c-contactphone" class="control-label col-xs-12 col-sm-2">{:__('Contactphone')}:</label>
         <div class="col-xs-12 col-sm-4">
-            <input id="c-contactphone" data-rule="required" class="form-control" name="row[contactphone]" type="text" value="">
+            <input id="c-contactphone"  class="form-control" name="row[contactphone]" type="text" value="">
+        </div>
+        <label for="c-relation" class="control-label col-xs-12 col-sm-1">{:__('Relation')}:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-relation"  class="form-control" name="row[relation]" type="text" value="">
         </div>
         
     </div>

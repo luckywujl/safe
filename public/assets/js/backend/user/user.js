@@ -2,14 +2,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
     var Controller = {
         index: function () {
+          	$(".btn-add").data("area",["90%","90%"]);
+        		$(".btn-edit").data("area",["90%","90%"]);
+        		$(".btn-edit").data("title",'修改');
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
                     index_url: 'user/user/index',
                     add_url: 'user/user/add',
                     edit_url: 'user/user/edit',
-                    department_url: 'user/user/edit',
-                    group_url: 'user/user/edit',
+                    //department_url: 'user/user/edit',
+                    //group_url: 'user/user/edit',
                     del_url: 'user/user/del',
                     multi_url: 'user/user/multi',
                     import_url: 'user/user/import',
@@ -34,10 +37,19 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'group.name', title: __('Group_id'),operate: 'LIKE'},
                         {field: 'username', title: __('Username'), operate: 'LIKE'},
                         {field: 'nickname', title: __('Nickname'), operate: 'LIKE'},
+                        {field: 'age', title: __('Age'), operate: 'BETWEEN', sortable: true,formatter:function(value,row,index){
+                        	if (value>65) {  //大于65岁红标年龄
+                                return '<div class="row" style="text-align: center;color:red;">\n' +value + '</div>';
+                            } else {
+                            	return value;
+                            }
+                            }
+                            },
+
                         {field: 'gender', title: __('Gender'),  searchList: {1: __('Male'), 0: __('Female')},formatter: Table.api.formatter.normal},
                         {field: 'email', title: __('Email'), operate: 'LIKE',visible:false},
                         {field: 'mobile', title: __('Mobile'), operate: 'LIKE'},
-                        {field: 'avatar', title: __('Avatar'), events: Table.api.events.image, formatter: Table.api.formatter.image, operate: false},
+                        {field: 'avatar', title: __('Avatar'), visible:false, events: Table.api.events.image, formatter: Table.api.formatter.image, operate: false},
                         //{field: 'level', title: __('Level'), operate: 'BETWEEN', sortable: true},
                         {field: 'score', title: __('Score'), operate: 'BETWEEN', sortable: true},
                         {field: 'studytime', title: __('Studytime'), operate: 'BETWEEN', sortable: true},
@@ -48,6 +60,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'jointime', title: __('Jointime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},
                         //{field: 'joinip', title: __('Joinip'), visible:false,formatter: Table.api.formatter.search},
                         {field: 'status', title: __('Status'), formatter: Table.api.formatter.status, searchList: {normal: __('Normal'), hidden: __('Hidden')}},
+                        //{field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate},
                         {field: 'operate', title: __('Operate'), table: table, 
 													buttons: [
  												  		 {
@@ -69,14 +82,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
  												  		 	classname: 'btn btn-xs btn-primary btn-dialog',  												  
  												  		 	url: 'kaoshi/examination/kaoshirecord/index?user_id={id}',
  												  			}
-														],
-														formatter: Table.api.formatter.operate} ,
+														],	events: Table.api.events.operate,formatter: Table.api.formatter.operate} ,
                     ]
                 ]
             });
 
             // 为表格绑定事件
             Table.api.bindevent(table);
+            table.on('post-body.bs.table',function () {
+            	$(".btn-editone").data("area",["90%","90%"]);
+            	$(".btn-editone").data("title",'修改');
+            })
             Controller.api.tree.init(table);
             //批量修改部门
 				$(document).on("click",".btn-batch",function () {
@@ -91,11 +107,45 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 	       	    }
 	            });
 	         });
+	         //批量更新人员年龄
+				$(document).on("click",".btn-updateage",function () {
+				  
+         	 layer.confirm('确定更新员工年龄吗?', {btn: ['确定','取消'] }, function(index){
+        			layer.close(index);
+          			$.post("user/user/updateage", {},function(response){
+            			if(response.code == 1){
+            				$("a.btn-refresh").trigger("click");
+                 			Toastr.success(response.msg)
+					  			
+             			}else{
+                  		Toastr.error(response.msg)
+             			}
+             		}, 'json')
+           		},function(index){
+            		layer.close(index);
+        			});
+	         });
         },
         add: function () {
+        		$("#c-idcard").bind("keyup",function (event) {
+				if ($("#c-idcard").val().length>13)
+				{
+					var myDate = new Date();
+					$("#c-birthday").val($("#c-idcard").val().substring(6,14));
+					$("#c-age").val((parseInt(myDate.getFullYear())-parseInt($("#c-idcard").val().substring(6,10))+1).toString());
+				}
+			  });
             Controller.api.bindevent();
         },
         edit: function () {
+        		$("#c-idcard").bind("keyup",function (event) {
+				if ($("#c-idcard").val().length>13)
+				{
+					var myDate = new Date();
+					$("#c-birthday").val($("#c-idcard").val().substring(6,14));
+					$("#c-age").val((parseInt(myDate.getFullYear())-parseInt($("#c-idcard").val().substring(6,10))+1).toString());
+				}
+			  });
             Controller.api.bindevent();
         },
         batch: function () {
@@ -167,15 +217,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
         
        
         api: {
-            getQueryVariable(variable){
-                var query = window.location.search.substring(1);
-                var vars = query.split("&");
-                for (var i=0;i<vars.length;i++) {
-                    var pair = vars[i].split("=");
-                    if(pair[0] == variable){return pair[1];}
-                }
-                return(false);
-            },
+            
             tree: {
                 init:function(table){
                     require(['zTree', 'zTree-awesome'], function(zTree) {
@@ -244,67 +286,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     });
                 }
             },
-            table: {
-                formatter: {
-                    checkbox(value, row, index){
-                        var choosed = Controller.api.getQueryVariable("choose_id");
-                        if(choosed && choosed !== ""){
-                            var index = choosed.indexOf(row.id);
-                            if(index > -1){
-                                return {
-                                    checked : true//设置选中
-                                };
-                            }
-                        }
-                        
-                        return value;
-                    },
-                    duration: function(value, row, index) {
-                        var h,s;
-                        h  =   Math.floor(value/60);
-                        s  =   value %60;
-                        h    +=    '';
-                        s    +=    '';
-                        h  =   (h.length==1)?'0'+h:h;
-                        s  =   (s.length==1)?'0'+s:s;
-                        return h+':'+s;
-                    },
-                    files: function(value, row, index) {
-                        var suffix = /[\.]?([a-zA-Z0-9]+)$/.exec(value);
-                        suffix = suffix ? suffix[1] : 'file';
-                        return '<a href="' + value + '" target="_blank" ><img src="' + value + '" onerror="this.src=\'' + Fast.api.fixurl("ajax/icon") + '?suffix=' + suffix + '\';this.onerror=null;" class="img-responsive"></a>'
-                    }
-                }
-            },
-            video: {
-                init() {
-                    var player = Video('video', {
-                        controls: true, // 是否显示控制条
-                        autoplay: false,
-                        preload: 'metadata', //预加载
-                        language: 'zh-CN', // 设置语言
-                        muted: false, // 是否静音
-                        fluid: true, // 自适应宽高
-                    }, function onPlayerReady() {
-                        this.on('loadedmetadata', function() { //成功获取资源长度
-                            $("#duration").val(this.duration());
-                        });
-                    });
-
-                    return player;
-                },
-                preview() {
-                    var url = $("#c-videofile").val();
-                    if (url !== "" && url) {
-                        player.src(url);
-                        player.load(url);
-                        $("#preview").show();
-                    } else {
-                        $("#preview").hide();
-                        player.pause();
-                    }
-                }
-            },
+            
             bindevent: function() {
                 Form.api.bindevent($("form[role=form]"));
             }

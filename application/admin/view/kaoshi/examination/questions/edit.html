@@ -22,22 +22,23 @@
             <textarea id="c-question" data-rule="required" class="form-control " rows="5" name="row[question]" cols="50">{$row.question|htmlentities}</textarea>
         </div>
     </div>
+    
+    
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__("Annex")}:</label>
+       <label class="control-label col-xs-12 col-sm-2">{:__("Annex")}:</label>
         <div class="col-xs-12 col-sm-8">
-
-            <input type="text" name="row[annex]" id="c-annex" class="form-control" value="{$row['annex']}" readonly/>
-
-        </div>
+            <div class="input-group">
+                <input id="c-annex" data-rule="" readonly="readonly" class="form-control" size="50" name="row[annex]" type="text" value="{$row.annex}">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" id="faupload-annex" class="btn btn-danger faupload" data-input-id="c-annex" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="false" data-preview-id="p-annex"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
+                    <span><button type="button" id="fachoose-annex" class="btn btn-primary fachoose" data-input-id="c-annex" data-mimetype="image/*" data-multiple="false"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
+                </div>
+                <span class="msg-box n-right" for="c-annexr"></span>
+            </div>
+            <ul class="row list-inline faupload-preview" id="p-annex"></ul>
+        </div> 
     </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2"></label>
-        <div class="col-xs-12 col-sm-8">
-
-            <button id="plupload-annex" class="btn btn-danger plupload" data-multiple="false" data-input-id="c-annex" ><i class="fa fa-upload"></i> 上传</button>
-
-        </div>
-    </div>
+    
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Type')}:</label>
         <div class="col-xs-12 col-sm-8">

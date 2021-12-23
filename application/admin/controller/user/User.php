@@ -26,7 +26,7 @@ class User extends Backend
     protected $dataLimit = 'personal';
 	 protected $dataLimitField = 'company_id';
     protected $searchFields = 'id,username,nickname';
-    protected $noNeedRight = ['getuser','jstree'];
+    protected $noNeedRight = ['getuser','jstree','updateage'];
 
     /**
      * @var \app\admin\model\User
@@ -202,6 +202,34 @@ class User extends Backend
         $this->success();
     }
     /**
+     * 更新年龄
+     */
+    public function updateage()
+    {
+        if (!$this->request->isPost()) {
+            $this->error(__("Invalid parameters"));
+        }
+        $user = $this->model->where('company_id',$this->auth->company_id)->select();
+        $result = 0;
+        $data = [];
+        foreach($user as $k=>$v){
+        		$item = [];
+        		//根据身份证号计算生日和年龄
+        		if(strlen($v['idcard'])==18) {
+            		//$v['birthday'] = substr($v['idcard'], 6, 4).'-'.substr($v['idcard'], 10, 2).'-'.substr($v['idcard'], 12, 2);
+            		$item['age'] = date("Y")-substr($v['idcard'], 6, 4);
+            		$item['id'] = $v['id'];
+        		}
+        		$data[] = $item;
+        }
+        $result = $this->model->saveall($data);
+        if($result) {
+        
+        $this->success('完成年龄更新！');
+     } 
+     $this->error('更新失败！');
+    }
+    /**
      * 导入
      */
     public function import()
@@ -348,7 +376,11 @@ class User extends Backend
                 	  $val['gender'] = $val['gender']=='女' ? 0:1;//完成性别转换
                 	  $val['department_id'] = array_search($val['department_id'],$department_info);
                 	  $val['group_id'] = array_search($val['group_id'],$group_info);
-                	  
+                	  //根据身份证号计算生日和年龄
+                	  if(strlen($val['idcard'])==18) {
+                	  		$val['birthday'] = substr($val['idcard'], 6, 4).'-'.substr($val['idcard'], 10, 2).'-'.substr($val['idcard'], 12, 2);
+                	  		$val['age'] = date("Y")-substr($val['idcard'], 6, 4);
+                	  }
                 	  if(in_array($val['username'], $user_username)) {
                 	  		$repeat_A = $repeat_A.$val['username'];
                 	  }

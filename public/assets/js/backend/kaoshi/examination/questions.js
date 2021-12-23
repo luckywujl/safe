@@ -23,6 +23,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
     });
     var Controller = {
         index: function () {
+          	$(".btn-add").data("area",["98%","98%"]);
+        		$(".btn-edit").data("area",["98%","98%"]);
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
@@ -65,7 +67,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             };
                         }},
                         
-                        {field: 'annex', title: __('annex'),formatter: Controller.api.formatter.thumb, operate: false},
+                        //{field: 'annex', title: __('annex'),formatter: Controller.api.formatter.thumb, operate: false},
                         {field: 'level', title: __('Level'), searchList: {"1":__('Level 1'),"2":__('Level 2'),"3":__('Level 3')}, formatter: Table.api.formatter.normal},
                         {field: 'status', title: __('status'), searchList: {"1":__('status 1'),"2":__('status 2')}, formatter: Table.api.formatter.normal},
                         {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
@@ -77,9 +79,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 为表格绑定事件
             Table.api.bindevent(table);
             Controller.api.tree.init(table);
-            table.on('post-body.bs.table', function (e, settings, json, xhr) {
-                $(".btn-editone").data("area", ["800px","800px"]);
-            });
+            table.on('post-body.bs.table',function () {
+            	$(".btn-editone").data("area",["98%","98%"]);
+            	$(".btn-editone").data("title",'编辑');
+            })
         },
         recyclebin: function () {
             // 初始化表格参数配置
@@ -155,7 +158,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Controller.api.bindevent();
         },
         edit: function () {
-            Controller.api.bindevent();
+            Controller.api_u.bindevent();
         },
         api: {
             getQueryVariable(variable){
@@ -283,7 +286,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     return '<a href="' + value + '" target="_blank" class="label bg-green">' + value + '</a>';
                 },
             }
+        },
+        api_u:{
+        	bindevent: function() {
+                Form.api.bindevent($("form[role=form]"));
+            },
         }
+       
         
     };
 
