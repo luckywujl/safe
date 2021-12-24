@@ -59,9 +59,9 @@ class Duration extends Backend
             $department_info = $department->where('company_id',$this->auth->company_id)->select();
             $depart_id = array_column($department_info,'id');//部门ID
             $depart_name = array_column($department_info,'name');//部门名称
-            $depart_pname = array_column($department_info,'pname');//上级部门
-            $name = array_combine($depart_name,$depart_id);
-            $pname = array_combine($depart_pname,$depart_id);
+           
+            $name = array_combine($depart_id,$depart_name);
+            
 
             $list = $this->model
                     ->with(['troublepoint'])
@@ -72,7 +72,7 @@ class Duration extends Backend
                     ->paginate($limit);
 
             foreach ($list as $row) {
-                $row['department_name'] = array_search($row['troublepoint']['point_department_id'],$name); 
+                $row['department_name'] = $name[$row['troublepoint']['point_department_id']]; 
             }
             $result = array("total" => $list->total(), "rows" => $list->items());
             return json($result);

@@ -105,7 +105,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template'], function
                         return h + ':' + s;
                     },
                     thumb: function(value, row, index) {
-                        if (!value && typeof value != "undefined" && value != 0) {
+                        if (!value && typeof value != "undefined" && value != 0 ) {
                             return '<img src="/assets/addons/training/images/cover.png" alt="" style="max-height:50px;max-width:80px">';  
                         } else {
                         	var pics  = value.split(",");//将字段值数组化

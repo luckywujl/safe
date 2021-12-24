@@ -159,7 +159,65 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template'], function
         	 	//parent.$("#c-user_ids").val($("#c-user_ids").val());
         	 	Fast.api.close($("#c-user_ids").val());//将选中的值返回给调用者
         	 });
+        	  parent.window.$(".layui-layer-iframe").find(".layui-layer-close").on('click',function () {
+  				 //parent.$("#c-user_ids").val($("#c-user_ids").val());
+        	 	Fast.api.close($("#c-user_ids").val());//将选中的值返回给调用者   
+			   });
            
+        },
+        selectadmin:function () {
+        	// 初始化表格参数配置
+            Table.api.init();
+
+            var table = $("#table");
+
+            // 初始化表格
+            table.bootstrapTable({
+            	 url: 'user/user/index' + location.search,
+                extend:{
+                	  index_url: 'user/user/index',
+                    table: 'user',
+                
+                },
+                toolbar: '#toolbar',
+                pk: 'id',
+                sortName: 'user.id',
+                showToggle: false,
+                showColumns: false,
+                clickToSelect: true, //是否启用点击选中
+    				 singleSelect: true, //是否启用单选
+                search:false,
+                columns: [
+                    [
+                        {checkbox: true},
+                        {field: 'id', title: __('Id'), sortable: true,operate:false,visible:false,},
+                        {field: 'jobnumber', title: __('Jobnumber'),operate: 'LIKE',sortable: true},
+                        {field: 'nickname', title: __('Nickname'), operate: 'LIKE'},
+                        {field: 'username', title: __('Username'),operate: 'LIKE',sortable: true},
+                        {field: 'email', title: __('Email'),operate: 'LIKE',sortable: true},
+                        {field: 'department_id', title: __('Department_id'),visible:false,operate: 'in'},
+                        {field: 'department.name', title: __('Department_id'),operate: 'LIKE'},
+                        
+                        
+                    ]
+                ]
+            });
+            
+
+            // 为表格绑定事件
+            Table.api.bindevent(table);
+            Controller.api.tree.init(table);
+            
+            parent.window.$(".layui-layer-iframe").find(".layui-layer-close").on('click',function () {
+  				 var  temp=table.bootstrapTable('getSelections');
+   				Fast.api.close(temp); //往父窗口回调参数           
+			   });
+			   //保存
+        	 $(document).on("click",".btn-save",function () {
+        	 	var  temp=table.bootstrapTable('getSelections');
+   				Fast.api.close(temp); //往父窗口回调参数  
+        	 });
+            
         },
         api: {
             getQueryVariable(variable){

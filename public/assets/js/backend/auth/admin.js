@@ -2,6 +2,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
     var Controller = {
         index: function () {
+        	 	$(".btn-add").data("area",["80%","90%"]);
+        		$(".btn-edit").data("area",["90%","90%"]);
+        		$(".btn-edit").data("title",'修改');
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
@@ -46,11 +49,34 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     ]
                 ]
             });
+            table.on('post-body.bs.table',function () {
+            	$(".btn-editone").data("area",["80%","90%"]);
+            	$(".btn-editone").data("title",'修改');
+            })
 
             // 为表格绑定事件
             Table.api.bindevent(table);
         },
         add: function () {
+        	   //选择部门负责人
+				$(document).on("click",".btn-selectadmin",function () {
+					var ids = '0';
+					
+				    //弹窗显示学员信息
+         	  Fast.api.open('user/selectuser/selectadmin','选择人员',{   //?card_code=" + $(this).attr("id") + "&multiple=" + multiple + "&mimetype=" + mimetype, __('Choose'), {
+	           area:['95%', '95%'],
+		           callback: function (data) {	
+		           $("#username").val(data[0]['username']);
+		           $("#nickname").val(data[0]['nickname']);
+		           $("#email").val(data[0]['email']);
+		           
+		           //alert(data);
+		           	
+	       	    },function (data) {
+	       	    	
+	       	    }
+	            });
+	         });
             Form.api.bindevent($("form[role=form]"));
         },
         edit: function () {

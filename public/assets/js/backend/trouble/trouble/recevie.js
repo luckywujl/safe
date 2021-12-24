@@ -82,15 +82,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','selectpage'], functio
             	$(".btn-editone").data("title",'修改');
             })
             $(document).on("click", ".btn-verify", function () {
-                //在table外不可以使用添加.btn-change的方法
-                //只能自己调用Table.api.multi实现
                 var ids = Table.api.selectedids(table);
-    								layer.confirm('确定要将选中的隐患信息进行接警操作吗?', {btn: ['是','否'] },
-       							 function(index){
-        					    layer.close(index);
-          						  $.post("trouble/trouble/recevie/verify", {ids:ids , action:'success', reply:''},function(response){
-             				   if(response.code == 1){
-                 	   Toastr.success(response.msg)
+    				 layer.confirm('确定要将选中的隐患信息进行接警操作吗?', {btn: ['是','否'] },
+       			 function(index){
+        			 layer.close(index);
+          		 $.post("trouble/trouble/recevie/verify", {ids:ids , action:'success', reply:''},function(response){
+             	 if(response.code == 1){
+                 	  Toastr.success(response.msg)
                     $(".btn-refresh").trigger('click');
                 }else{
                     Toastr.error(response.msg)

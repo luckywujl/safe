@@ -136,7 +136,16 @@ class Index extends Base
     public function getCount()
     {
             
-            $main = new MainModel;
+            $trouble = new MainModel;
+            $main = $trouble->alias('a')
+            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
+            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+                //->where($where)
+                ->where('a.company_id',$this->auth->company_id);
+            
+            
+            
             $year = $this->request->param('year', date('Y'));
             $all = $this->request->param('all');
             $no = $this->request->param('no');
@@ -154,17 +163,17 @@ class Index extends Base
             		if($v['id']==0) {//全部
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',informer)');
-            			})->where('main_status','in',$all)->where('company_id',$this->auth->company_id)->where('source_type',1)->count();
+            			})->where('main_status','in',$all)->where('source_type',1)->count();
             		}
             		if($v['id']==1) {//未
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',informer)');
-            			})->where('main_status','in',$no)->where('company_id',$this->auth->company_id)->where('source_type',1)->count();
+            			})->where('main_status','in',$no)->where('source_type',1)->count();
             		}
              		if($v['id']==2) {//已
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',informer)');
-            			})->where('main_status','in',$already)->where('company_id',$this->auth->company_id)->where('source_type',1)->count();
+            			})->where('main_status','in',$already)->where('source_type',1)->count();
             		}
             		
             	}
@@ -174,17 +183,17 @@ class Index extends Base
             		if($v['id']==0) {//全部
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',informer)');
-            			})->where('main_status','in',$all)->where('company_id',$this->auth->company_id)->where('source_type',2)->count();
+            			})->where('main_status','in',$all)->where('source_type',2)->count();
             		}
             		if($v['id']==1) {//未
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',informer)');
-            			})->where('main_status','in',$no)->where('company_id',$this->auth->company_id)->where('source_type',2)->count();
+            			})->where('main_status','in',$no)->where('source_type',2)->count();
             		}
              		if($v['id']==2) {//已
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',informer)');
-            			})->where('main_status','in',$already)->where('company_id',$this->auth->company_id)->where('source_type',2)->count();
+            			})->where('main_status','in',$already)->where('source_type',2)->count();
             		}
             		
             	}
@@ -194,17 +203,17 @@ class Index extends Base
             		if($v['id']==0) {//全部
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
-            			})->where('main_status','in',$all)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$all)->count();
             		}
             		if($v['id']==1) {//未
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
-            			})->where('main_status','in',$no)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$no)->count();
             		}
              		if($v['id']==2) {//已
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
-            			})->where('main_status','in',$already)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$already)->count();
             		}
             		
             	}
@@ -214,17 +223,17 @@ class Index extends Base
             		if($v['id']==0) {//全部
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',liabler)');
-            			})->where('main_status','in',$all)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$all)->count();
             		}
             		if($v['id']==1) {//未
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',liabler)');
-            			})->where('main_status','in',$no)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$no)->count();
             		}
              		if($v['id']==2) {//已
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',liabler)');
-            			})->where('main_status','in',$already)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$already)->count();
             		}
             		
             	}
@@ -234,17 +243,17 @@ class Index extends Base
             		if($v['id']==0) {//全部
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',processer)');
-            			})->where('main_status','in',$all)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$all)->count();
             		}
             		if($v['id']==1) {//未
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',processer)');
-            			})->where('main_status','in',$no)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$no)->count();
             		}
              		if($v['id']==2) {//已
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',processer)');
-            			})->where('main_status','in',$already)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$already)->count();
             		}
             		
             	}
@@ -254,17 +263,17 @@ class Index extends Base
             		if($v['id']==0) {//全部
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',processer)');
-            			})->where('main_status','in',$all)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$all)->count();
             		}
             		if($v['id']==1) {//未
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',processer)');
-            			})->where('main_status','in',$no)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$no)->count();
             		}
              		if($v['id']==2) {//已
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',processer)');
-            			})->where('main_status','in',$already)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$already)->count();
             		}
             		
             	}
@@ -274,17 +283,17 @@ class Index extends Base
             		if($v['id']==0) {//全部
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',checker)');
-            			})->where('main_status','in',$all)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$all)->count();
             		}
             		if($v['id']==1) {//未
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',checker)');
-            			})->where('main_status','in',$no)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$no)->count();
             		}
              		if($v['id']==2) {//已
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',checker)');
-            			})->where('main_status','in',$already)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$already)->count();
             		}
             		
             	}
@@ -294,17 +303,17 @@ class Index extends Base
             		if($v['id']==0) {//全部
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',liabler)');
-            			})->where('main_status','in',$all)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$all)->count();
             		}
             		if($v['id']==1) {//未
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',liabler)');
-            			})->where('main_status','in',$no)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$no)->count();
             		}
              		if($v['id']==2) {//已
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
                 		$query->where('find_in_set('.$this->user_id.',liabler)');
-            			})->where('main_status','in',$already)->where('company_id',$this->auth->company_id)->count();
+            			})->where('main_status','in',$already)->count();
             		}
             		
             	}
@@ -680,6 +689,8 @@ class Index extends Base
         	  	   	$params['main_code']='YH'.date('Ym').'0001';
         	      	}
         	       $params['company_id'] = $point['company_id'];
+        	       $params['process_pic'] = '';
+        	       $params['finish_pic'] = '';
                 //完成信息编码生成
                 $result = false;
                 Db::startTrans();
@@ -793,14 +804,18 @@ class Index extends Base
     {
     	
             $main = new MainModel;
-            //$operator = 'processer';
+            
             $year = $this->request->param('year', date('Y'));
             $category_id = $this->request->param('category_id', 0);
             $time = date("Y-m-d H:i:s");
             list($where, $sort, $order, $offset, $limit) = $this->buildparams(null);
-            $total = $main
+            
+            $total = $main->alias('a')
+            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
+            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
                 ->where($where)
-                ->where('company_id',$this->auth->company_id);
+                ->where('a.company_id',$this->auth->company_id);
             if ($category_id==0) {
                 $total = $total->where('main_status','in',$all);
             }
@@ -853,14 +868,16 @@ class Index extends Base
                 	$query->where('find_in_set('.$this->user_id.',liabler)');//仅隐患负责人可见
             		});
             }
-             $total =  $total->order($sort, $order)
-                ->count();
+             $total =  $total->count();
+             
+            
             $list = $main->alias('a')
             	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
             	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
             	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
                 ->where($where)
                 ->where('a.company_id',$this->auth->company_id);
+             
             if ($category_id==0) {
                 $list = $list->where('a.main_status','in',$all);
             }
@@ -870,6 +887,7 @@ class Index extends Base
             if ($category_id==2) {
                 $list = $list->where('a.main_status','in',$already);
             }
+            
             if ($year !== '') {
                 $list = $list->whereTime('a.createtime', 'between', ["{$year}-1-1","{$year}-12-31"]);
             }
@@ -879,6 +897,7 @@ class Index extends Base
             if($operator==1) {    
             	$list = $list->where('informer',$this->user_id)->where('source_type',2);
             }
+            
             if($operator==2) {    
             	$list = $list->where(function ($query) {
                 	$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
@@ -909,10 +928,11 @@ class Index extends Base
                 	$query->where('find_in_set('.$this->user_id.',liabler)');//仅处置人可见
             		});
             }
-            
+           
             $list = $list->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
+        
             foreach($list as $k=>$v){
             	$v['status'] = $this->getstatus($v['main_status']);
             }

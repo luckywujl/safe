@@ -22,7 +22,7 @@
 								
                         <a href="javascript:;" class="btn btn-success btn-verify btn-disabled disabled {:$auth->check('trouble/trouble/recevie/verify')?'':'hide'}" title="{:__('verify')}" ><i class="fa fa-legal"></i> {:__('verify')}</a>
                         <a href="javascript:;" class="btn btn-danger btn-cancelverify btn-disabled disabled {:$auth->check('trouble/trouble/recevie/cancelverify')?'':'hide'}" title="{:__('cancelverify')}" ><i class="fa fa-repeat"></i> {:__('cancelverify')}</a>
-                       
+                        <a href="/uploads/templete/隐患信息导入模板.xls"  class="btn btn-info btn-download {:$auth->check('user/user/add')?'':'hide'}" title="{:__(' 下载模板')}" ><i class="fa fa-download"></i> {:__('下载模板')}</a>
                        
 
                         <a class="btn btn-success btn-recyclebin btn-dialog {:$auth->check('trouble/trouble/recevie/recyclebin')?'':'hide'}" href="trouble/trouble/recevie/recyclebin" title="{:__('Recycle bin')}"><i class="fa fa-recycle"></i> {:__('Recycle bin')}</a>

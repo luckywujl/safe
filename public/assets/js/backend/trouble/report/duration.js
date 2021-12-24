@@ -6,11 +6,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Table.api.init({
                 extend: {
                     index_url: 'trouble/report/duration/index' + location.search,
-                    add_url: 'trouble/report/duration/add',
-                    edit_url: 'trouble/report/duration/edit',
-                    del_url: 'trouble/report/duration/del',
-                    multi_url: 'trouble/report/duration/multi',
-                    import_url: 'trouble/report/duration/import',
+                    
                     table: 'trouble_main',
                 }
             });

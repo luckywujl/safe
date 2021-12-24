@@ -45,6 +45,7 @@ return [
     'Address'			=> '家庭住址',
     'Normal'			=> '在职',
     'Hidden' 			=> '离职',
+    'Updateage'		=> '更新年龄',
     'Age'				=> '年龄',
     'Set to normal'	=> '设为在职',
     'Set to hidden'	=> '设为离职',

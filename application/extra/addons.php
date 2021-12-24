@@ -3,6 +3,16 @@
 return [
     'autoload' => false,
     'hooks' => [
+        'action_begin' => [
+            'geetest',
+        ],
+        'config_init' => [
+            'geetest',
+            'third',
+        ],
+        'response_send' => [
+            'loginvideo',
+        ],
         'view_filter' => [
             'materials',
             'message',
@@ -20,9 +30,6 @@ return [
         ],
         'testhook' => [
             'suisunwechat',
-        ],
-        'config_init' => [
-            'third',
         ],
     ],
     'route' => [

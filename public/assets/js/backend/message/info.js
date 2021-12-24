@@ -49,7 +49,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         //{field: 'id', title: __('Id')},
                         {field: 'category_id', title: __('Category_id'),visible:false,operate:'in'},
                         {field: 'name', title: __('Name'), operate: 'LIKE'},
-                        {field: 'coverimage', title: __('Coverimage'), operate: false, events: Table.api.events.image, formatter: Table.api.formatter.image},
+                        {field: 'coverimage', title: __('Coverimage'), operate: false, visible:false,events: Table.api.events.image, formatter: Table.api.formatter.image},
                         {field: 'keywords', title: __('Keywords'),operate: 'LIKE'},
                         
                         //{field: 'url', title: __('Url'), operate: 'LIKE', formatter: Table.api.formatter.url},

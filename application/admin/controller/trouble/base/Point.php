@@ -3,9 +3,17 @@
 namespace app\admin\controller\trouble\base;
 
 use app\common\controller\Backend;
+use app\common\library\Auth;
 use Think\Db;
 use fast\Tree;
 use app\admin\model\setting\Company as CompanyModel;
+use Exception;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
+use PhpOffice\PhpSpreadsheet\Reader\Csv;
+use think\exception\PDOException;
+use think\exception\ValidateException;
 /**
  * 隐患点信息
  *
@@ -47,10 +55,7 @@ class Point extends Backend
 
     }
 
-    public function import()
-    {
-        parent::import();
-    }
+   
 
     /**
      * 默认生成的控制器所继承的父类中有index/add/edit/del/multi五个基础方法、destroy/restore/recyclebin三个回收站方法
@@ -259,10 +264,180 @@ class Point extends Backend
         			@ob_flush(); 
         			exit();
             } else {
-                $this->error(__('No rows were deleted'));
+                $this->error(__('No rows were selected'));
             }
         }
         return $this->view->fetch();
+    }
+    /**
+     * 导入
+     */
+    public function import()
+    {
+        $department = new \app\admin\model\user\Department;
+        $department_info = $department->field('id,name')->where(['company_id'=>$this->auth->company_id])->order('id', 'asc')->select(); 
+        $department_name = array_column($department_info , 'name');//将部门名称装入一维数组，免得重复读表
+        $department_id = array_column($department_info , 'id');//获取部门ID，主键
+        $department_info = array_combine($department_id,$department_name);//将两个一维数组组装成键名=》键值形式
+        
+        $area = new \app\admin\model\trouble\base\Area;
+        $area_info = $area->field('id,area_name')->where(['company_id'=>$this->auth->company_id])->order('id', 'asc')->select(); 
+        $area_name = array_column($area_info , 'area_name');//将区域名称装入一维数组，免得重复读表
+        $area_id = array_column($area_info , 'id');//获取区载ID，主键
+        $area_info = array_combine($area_id,$area_name);//将两个一维数组组装成键名=》键值形式
+        
+        $point_info = $this->model->field('id,point_code')->order('id','asc')->select();
+       
+        $point_code = array_column($point_info,'point_code');//将区域编号抽出
+        //以上将编号一列抽出，以便逐过校验
+        
+        $file = $this->request->request('file');
+        if (!$file) {
+            $this->error(__('Parameter %s can not be empty', 'file'));
+        }
+        $filePath = ROOT_PATH . DS . 'public' . DS . $file;
+        if (!is_file($filePath)) {
+            $this->error(__('No results were found'));
+        }
+        //实例化reader
+        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
+        if (!in_array($ext, ['csv', 'xls', 'xlsx'])) {
+            $this->error(__('Unknown data format'));
+        }
+        if ($ext === 'csv') {
+            $file = fopen($filePath, 'r');
+            $filePath = tempnam(sys_get_temp_dir(), 'import_csv');
+            $fp = fopen($filePath, "w");
+            $n = 0;
+            while ($line = fgets($file)) {
+                $line = rtrim($line, "\n\r\0");
+                $encoding = mb_detect_encoding($line, ['utf-8', 'gbk', 'latin1', 'big5']);
+                if ($encoding != 'utf-8') {
+                    $line = mb_convert_encoding($line, 'utf-8', $encoding);
+                }
+                if ($n == 0 || preg_match('/^".*"$/', $line)) {
+                    fwrite($fp, $line . "\n");
+                } else {
+                    fwrite($fp, '"' . str_replace(['"', ','], ['""', '","'], $line) . "\"\n");
+                }
+                $n++;
+            }
+            fclose($file) || fclose($fp);
+
+            $reader = new Csv();
+        } elseif ($ext === 'xls') {
+            $reader = new Xls();
+        } else {
+            $reader = new Xlsx();
+        }
+
+        //导入文件首行类型,默认是注释,如果需要使用字段名称请使用name
+        $importHeadType = isset($this->importHeadType) ? $this->importHeadType : 'comment';
+
+        $table = $this->model->getQuery()->getTable();
+        $database = \think\Config::get('database.database');
+        $fieldArr = [];
+        $list = db()->query("SELECT COLUMN_NAME,COLUMN_COMMENT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = ? AND TABLE_SCHEMA = ?", [$table, $database]);
+        foreach ($list as $k => $v) {
+            if ($importHeadType == 'comment') {
+                $fieldArr[$v['COLUMN_COMMENT']] = $v['COLUMN_NAME'];
+            } else {
+                $fieldArr[$v['COLUMN_NAME']] = $v['COLUMN_NAME'];
+            }
+        }
+
+        //加载文件
+        $insert = [];
+        try {
+            if (!$PHPExcel = $reader->load($filePath)) {
+                $this->error(__('Unknown data format'));
+            }
+            $currentSheet = $PHPExcel->getSheet(0);  //读取文件中的第一个工作表
+            $allColumn = $currentSheet->getHighestDataColumn(); //取得最大的列号
+            $allRow = $currentSheet->getHighestRow(); //取得一共有多少行
+            $maxColumnNumber = Coordinate::columnIndexFromString($allColumn);
+            $fields = [];
+            for ($currentRow = 1; $currentRow <= 1; $currentRow++) {
+                for ($currentColumn = 1; $currentColumn <= $maxColumnNumber; $currentColumn++) {
+                    $val = $currentSheet->getCellByColumnAndRow($currentColumn, $currentRow)->getValue();
+                    $fields[] = $val;
+                }
+            }
+
+            for ($currentRow = 2; $currentRow <= $allRow; $currentRow++) {
+                $values = [];
+                for ($currentColumn = 1; $currentColumn <= $maxColumnNumber; $currentColumn++) {
+                    $val = $currentSheet->getCellByColumnAndRow($currentColumn, $currentRow)->getValue();
+                    $values[] = is_null($val) ? '' : $val;
+                }
+                $row = [];
+                $temp = array_combine($fields, $values);
+                foreach ($temp as $k => $v) {
+                    if (isset($fieldArr[$k]) && $k !== '') {
+                        $row[$fieldArr[$k]] = $v;
+                    }
+                }
+                if ($row) {
+                    $insert[] = $row;
+                }
+            }
+        } catch (Exception $exception) {
+            $this->error($exception->getMessage());
+        }
+        if (!$insert) {
+            $this->error(__('No rows were updated'));
+        }
+
+        try {
+            //是否包含admin_id字段
+            $has_admin_id = false;
+            foreach ($fieldArr as $name => $key) {
+                if ($key == 'company_id') {
+                    $has_admin_id = true;
+                    break;
+                }
+            }
+            
+            if ($has_admin_id) {
+                
+            
+                $repeat_A = '';
+            	 
+            	
+                $auth = Auth::instance();
+                foreach ($insert as &$val) {
+                    if (!isset($val['company_id']) || empty($val['company_id'])) {
+                        $val['company_id'] = $this->auth->company_id;
+                    }
+                    
+                	  $val['point_department_id'] = array_search($val['point_department_id'],$department_info); //将表格的部门名称转换成部门ID
+                	  $val['point_area_id'] = array_search($val['point_area_id'],$area_info);//将表格听区域名称转换成区域ID
+                	  
+                	  if(in_array($val['point_code'], $point_code)) {
+                	  		$repeat_A = $repeat_A.$val['point_code'].'、';
+                	  }
+                	  
+                }
+            }
+            if($repeat_A<>'') {
+            	$this->error('以下隐患点编号有重复:'.$repeat_A);
+            }
+            
+            $this->model->saveAll($insert);
+        } catch (PDOException $exception) {
+            $msg = $exception->getMessage();
+            if (preg_match("/.+Integrity constraint violation: 1062 Duplicate entry '(.+)' for key '(.+)'/is", $msg, $matches)) {
+                $msg = "导入失败，包含【{$matches[1]}】的记录已存在";
+            };
+            $this->error($msg);
+        } catch (Exception $e) {
+        	   if($repeat_A<>'') {
+            	$this->error('以下隐患点编号有重复:'.$repeat_A);
+            }
+            $this->error($e->getMessage());
+        }
+
+        $this->success();
     }
 
 }

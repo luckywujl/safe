@@ -53,7 +53,7 @@ class Index extends Backend
             $department_info = $department_model ->field('id,name')->where('company_id',$this->auth->company_id)->select();
             $department_id = array_column($department_info,'id');
           	$department_name = array_column($department_info,'name');
-          	$department_array = array_combine($department_name,$department_id);
+          	$department_array = array_combine($department_id,$department_name);
           	
             $main = MainModel::get($main_id);
             $users = User::field('id,group_id,department_id,username,nickname,email,mobile,avatar,level,gender,birthday,bio,score')->where(function ($query) use($main){
@@ -83,7 +83,7 @@ class Index extends Backend
                             $total += $item['duration'];
                         }
                     }
-                    $user['department_name'] = array_search($user['department_id'],$department_array);//将lD转为名称
+                    $user['department_name'] = $department_array[$user['department_id']];//将lD转为名称
                     $user['record']=[
                         'total'     => $total,
                         'studytime' => $studytime,

@@ -40,14 +40,8 @@
                         <a href="javascript:;" class="btn btn-success btn-downloadqrcode btn-disabled disabled {:$auth->check('trouble/base/point/downqrcode')?'':'hide'}" title="{:__('Downloadqrcode')}" ><i class="fa fa-pencil"></i> {:__('Downloadqrcode')}</a>
                         
                         <a href="javascript:;" class="btn btn-danger btn-import {:$auth->check('trouble/base/point/import')?'':'hide'}" title="{:__('Import')}" id="btn-import-file" data-url="ajax/upload" data-mimetype="csv,xls,xlsx" data-multiple="false"><i class="fa fa-upload"></i> {:__('Import')}</a>
-
-                        <div class="dropdown btn-group {:$auth->check('trouble/base/point/multi')?'':'hide'}">
-                            <a class="btn btn-primary btn-more dropdown-toggle btn-disabled disabled" data-toggle="dropdown"><i class="fa fa-cog"></i> {:__('More')}</a>
-                            <ul class="dropdown-menu text-left" role="menu">
-                                <li><a class="btn btn-link btn-multi btn-disabled disabled" href="javascript:;" data-params="status=normal"><i class="fa fa-eye"></i> {:__('Set to normal')}</a></li>
-                                <li><a class="btn btn-link btn-multi btn-disabled disabled" href="javascript:;" data-params="status=hidden"><i class="fa fa-eye-slash"></i> {:__('Set to hidden')}</a></li>
-                            </ul>
-                        </div>
+								<a href="/uploads/templete/信息点导入模板.xls"  class="btn btn-info btn-download {:$auth->check('user/user/add')?'':'hide'}" title="{:__(' 下载模板')}" ><i class="fa fa-download"></i> {:__('下载模板')}</a>
+                        
 
                         
                     </div>

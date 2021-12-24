@@ -359,7 +359,7 @@ class User extends Backend
                     break;
                 }
             }
-            if ($has_admin_id) {
+            
             	 $repeat_A = '';
             	 $repeat_B = '';
             	 $repeat_C = ''; 
@@ -391,7 +391,7 @@ class User extends Backend
                 	  		$repeat_C = $repeat_C.$val['email'];
                 	  } 
                 }
-            }
+            
             if($repeat_A<>'') {
             	$this->error('以下用户名有重复:'.$repeat_A);
             }

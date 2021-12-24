@@ -99,12 +99,12 @@ class Plan extends Backend
           	$main_info = $main->field('id,user_ids')->where(['company_id'=>$this->auth->company_id])->where('id','in',$params['ids_main'])->select();
           	$main_id = array_column($main_info,'id');
           	$main_user_ids = array_column($main_info,'user_ids');
-          	$main_array = array_combine($main_user_ids,$main_id);
+          	$main_array = array_combine($main_id,$main_user_ids);
           	
           	$main_data =[];
           	foreach ($params['ids_main'] as $k => $v) {
           		$data = [];
-          		$main_ids = explode(",",array_search($v,$main_array));
+          		$main_ids = explode(",",$main_array[$v]);
           		$user_ids = $user;
           		$ids_finnal = array_diff($user_ids,$main_ids);//求两数组的差集，即是要添加去main表的user_ids中去的
                if(count($ids_finnal)>0) {

@@ -69,6 +69,10 @@ class Recevie extends Model
     {
         return $value === '' ? null : ($value && !is_numeric($value) ? strtotime($value) : $value);
     }
+    protected function setCreatetimeAttr($value)
+    {
+        return $value === '' ? null : ($value && !is_numeric($value) ? strtotime($value) : $value);
+    }
 
 
     public function troublepoint()

@@ -21,7 +21,7 @@ class Selectuser extends Backend
     protected $model = null;
     protected $dataLimit = 'personal';
 	 protected $dataLimitField = 'company_id';
-	 protected $noNeedRight = ['index','jstree','deluser'];
+	 protected $noNeedRight = ['index','jstree','deluser','selectadmin'];
     
     
 
@@ -96,5 +96,35 @@ class Selectuser extends Backend
     		//return json($user_ids);
     	}
     
+    }
+    /**
+     * 选择用户
+     */
+    public function selectadmin()
+    {
+        //设置过滤方法
+        $this->request->filter(['strip_tags', 'trim']);
+        if ($this->request->isAjax()) {
+            //如果发送的来源是Selectpage，则转发到Selectpage
+            if ($this->request->request('keyField')) {
+                return $this->selectpage();
+            }
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+            $list = $this->model
+                ->with('group,department')
+                ->where($where)
+                ->where(['user.company_id'=>$this->auth->company_id])
+                ->order($sort, $order)
+                ->paginate($limit);
+            foreach ($list as $k => $v) {
+                $v->avatar = $v->avatar ? cdnurl($v->avatar, true) : letter_avatar($v->nickname);
+                $v->hidden(['password', 'salt']);
+            }
+            $result = array("total" => $list->total(), "rows" => $list->items());
+
+            return json($result);
+        }
+        
+        return $this->view->fetch();
     }
 }

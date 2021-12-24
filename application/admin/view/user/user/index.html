@@ -38,8 +38,9 @@
                         <a href="javascript:;" class="btn btn-danger btn-import {:$auth->check('user/user/import')?'':'hide'}" title="{:__('Import')}" id="btn-import-file" data-url="ajax/upload" data-mimetype="csv,xls,xlsx" data-multiple="false"><i class="fa fa-upload"></i> {:__('Import')}</a>
 								<a href="javascript:;" class="btn btn-success btn-batch btn-disabled disabled {:$auth->check('user/user/batch')?'':'hide'}" title="{:__('Batch setting')}" ><i class="fa fa-pencil"></i> {:__('Batch setting')}</a>
                         <a href="javascript:;" class="btn btn-info btn-updateage {:$auth->check('user/user/add')?'':'hide'}" title="{:__('Updateage')}" ><i class="fa fa-edit"></i> {:__('Updateage')}</a>
-                        
-                        
+                        <a href="/uploads/templete/人员资料导入模板.xls"  class="btn btn-info btn-download {:$auth->check('user/user/add')?'':'hide'}" title="{:__(' 下载模板')}" ><i class="fa fa-download"></i> {:__('下载模板')}</a>
+  
+  
                         
                         
                     	</div>
