@@ -31,7 +31,7 @@ class Recevie extends Backend
     protected $model = null;
     protected $dataLimit = 'personal';
     protected $dataLimitField = 'company_id';
-    protected $noNeedRight = ['getlog'];
+    protected $noNeedRight = ['getlog','dotogether'];
 
     public function _initialize()
     {
@@ -758,6 +758,123 @@ class Recevie extends Backend
         	     }
               return $code;
    }
+   
+    /**
+     * 并案
+     */
+    public function together()
+    {
+        //当前是否为关联查询
+        $this->relationSearch = true;
+        //设置过滤方法
+        $this->request->filter(['strip_tags', 'trim']);
+        $point_id = $this->request->request("point_id",'');
+        $code = $this->request->request("code",'');
+        $id = $this->request->request("id",'');
+        $informer = $this->request->request("informer",'');
+        if ($this->request->isAjax()) {
+            //如果发送的来源是Selectpage，则转发到Selectpage
+            if ($this->request->request('keyField')) {
+                return $this->selectpage();
+            }
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+            $department = new  \app\admin\model\user\Department;
+            $area = new  \app\admin\model\trouble\base\Area;
+            
+            $department_info = $department->where('company_id',$this->auth->company_id)->select();
+            $depart_id = array_column($department_info,'id');//部门ID
+            $depart_name = array_column($department_info,'name');//部门名称
+            $depart_pname = array_column($department_info,'pname');//上级部门
+            $name = array_combine($depart_id,$depart_name);
+            $pname = array_combine($depart_id,$depart_pname,);
+            
+            $area_info = $area->where('company_id',$this->auth->company_id)->select();
+            $area_id = array_column($area_info,'id');
+            $area_name = array_column($area_info,'area_name');
+            $areaname = array_combine($area_id,$area_name);
+
+            $list = $this->model
+                    ->with(['troublepoint','troubletype'])
+                    ->where($where)
+                    ->where('main_status','in','0,1,2,3,4,5,6,7')
+                    ->where(['point_id'=>$point_id,'main_code'=>['<>',$code]])
+                    ->order($sort, $order)
+                    ->paginate($limit);
+
+            foreach ($list as $row) {
+                $row['department_name'] = $name[$row['troublepoint']['point_department_id']];
+                $row['department_pname'] = $pname[$row['troublepoint']['point_department_id']];
+                $row['area_name'] = $areaname[$row['troublepoint']['point_area_id']];
+                
+            }
+
+            $result = array("total" => $list->total(), "rows" => $list->items());
+
+            return json($result);
+        }
+        
+        $this->view->assign("maincode", $code);
+        $this->assignconfig("mainid", $id);
+        $this->assignconfig("maincode", $code);
+        $this->assignconfig("informer", $informer);
+        return $this->view->fetch();
+    }
+    
+    /**
+     * 并案
+     */
+    public function dotogether($ids="")
+    {
+        $ids = $ids ? $ids : $this->request->post("ids");
+        if ($this->request->isPost()) {
+        	  $result = 0;
+        	  
+        	  $row = $this->model->get($ids);
+        	  $mainid = $this->request->post("mainid",'');
+        	  $maincode = $this->request->post("maincode",'');
+        	  $informer = $this->request->post("informer",'');
+        	  if (!$row) {
+            	$this->error(__('No Results were found'));
+        	  }
+        	  
+        	  $item = [];
+        	  $item['id'] = $row['id'];
+        	  if(strlen($row['together_id'])>0) { //将需要并案处理的ID及CODE填入并案的记录中
+        	     $item['together_id'] = $row['together_id'].','.$mainid;
+        	     $item['together_code'] = $row['together_code'].','.$maincode;
+           } else {
+        	     $item['together_id'] = $mainid;
+        	     $item['together_code'] = $maincode;
+           }
+           if(strlen($row['informer'])>0) { //将需要并案处理的报案人填入并案的记录中
+        	     $item['informer'] = $row['informer'].','.$informer;
+        	     
+           } else {
+        	     $item['informer'] = $informer;
+           }
+         Db::startTrans();
+         try {
+           if($item) {
+           		$result = $row->allowField(true)->save($item);
+           		$result = $this->model->where('id',$mainid)->update(['main_status'=>8]);
+           		LogModel::create(['main_id'=>$mainid,'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'隐患报警信息已经并案处理，具体进度见：'.$row['main_code'],'company_id'=>$this->auth->company_id]);
+           }
+        		Db::commit();
+            } catch (PDOException $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            } catch (Exception $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            }
+           if($result) {
+            $this->success('并案成功！');
+         }else{
+         	$this->error('并案失败！');
+         }
+        }
+        
+    }
    
     
 

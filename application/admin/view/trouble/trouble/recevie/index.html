@@ -19,7 +19,8 @@
                         <a href="javascript:;" class="btn btn-success btn-edit btn-disabled disabled {:$auth->check('trouble/trouble/recevie/edit')?'':'hide'}" title="{:__('Edit')}" ><i class="fa fa-pencil"></i> {:__('Edit')}</a>
                         <a href="javascript:;" class="btn btn-danger btn-del btn-disabled disabled {:$auth->check('trouble/trouble/recevie/del')?'':'hide'}" title="{:__('Delete')}" ><i class="fa fa-trash"></i> {:__('Delete')}</a>
                         <a href="javascript:;" class="btn btn-danger btn-import {:$auth->check('trouble/trouble/recevie/import')?'':'hide'}" title="{:__('Import')}" id="btn-import-file" data-url="ajax/upload" data-mimetype="csv,xls,xlsx" data-multiple="false"><i class="fa fa-upload"></i> {:__('Import')}</a>
-								
+								<a href="javascript:;" class="btn btn-success btn-together btn-disabled disabled {:$auth->check('trouble/trouble/recevie/verify')?'':'hide'}" title="{:__('并案')}" ><i class="fa fa-arrow-right"></i> {:__('并案')}</a>
+                        
                         <a href="javascript:;" class="btn btn-success btn-verify btn-disabled disabled {:$auth->check('trouble/trouble/recevie/verify')?'':'hide'}" title="{:__('verify')}" ><i class="fa fa-legal"></i> {:__('verify')}</a>
                         <a href="javascript:;" class="btn btn-danger btn-cancelverify btn-disabled disabled {:$auth->check('trouble/trouble/recevie/cancelverify')?'':'hide'}" title="{:__('cancelverify')}" ><i class="fa fa-repeat"></i> {:__('cancelverify')}</a>
                         <a href="/uploads/templete/隐患信息导入模板.xls"  class="btn btn-info btn-download {:$auth->check('user/user/add')?'':'hide'}" title="{:__(' 下载模板')}" ><i class="fa fa-download"></i> {:__('下载模板')}</a>

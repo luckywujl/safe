@@ -59,7 +59,7 @@ return [
             1 => '允许',
             0 => '不允许',
         ],
-        'value' => '0',
+        'value' => '1',
         'rule' => '',
         'tip' => '培训过期后是否允许再次播放视频',
         'extend' => '',
@@ -110,7 +110,6 @@ return [
             'index/index' => '/training/$',
             'index/main' => '/training/main/[:id]',
             'index/alert' => '/training/alert/[:msg]',
-            
             'course/index' => '/training/course/[:main_id]/[:course_id]',
         ],
         'rule' => 'required',
