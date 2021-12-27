@@ -132,8 +132,9 @@ class Questions extends Backend
             if ($params) {
                 $params = $this->preExcludeFields($params);
                 if ($this->dataLimit && $this->dataLimitFieldAutoFill) {
-                    $params[$this->dataLimitField] = $this->auth->id;
+                    $params[$this->dataLimitField] = $this->auth->company_id;
                 }
+                $params['admin_id'] = $this->auth->id;
                 $type = intval($params['type']) - 1;
                 $params['selectdata'] = $params['selectdata' . $type];
                 $selectarr = json_decode($params['selectdata'], true);
