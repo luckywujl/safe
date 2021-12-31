@@ -3,7 +3,7 @@
     <div class="form-group">
         <label for="c-type" class="control-label col-xs-12 col-sm-2">{:__('Type')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <select id="c-type" data-rule="required" class="form-control selectpicker" name="row[type]">
+            <select id="c-type" data-rule="required" class="province form-control" name="row[type]">
                 {foreach name="typeList" item="vo"}
                 <option value="{$vo.key}" {in name="key" value="$row.type"}selected{/in}>{$vo.name}</option>
                 {/foreach}
@@ -15,7 +15,7 @@
         <label for="c-pid" class="control-label col-xs-12 col-sm-2">{:__('Pid')}:</label>
         <div class="col-xs-12 col-sm-8">
 
-            <select id="c-pid" data-rule="required" class="form-control selectpicker" name="row[pid]">
+            <select id="c-pid" data-rule="required" class="province form-control" name="row[pid]">
                 {foreach name="parentList" item="vo"}
                 <option data-type="{$vo.type}" class="{:$vo.type==$row.type||$vo.type=='all'?'':'hide'}" value="{$key}" {in name="key" value="$row.pid"}selected{/in}>{$vo.name}</option>
                 {/foreach}

@@ -45,12 +45,8 @@ class Plan extends Backend
         foreach ($this->departmentlist as $k => $v) {
             $departmentdata[$v['id']] = $v;
         }
-        //$this->view->assign("flagList", $this->model->getFlagList());
-        //$this->view->assign("typeList", $this->typelist);
         $this->view->assign("departmentList", $departmentdata);
-        $this->assignconfig("departmentList", $departmentdata);
-        //$this->assignconfig("typeList", $this->typelist);
-        //$this->assignconfig('typeList', $this->typelist);
+        $this->assignconfig("departmentList", $departmentdata);   
     }
 
     /**

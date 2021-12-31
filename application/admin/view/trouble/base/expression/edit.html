@@ -1,9 +1,19 @@
 <form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
 
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_expression')}:</label>
+        <label class="control-label col-xs-12 col-sm-2">{:__('Pid')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-trouble_expression" class="form-control" name="row[trouble_expression]" type="text" value="{$row.trouble_expression|htmlentities}">
+            <select id="c-pid" data-rule="required" class="form-control selectpicker" name="row[pid]">
+                {foreach name="typeList" item="vo"}
+                <option class="" value="{$key}" {in name="key" value="$row.pid"}selected{/in}>{$vo.name}</option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Name')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-name" class="form-control" name="row[name]" type="text" value="{$row.name|htmlentities}">
         </div>
     </div>
     

@@ -320,9 +320,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','selectpage'], functio
 	           area:['50%', '80%'],
 		           callback: function (data) {	
 		           if ($("#c-trouble_expression").val()=='') {
-		           		$("#c-trouble_expression").val(data[0].trouble_expression);
+		           		$("#c-trouble_expression").val(data[0].name);
 		           }else {
-		           		$("#c-trouble_expression").val($("#c-trouble_expression").val()+'/'+data[0].trouble_expression);
+		           		$("#c-trouble_expression").val($("#c-trouble_expression").val()+'/'+data[0].name);
 		           }
 		           
 		           

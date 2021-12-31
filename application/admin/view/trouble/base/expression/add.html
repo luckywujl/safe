@@ -1,17 +1,56 @@
 <form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
 
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_expression')}:</label>
+        <label class="control-label col-xs-12 col-sm-2">{:__('Pid')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-trouble_expression" class="form-control" name="row[trouble_expression]" type="text">
+            <select id="c-pid" data-rule="required" class="form-control selectpicker" name="row[pid]">
+                {foreach name="typeList" item="vo"}
+                <option class="" value="{$key}" {in name="key" value="$pid"}selected{/in}>{$vo.name}</option>
+                {/foreach}
+            </select>
         </div>
     </div>
-    
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Name')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-name" class="form-control" name="row[name]" type="text">
+        </div>
+    </div>
+
+ 
+
+<!-- <div class="form-group" data-toggle="cxselect" data-selects="province,city,area">
+   <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_expression')}:</label>
+        <div class="col-xs-12 col-sm-6">
+           <select class="province form-control" name="province" data-url="ajax/area">
+           <option value="1" selected>北京</option>
+         </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_expression')}:</label>
+        <div class="col-xs-12 col-sm-8">
+           <select class="city form-control" name="city" data-url="ajax/area">
+            <option value="2" selected>北京</option>
+         </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_expression')}:</label>
+        <div class="col-xs-12 col-sm-8">
+           <select class="area form-control" name="area" data-url="ajax/area">
+             <option value="" selected>东城</option>
+         </select>
+        </div>
+    </div>
+  </div>   -->
     <div class="form-group layer-footer">
         <label class="control-label col-xs-12 col-sm-2"></label>
         <div class="col-xs-12 col-sm-8">
             <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
             <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
         </div>
-    </div>
+    </div> 
+
 </form>

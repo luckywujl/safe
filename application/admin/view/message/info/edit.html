@@ -3,7 +3,7 @@
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Category_id')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <select id="c-category_id" data-rule="required" class="form-control selectpicker" name="row[category_id]">
+            <select id="c-category_id" data-rule="required" class="province form-control" name="row[category_id]">
                 {foreach name="categoryList" item="vo"}
                 <option data-type="" value="{$key}" {in name="key" value="$row.category_id"}selected{/in}>{$vo.name}</option>
                 {/foreach}

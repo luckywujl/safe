@@ -30,6 +30,7 @@ class Point extends Backend
     protected $dataLimit = 'personal';
 	 protected $dataLimitField = 'company_id';
 	 protected $noNeedRight = ['getpoint','jstree'];
+	 protected $searchFields =['point_name'];
 
 
 

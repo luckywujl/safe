@@ -21,6 +21,7 @@ class Recevie extends Model
     // 定义时间戳字段名
     protected $createTime = 'createtime';
     protected $updateTime = 'updatetime';
+    protected $limitTime = 'limittime';
     protected $deleteTime = false;
 
     // 追加属性
@@ -36,6 +37,9 @@ class Recevie extends Model
     {
         return ['0' => __('Source_type 0'), '1' => __('Source_type 1'), '2' => __('Source_type 2')];
     }
+    
+	 
+
 
     public function getMainStatusList()
     {
@@ -46,6 +50,12 @@ class Recevie extends Model
     public function getFinishtimeTextAttr($value, $data)
     {
         $value = $value ? $value : (isset($data['finishtime']) ? $data['finishtime'] : '');
+        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+    }
+
+    public function getLimittimeTextAttr($value, $data)
+    {
+        $value = $value ? $value : (isset($data['limittime']) ? $data['limittime'] : '');
         return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
     }
 
@@ -66,6 +76,10 @@ class Recevie extends Model
     }
 
     protected function setFinishtimeAttr($value)
+    {
+        return $value === '' ? null : ($value && !is_numeric($value) ? strtotime($value) : $value);
+    }
+    protected function setLimittimeAttr($value)
     {
         return $value === '' ? null : ($value && !is_numeric($value) ? strtotime($value) : $value);
     }

@@ -13,7 +13,7 @@ class Type extends Model
     
 
     // 表名
-    protected $name = 'trouble_type';
+    protected $name = 'trouble_expression';
     
     // 自动写入时间戳字段
     protected $autoWriteTimestamp = false;
@@ -27,6 +27,14 @@ class Type extends Model
     protected $append = [
 
     ];
+    
+
+    
+
+
+
+
+
 
 
 }

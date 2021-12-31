@@ -59,7 +59,12 @@
     <div class="form-group">
         <label for="c-isspecial" class="control-label col-xs-12 col-sm-2">{:__('Isspecial')}:</label>
         <div class="col-xs-12 col-sm-2">
-            {:build_radios('row[isspecial]', ['是'=>__('是'), '否'=>__('否')])}
+            {:build_radios('row[isspecial]', ['否'=>__('否'),'是'=>__('是')])}
+            
+        </div>
+        <label for="c-issafer" class="control-label col-xs-12 col-sm-1">{:__('Issafer')}:</label>
+        <div class="col-xs-12 col-sm-1">
+            {:build_radios('row[issafer]', ['否'=>__('否'),'是'=>__('是')])}
             
         </div>
         <label for="c-score" class="control-label col-xs-12 col-sm-1">{:__('Studytime')}:</label>

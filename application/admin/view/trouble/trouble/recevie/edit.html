@@ -16,15 +16,21 @@
         <div class="col-xs-12 col-sm-3">
             <input id="c-createtime" class="form-control" readonly="readonly" name="row[createtime]" type="text" value="{:date('Y-m-d H:m:s',$row.createtime)}">
             
-        </div>     
+        </div> 
+            
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Point_id')}:</label>
-       <div class="col-xs-12 col-sm-7">
-            <input id="c-point_id" data-rule="required" class="form-control selectpage" data-source="trouble/base/point/getpoint" data-field="point_name" data-primary-key="id" name="row[point_id]"  type="text" value="{$row.point_id|htmlentities}">
+       <div class="col-xs-12 col-sm-3">
+            <input id="c-point_id" data-rule="required" class="form-control selectpage" disabled="true" data-source="trouble/base/point/getpoint" data-field="point_name" data-primary-key="id" name="row[point_id]"  type="text" value="{$row.point_id|htmlentities}">
+           
+        </div>
+        
+        <label class="control-label col-xs-12 col-sm-2">{:__('Limittime')}:</label>
+        <div class="col-xs-12 col-sm-3">
+            <input id="c-limittime"  class="form-control datetimepicker" data-rule="required;" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="row[limittime]" type="text" value="{:date('Y-m-d H:i:s',strtotime("+3 day"))}">
             
         </div>
-        <button type="button" class="btn btn-success btn-selectpoint ">{:__('确定隐患点')}</button>
     </div>
    
     <div class="form-group">
@@ -40,9 +46,9 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_expression')}:</label>
+        <label class="control-label col-xs-12 col-sm-2">{:__('Expression')}:</label>
         <div class="col-xs-12 col-sm-7">
-            <input id="c-trouble_expression" class="form-control" name="row[trouble_expression]" type="text" value="{$row.trouble_expression|htmlentities}">
+            <input id="c-expression" class="form-control" name="row[expression]" type="text" value="{$row.expression|htmlentities}">
         </div>
         <button type="button" class="btn btn-success btn-selectexpression ">{:__('选择隐患现象')}</button>
     </div>
@@ -50,7 +56,7 @@
         <label class="control-label col-xs-12 col-sm-2">{:__('Description')}:</label>
         <div class="col-xs-12 col-sm-8">
        
-            <textarea id="c-description" class="form-control " rows="3" name="row[description]" cols="50">{$row.description|htmlentities}</textarea>
+            <textarea id="c-description" class="form-control " rows="3" name="row[description]" cols="50">{$row.violations|htmlentities}</textarea>
         </div>
     </div>
     <div class="form-group">
@@ -71,6 +77,19 @@
                 <span class="msg-box n-right" for="c-trouble_pic"></span>
             </div>
             <ul class="row list-inline faupload-preview" id="p-trouble_pic"></ul>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Violations')}:</label>
+        <div class="col-xs-12 col-sm-8">                    
+            <select  id="c-violations"  class="form-control selectpicker" name="row[violations]">              
+                    
+                    <option value=" " {if $row.violations==' '}selected{/if} > </option>
+                    <option value="违章指挥" {if $row.violations=='违章指挥'}selected{/if} >违章指挥</option>
+                    <option value="违规作业" {if $row.violations=='违规作业'}selected{/if} >违规作业</option>
+                    <option value="违反劳动纪律" {if $row.violations=='违反劳动纪律'}selected{/if} >违反劳动纪律</option>    
+            </select>
         </div>
     </div>
     

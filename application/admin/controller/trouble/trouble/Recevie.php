@@ -32,6 +32,7 @@ class Recevie extends Backend
     protected $dataLimit = 'personal';
     protected $dataLimitField = 'company_id';
     protected $noNeedRight = ['getlog','dotogether'];
+    protected $searchFields = 'troublepoint.point_name';
 
     public function _initialize()
     {

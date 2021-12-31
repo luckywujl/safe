@@ -3,10 +3,10 @@
 namespace app\admin\controller\trouble\base;
 
 use app\common\controller\Backend;
-use Think\Db;
-
+use think\Db;
+use fast\Tree;
 /**
- * 隐患类型
+ * 隐患现象
  *
  * @icon fa fa-circle-o
  */
@@ -20,12 +20,29 @@ class Type extends Backend
     protected $model = null;
     protected $dataLimit = 'personal';
 	 protected $dataLimitField = 'company_id';
-	 protected $noNeedRight = ['index'];
+	 protected $noNeedRight = ['jstree'];
+	 protected $searchFields =['name'];
+	 
 
     public function _initialize()
     {
         parent::_initialize();
         $this->model = new \app\admin\model\trouble\base\Type;
+        $info = $this->model->where('company_id',$this->auth->company_id)->select();
+        $name = array_column($info,'name');
+        $id = array_column($info,'id');
+        $idtoname = array_combine($id,$name);
+       
+       
+        $tree = Tree::instance();
+        $tree->init(collection($this->model->where(['company_id'=>$this->auth->company_id,'level'=>0])->order('id asc')->select())->toArray(), 'pid');
+        $this->kindlist = $tree->getTreeList($tree->getTreeArray(0), 'name');
+        $kinddata = [];
+        foreach ($this->kindlist as $k => $v) {
+            $kinddata[$v['id']] = $v;
+        }
+        $this->view->assign("kindList", $kinddata);
+        $this->assignconfig("kindList", $kinddata);
 
     }
 
@@ -39,8 +56,42 @@ class Type extends Backend
      * 因此在当前控制器中可不用编写增删改查的代码,除非需要自己控制这部分逻辑
      * 需要将application/admin/library/traits/Backend.php中对应的方法复制到当前控制器,然后进行修改
      */
-     
-    
+    /**
+     * 查看
+     */
+    public function index()
+    {
+        //设置过滤方法
+
+        $this->request->filter(['strip_tags', 'trim']);
+        if ($this->request->isAjax()) {
+            //如果发送的来源是Selectpage，则转发到Selectpage
+            if ($this->request->request('keyField')) {
+                return $this->selectpage();
+            }
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+            $info = $this->model->where('company_id',$this->auth->company_id)->select();
+            $name = array_column($info,'name');
+            $id = array_column($info,'id');
+            $idtoname = array_combine($id,$name);
+
+            $list = $this->model
+                ->where($where)
+                ->where(['level'=>1])  //仅显示级别为1的作为类型
+                ->order($sort, $order)
+                ->paginate($limit);
+            foreach($list as $k => $v)
+            {
+              $v['pname'] = $idtoname[$v['pid']];
+            }
+
+            $result = array("total" => $list->total(), "rows" => $list->items());
+
+            return json($result);
+        }
+        
+        return $this->view->fetch();
+    }
     /**
      * 添加
      */
@@ -54,7 +105,7 @@ class Type extends Backend
                 if ($this->dataLimit && $this->dataLimitFieldAutoFill) {
                     $params[$this->dataLimitField] = $this->auth->company_id;
                 }
-                $params['plan_content'] =$params['one'].$params['two'].$params['three'].$params['four'];
+                $params['level'] =1;
                 $result = false;
                 Db::startTrans();
                 try {
@@ -84,6 +135,8 @@ class Type extends Backend
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
+        $pid = $this->request->request("pid",'');
+        $this->view->assign("pid", $pid);
         return $this->view->fetch();
     }
 
@@ -102,17 +155,10 @@ class Type extends Backend
                 $this->error(__('You have no permission'));
             }
         }
-        
-        $row['one'] = substr($row['plan_content'], 0, 1)==1?1:0;
-        $row['two'] = substr($row['plan_content'], 1, 1)==1?1:0;
-        $row['three'] = substr($row['plan_content'], 2, 1)==1?1:0;
-        $row['four'] = substr($row['plan_content'], 3, 1)==1?1:0;
-        
         if ($this->request->isPost()) {
             $params = $this->request->post("row/a");
             if ($params) {
                 $params = $this->preExcludeFields($params);
-                $params['plan_content'] =$params['one'].$params['two'].$params['three'].$params['four'];
                 $result = false;
                 Db::startTrans();
                 try {
@@ -122,7 +168,6 @@ class Type extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : $name) : $this->modelValidate;
                         $row->validateFailException(true)->validate($validate);
                     }
-                    
                     $result = $row->allowField(true)->save($params);
                     Db::commit();
                 } catch (ValidateException $e) {
@@ -147,5 +192,34 @@ class Type extends Backend
         return $this->view->fetch();
     }
     
+     /**
+     * JSTree交互式树
+     *
+     * @internal
+     */
+    public function jstree()
+    {
+        //设置过滤方法
+        $this->request->filter(['strip_tags']);
+        $list = [];
+        $list[]=[
+            'id'=>'0', 
+            'pId'=>'#',
+            'name'=>'全部',
+            'open'=>true
+        ];
+        
+        foreach ($this->kindlist as $k => $v) {
+                $v['pId']=$v['pid'];
+                $v['name'] = trim(str_replace($v['spacer'],'',$v['name']));         
+                $list[] = $v;    
+        }
+        if ($this->request->isAjax()) {
+            return json($list);
+        }else{
+            return $list;
+        }
+    }
+
 
 }
