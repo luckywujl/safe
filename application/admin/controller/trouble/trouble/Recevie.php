@@ -129,7 +129,7 @@ class Recevie extends Backend
                
         	  	    $params['main_code']=$this->getcode();
         	  	    $params['process_pic'] = '';
-        	       $params['finish_pic'] = '';
+        	        $params['finish_pic'] = '';
         	    
                 if($params['informer_name']=='') {
                     		$params['informer_name'] = array_search($this->auth->nickname,$jobnumber).'-'.$this->auth->nickname.'('.array_search($this->auth->nickname,$mobile).')';//转换一下报警人姓名，加上工号和电话号码
@@ -164,7 +164,7 @@ class Recevie extends Backend
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
-                    $this->success();
+                    $this->success($params['kind']);
                 } else {
                     $this->error(__('No rows were inserted'));
                 }
@@ -268,9 +268,11 @@ class Recevie extends Backend
                 Db::commit();
             } catch (PDOException $e) {
                 Db::rollback();
+                
                 $this->error($e->getMessage());
             } catch (Exception $e) {
                 Db::rollback();
+                $this->error(__('选中的删除列表中有已接警的隐患信息，不能删除！'));
                 $this->error($e->getMessage());
             }
             if ($result) {
@@ -409,11 +411,11 @@ class Recevie extends Backend
             $list = $this->model->where($pk, 'in', $ids)->select();
             
             //完成隐患类型封装，便于快速查找
-            $type = new  \app\admin\model\trouble\base\Type;
-            $type_info = $type->where('company_id',$this->auth->company_id)->select();
-            $type_id = array_column($type_info,'id');
-            $plan_content = array_column($type_info,'plan_content');
-            $plan_info = array_combine($type_id,$plan_content);
+            $level = new  \app\admin\model\trouble\base\Level;
+            $level_info = $level->where('company_id',$this->auth->company_id)->select();
+            $level_id = array_column($level_info,'id');
+            $plan_content = array_column($level_info,'plan_content');
+            $plan_info = array_combine($level_id,$plan_content);
             
             //完成部门信息封装，便 于快速查找
             $department = new  \app\admin\model\user\Department;
@@ -449,10 +451,11 @@ class Recevie extends Backend
                     //派单操作，添加责任人，进入流转环节 1、先确定信息点所属部门，隐患等级，获得预案内容 2、根据预案内容，完成liabler（责任人字段内容）3、更新责任人内容
                     //1、获取预案内容
                     
-                    $plan = $plan_info[$v['trouble_type_id']];//根据键寻值
+                    $plan = $plan_info[$v['level']];//根据键寻值
                     
                     //获取部门ID
                     $department_id = $department_info[$v['point_id']];//根据键寻值
+                    
                     //获取部门负责人及安全员以及上级部门的负责人和上级部门的安全员
                     $leader_d = explode(',',$leader[$department_id]);//本部门负责人
                     $person_d = explode(',',$person[$department_id]);//本部门安全员
@@ -469,6 +472,7 @@ class Recevie extends Backend
                     //循环运行，根据$plan内容，将负责人添加到liabler中
                     if(substr($plan, 0, 1)=='1')$insider=array_merge($insider,$person_d);
                     if(substr($plan, 1, 1)=='1')$insider=array_merge($insider,$leader_d);
+                    
                     if(substr($plan, 2, 1)=='1')$insider=array_merge($insider,$person_p);
                     if(substr($plan, 3, 1)=='1')$insider=array_merge($insider,$leader_p);
                     
@@ -494,6 +498,7 @@ class Recevie extends Backend
                 Db::commit();
             } catch (PDOException $e) {
                 Db::rollback();
+                
                 $this->error($e->getMessage());
             } catch (Exception $e) {
                 Db::rollback();

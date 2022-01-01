@@ -21,6 +21,9 @@ return [
     'Process_pic'                      => '处理过程照片',
     'Finish_pic'                       => '完结照片',
     'Main_status'                      => '告警状态',
+    'Kind'                             => '隐患分类',
+    'Type'                             => '隐患类型',
+    'Expression'                       => '隐患现象',
     'Main_status 0'                    => '草稿',
     'Main_status 1'                    => '已接警',
     'Main_status 2'                    => '已派单',
@@ -50,8 +53,7 @@ return [
     'Troublepoint.point_department_id' => '所属部门',
     'Troublepoint.point_area_id'       => '所属区域',
     'Troublepoint.company_id'          => '数据归属',
-    'Troubletype.id'                   => '类型ID',
-    'Troubletype.trouble_type'         => '隐患类型',
-    'Troubletype.plan_content'         => '预案',
-    'Troubletype.company_id'           => '数据归属'
+    
+    'Troublelevel.trouble_level'         => '隐患等级',
+    
 ];

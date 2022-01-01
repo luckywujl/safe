@@ -57,14 +57,13 @@ class Typical extends Backend
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
 
             $list = $this->model
-                    //->with(['troublepoint','troubletype'])
-                    ->field('trouble_expression,count(id) as number')     
+                    //->with(['troublepoint','troublelevel'])
+                    ->field('kind,type,expression,count(id) as number')     
                     ->where($where)
-                    ->group('trouble_expression')
+                    ->group('kind,type,expression')
                     ->order('number desc')
                     ->paginate($limit);
-                
-
+            
             foreach ($list as $row) {
                 
                 
@@ -74,6 +73,7 @@ class Typical extends Backend
 
             return json($result);
         }
+        
         return $this->view->fetch();
     }
 

@@ -38,9 +38,20 @@ class Dashboard extends Backend
             ->field('jointime, status, COUNT(*) AS nums, DATE_FORMAT(FROM_UNIXTIME(jointime), "%Y-%m-%d") AS join_date')
             ->group('join_date')
             ->select();
+
+        $trouble = Db("trouble_main")->where('createtime','between time',[$starttime,$endtime])
+            ->field('createtime,COUNT(*) AS nums,DATE_FORMAT(FROM_UNIXTIME(createtime),"%Y-%m-%d") AS create_date')
+            ->group('create_date')
+            ->select();
+
         for ($time = $starttime; $time <= $endtime;) {
             $column[] = date("Y-m-d", $time);
             $time += 86400;
+        }
+
+        $troublelist = array_fill_keys($column,0);
+        foreach($trouble as $k=>$v){
+            $troublelist[$v['create_date']] =$v['nums'];
         }
         $userlist = array_fill_keys($column, 0);
         foreach ($joinlist as $k => $v) {
@@ -72,8 +83,8 @@ class Dashboard extends Backend
             'picturesize'     => Attachment::where('mimetype', 'like', 'image/%')->sum('filesize'),
         ]);
 
-        $this->assignconfig('column', array_keys($userlist));
-        $this->assignconfig('userdata', array_values($userlist));
+        $this->assignconfig('column', array_keys($troublelist));
+        $this->assignconfig('userdata', array_values($troublelist));
 
         return $this->view->fetch();
     }

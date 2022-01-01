@@ -20,7 +20,7 @@ class Level extends Backend
     protected $model = null;
     protected $dataLimit = 'personal';
 	 protected $dataLimitField = 'company_id';
-	 protected $noNeedRight = ['index'];
+	 protected $noNeedRight = ['index','level'];
 
     public function _initialize()
     {
@@ -145,6 +145,16 @@ class Level extends Backend
         }
         $this->view->assign("row", $row);
         return $this->view->fetch();
+    }
+    
+
+    /**
+     * 读取隐患等级数据,下拉列表
+     */
+    public function level()
+    {
+        $list = $this->model->field('id as value,trouble_level as name')->where('company_id',$this->auth->company_id)->select();
+        $this->success('', '', $list);
     }
     
 

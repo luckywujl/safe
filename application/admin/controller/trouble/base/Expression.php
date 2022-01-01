@@ -227,7 +227,7 @@ class Expression extends Backend
     }
 
     /**
-     * 读取省市区数据,联动列表
+     * 读取隐患分类，隐患类型，隐患现象数据,联动列表
      */
     public function expression()
     {
@@ -250,7 +250,7 @@ class Expression extends Backend
                 $where['level'] = 2;
             }
         }
-        $provincelist = Db::name('trouble_expression')->field('name as value,name')->where($where)->select();
+        $provincelist = Db::name('trouble_expression')->field('name as value,name')->where($where)->where('company_id',$this->auth->company_id)->select();//加入数据归属过滤
         $this->success('', '', $provincelist);
     }
     

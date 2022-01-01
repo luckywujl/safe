@@ -25,34 +25,31 @@
     </div>
 
 
-   
+
 
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_kind')}:</label>
-        <div  data-toggle="cxselect" data-selects="kind,type,expression">
-
-            
+        <div data-toggle="cxselect" data-selects="kind,type,expression">
             <div class="col-xs-12 col-sm-2">
-                <select class="kind form-control" name="row[kind]"  data-rule="required" data-url="trouble/base/expression/expression">
-                   
+                <select class="kind form-control" name="row[kind]" data-rule="required"
+                    data-url="trouble/base/expression/expression">
                 </select>
             </div>
-
             <label class="control-label col-xs-12 col-sm-1">{:__('Trouble_type')}:</label>
             <div class="col-xs-12 col-sm-2">
-                <select class="type form-control" name="row[type]"  data-rule="required" data-url="trouble/base/expression/expression">
-                    
+                <select class="type form-control" name="row[type]" data-rule="required"
+                    data-url="trouble/base/expression/expression">
                 </select>
             </div>
-
             <label class="control-label col-xs-12 col-sm-1">{:__('Trouble_expression')}:</label>
             <div class="col-xs-12 col-sm-2">
-                <select class="expression form-control" name="row[expression]"  data-rule="required" data-url="trouble/base/expression/expression">
-                    
+                <select class="expression form-control" name="row[expression]" data-rule="required"
+                    data-url="trouble/base/expression/expression">
                 </select>
             </div>
         </div>
     </div>
+
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Description')}:</label>
         <div class="col-xs-12 col-sm-8">
@@ -61,12 +58,16 @@
                 cols="50"></textarea>
         </div>
     </div>
+
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Trouble_type_id')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <select class=" form-control" name="row[level]"   data-url="trouble/base/level/level">
-                   
-            </select>
+        <div data-toggle="cxselect" data-selects="level">
+            <div class="col-xs-12 col-sm-8">
+                <select class="level form-control" name="row[level]" data-rule="required"
+                    data-url="trouble/base/level/level">
+                </select>
+               
+            </div>
         </div>
     </div>
     <div class="form-group">

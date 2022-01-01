@@ -45,7 +45,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                     bottom: 30
                 }],
                 series: [{
-                    name: __('Register user'),
+                    name: __('隐患数量'),
                     type: 'line',
                     smooth: true,
                     areaStyle: {

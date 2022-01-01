@@ -49,5 +49,10 @@ return [
     'Troubletype.id'                   => '类型ID',
     'Troubletype.trouble_type'         => '隐患类型',
     'Troubletype.plan_id'              => '预案ID',
-    'Troubletype.company_id'           => '数据归属'
+    'Troubletype.company_id'           => '数据归属',
+    'Trouble_kind'                     => '隐患分类',
+    'Trouble_type'                     => '隐患类型',
+    'Trouble_expression'               => '隐患现象',
+    'Remark'                       => '备注',
+    'Limittime'                     => '整改期限'
 ];
