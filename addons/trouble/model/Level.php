@@ -5,7 +5,7 @@ namespace addons\trouble\model;
 use think\Model;
 
 
-class Type extends Model
+class Level extends Model
 {
 
     
@@ -13,7 +13,7 @@ class Type extends Model
     
 
     // 表名
-    protected $name = 'trouble_type';
+    protected $name = 'trouble_Level';
     
     // 自动写入时间戳字段
     protected $autoWriteTimestamp = false;

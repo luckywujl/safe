@@ -77,8 +77,8 @@ class Main extends Model
     }
 
 
-    public function troubletype()
+    public function troublelevel()
     {
-        return $this->belongsTo('addons\trouble\model\Type', 'trouble_type_id', 'id', [], 'LEFT')->setEagerlyType(0);
+        return $this->belongsTo('addons\trouble\model\Level', 'level', 'id', [], 'LEFT')->setEagerlyType(0);
     }
 }

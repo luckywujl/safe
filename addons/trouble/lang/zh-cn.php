@@ -5,9 +5,10 @@ return [
     'Draft_code'                       => '草稿编号',
     'Main_code'                        => '信息编号',
     'Point_id'                         => '隐患点',
-    'Createtime'                       => '创建时间',
+    'Createtime'                       => '报警时间',
     'Updatetime'                       => '更新时间',
     'Finishtime'                       => '完结时间',
+    'Limittime'                        => '整改期限',
     'Firtstduration'                   => '首次跟时间长',
     'Finishduration'                   => '完结时长',
     'Source_type'                      => '告警来源',
@@ -57,5 +58,10 @@ return [
     'Log'								=> '隐患处理记录',
     'Upload'								  => '上传',
     'Photo'									  => '拍照',
+    'Kind'                              => '隐患分类',
+    'Type'                              => '隐患类型',
+    'Expression'                        => '隐患现象',
+    'Violations'                        => '三违行为',
+    'Level'                             => '隐患等级',
     
 ];

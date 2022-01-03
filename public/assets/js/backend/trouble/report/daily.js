@@ -38,6 +38,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'createtime', title: __('Createtime'),sortable:true, operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         {field: 'updatetime', title: __('Updatetime'),sortable:true, operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         {field: 'finishtime', title: __('Finishtime'),sortable:true, operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
+                        {field: 'limittime', title: __('Limittime'),sortable:true, operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
+
+
+                        
                         {field: 'firstduration', title: __('Firstduration'), sortable:true,operate:'BETWEEN'},
                         {field: 'finishduration', title: __('Finishduration'), sortable:true,operate:'BETWEEN'},
                         

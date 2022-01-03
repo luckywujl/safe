@@ -55,11 +55,11 @@ class Type extends Backend
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
 
             $list = $this->model
-                    ->with(['troubletype'])
-                    ->field('troubletype.trouble_type,count(trouble_type_id) as number')     
+                    ->with(['troublelevel'])
+                    ->field('troublelevel.trouble_level as level,count(level) as number')     
                     ->where($where)
-                    ->group('troubletype.trouble_type')
-                    ->order('troubletype.trouble_type asc')
+                    ->group('troublelevel.trouble_level')
+                    ->order('troublelevel.trouble_level asc')
                     ->paginate($limit);
                 
 

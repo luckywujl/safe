@@ -1,4 +1,4 @@
-define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefined, Backend, Table, Form) {
+define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'echarts', 'echarts-theme'], function ($, undefined, Backend, Table, Form, Template, Echarts) {
 
     var Controller = {
         index: function () {
@@ -33,7 +33,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'area_name', title: __('area_name')},
                         
                     ]
-                ]
+                ],
+                responseHandler:function(res){
+                    Controller.api.chart.line(res.rows);
+                    return res;
+                },
             });
 
             // 为表格绑定事件
@@ -106,6 +110,43 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Controller.api.bindevent();
         },
         api: {
+            chart:{
+                line(res){
+                    var data = [];
+                    $.each(res, function (i, item) { 
+                        data.push({'name':item.department_name,'number':item.number ? item.number : 0})
+                    });
+
+                    // 基于准备好的dom，初始化echarts实例
+                    var lineChart = Echarts.init(document.getElementById('line-chart'), 'walden');
+
+                    // 指定图表的配置项和数据
+                    var option = {
+                        dataset: [{
+                            // 按行的 key-value 形式（对象数组），这是个比较常见的格式。
+                            source: data
+                        }],
+                        xAxis: {
+                            type: 'category'
+                        },
+                        yAxis: {
+                            type: 'value'
+                        },
+                        series: [
+                            {
+                                type: 'bar',
+                                encode: {
+                                    x: 'name',
+                                    y: 'number'
+                                }
+                            }
+                        ]
+                    };
+
+                    // 使用刚指定的配置项和数据显示图表。
+                    lineChart.setOption(option);
+                }
+            },
             bindevent: function () {
                 Form.api.bindevent($("form[role=form]"));
             }

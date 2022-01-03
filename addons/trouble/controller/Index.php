@@ -5,7 +5,7 @@ namespace addons\trouble\controller;
 use addons\trouble\model\Main as MainModel;
 use addons\trouble\model\Log as LogModel;
 use addons\trouble\model\Point as PointModel;
-use addons\trouble\model\Type as TypeModel;
+use addons\trouble\model\Level as LevelModel;
 use app\common\model\User as UserModel;
 use Think\Db;
 use fast\Tree;
@@ -21,7 +21,7 @@ class Index extends Base
      * 无需登录的方法,同时也就不需要鉴权了
      * @var array
      */
-    protected $noNeedLogin = ['report'];
+    protected $noNeedLogin = ['report','report_A','report_B','report_C'];
 
     /**
      * 无需鉴权的方法,但需要登录
@@ -138,9 +138,9 @@ class Index extends Base
             
             $trouble = new MainModel;
             $main = $trouble->alias('a')
-            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_LEVEL__ b', 'a.level = b.id')
             	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
-            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+            	 ->field('a.*,b.trouble_level,c.point_code,c.point_name,c.point_address')
                 //->where($where)
                 ->where('a.company_id',$this->auth->company_id);
             
@@ -335,9 +335,9 @@ class Index extends Base
         $id = $this->request->param('id');
         
         $trouble = $model->alias('a')
-            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_LEVEL__ b', 'a.level = b.id')
             	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
-            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+            	 ->field('a.*,b.trouble_level,c.point_code,c.point_name,c.point_address')
             	 ->where(['a.id'=>$id,'a.company_id'=>$this->auth->company_id])
             	 ->find();
         $trouble['log'] = $this->getlog($id);//获取操作日志内容
@@ -353,9 +353,9 @@ class Index extends Base
         $model = new MainModel;
         $id = $this->request->param('id');
         $trouble = $model->alias('a')
-            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_LEVEL__ b', 'a.level = b.id')
             	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
-            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+            	 ->field('a.*,b.trouble_level,c.point_code,c.point_name,c.point_address')
             	 ->where(['a.id'=>$id,'a.company_id'=>$this->auth->company_id])
             	 ->find();
         $trouble['log'] = $this->getlog($id);//获取操作日志内容
@@ -412,9 +412,9 @@ class Index extends Base
         $model = new MainModel;
         $id = $this->request->param('id');
         $trouble = $model->alias('a')
-            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_LEVEL__ b', 'a.level = b.id')
             	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
-            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+            	 ->field('a.*,b.trouble_level,c.point_code,c.point_name,c.point_address')
             	 ->where(['a.id'=>$id,'a.company_id'=>$this->auth->company_id])
             	 ->find();
         $trouble['log'] = $this->getlog($id);//获取操作日志内容
@@ -427,7 +427,11 @@ class Index extends Base
                 $data['id'] = $params['id'];
                 $data['process_pic'] =$params['process_pic'];
                 $data['updatetime'] = time();
-                $data['main_status'] = 5;//完成任务，等待复核
+                if($params['otype']=='0'){
+                    $data['main_status'] = 5;//完成任务，等待复核
+                } else{
+                    $data['main_status'] = 3;//申请延期等待处理
+                }
                 $data['processer'] = $this->user_id;
                 if($params['word']!=='') {
                 	$data['remark'] = $params['remark']."\n"."处理留言：".$params['word'].'('.$this->auth->nickname.')';
@@ -436,11 +440,19 @@ class Index extends Base
                 Db::startTrans();
                 try {
                     $result = $trouble_info->save($data);
-                    if($trouble['main_status']==5) {
+                    if($params['otype']=='0'){
+                        $msg = '隐患问题已排除!';
+                        if($trouble['main_status']==5) {
                     		LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'重新排除隐患，等待复核...','company_id'=>$this->auth->company_id]);
                 	  }else {
                  			LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'排除隐患，等待复核...','company_id'=>$this->auth->company_id]);
                  	 }
+
+                    }else{
+                        $msg = '隐患问题申请延期处理!';
+                        LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'因故申请延期处理隐患，请等待...','company_id'=>$this->auth->company_id]);
+                    }
+                    
                     Db::commit();
                 } catch (ValidateException $e) {
                     Db::rollback();
@@ -453,7 +465,7 @@ class Index extends Base
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
-                    $this->success('隐患排除!');
+                    $this->success($msg);
                 } else {
                     $this->error(__('No rows were updated'));
                 }
@@ -474,9 +486,9 @@ class Index extends Base
         $model = new MainModel;
         $id = $this->request->param('id');
         $trouble = $model->alias('a')
-            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_LEVEL__ b', 'a.level = b.id')
             	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
-            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+            	 ->field('a.*,b.trouble_level,c.point_code,c.point_name,c.point_address')
             	 ->where(['a.id'=>$id,'a.company_id'=>$this->auth->company_id])
             	 ->find();
         $trouble['log'] = $this->getlog($id);//获取操作日志内容
@@ -489,7 +501,7 @@ class Index extends Base
                 $data['id'] = $params['id'];
                 $data['finish_pic'] =$params['finish_pic'];
                 $data['updatetime'] = time();
-                if($params['type']=='0') {
+                if($params['otype']=='0') {
                 		$data['main_status'] = 6;//完成任务，等待复核
              		}else {
              			$data['main_status'] = 3;//重新处理
@@ -501,7 +513,7 @@ class Index extends Base
                 Db::startTrans();
                 try {
                     $result = $trouble_info->save($data);
-                    if($params['type']=='0') {
+                    if($params['otype']=='0') {
                     	$msg = '隐患排除情况已复核通过!';
                     if($trouble['main_status']==5) {
                     		LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'复核隐患排除情况通过，等待反馈结单...','company_id'=>$this->auth->company_id]);
@@ -509,7 +521,7 @@ class Index extends Base
                  			LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'重新复核隐患排除情况通过，等待反馈结单...','company_id'=>$this->auth->company_id]);
                  	 }
                  }else {
-                 		$msg = '隐患排除情况已复核未通过!';
+                 		$msg = $params['type'].'隐患排除情况已复核未通过!';
                  		LogModel::create(['main_id'=>$params['id'],'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'复核隐患排除情况未通过，等待重新处理...','company_id'=>$this->auth->company_id]);
                  }
                     Db::commit();
@@ -541,9 +553,9 @@ class Index extends Base
         $model = new MainModel;
         $id = $this->request->param('id');
         $trouble = $model->alias('a')
-            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_LEVEL__ b', 'a.level = b.id')
             	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
-            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+            	 ->field('a.*,b.trouble_level,c.point_code,c.point_name,c.point_address')
             	 ->where(['a.id'=>$id,'a.company_id'=>$this->auth->company_id])
             	 ->find();
         $trouble['log'] = $this->getlog($id);//获取操作日志内容
@@ -595,9 +607,9 @@ class Index extends Base
         $model = new MainModel;
         $id = $this->request->param('id');
         $trouble = $model->alias('a')
-            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_LEVEL__ b', 'a.level = b.id')
             	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
-            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+            	 ->field('a.*,b.trouble_level,c.point_code,c.point_name,c.point_address')
             	 ->where(['a.id'=>$id,'a.company_id'=>$this->auth->company_id])
             	 ->find();
         $trouble['log'] = $this->getlog($id);//获取操作日志内容
@@ -658,11 +670,17 @@ class Index extends Base
     	 	$point = $point_info->where('id',$point_id)->find();
     	 	if($point) {
        		if ($this->user_id) {
-       			$point['type'] = '1';  //自己人
+                if($this->auth->issafer=='是'){
+                    $point['otype'] = '2';  //安检员
+                }else{
+                    $point['otype'] = '1';  //员工
+                }
        		} else {
-       			$point['type'] = '0';	//路人
+       			$point['otype'] = '0';	//路人
        		}	
-       	} 
+       	}
+          
+    
        if ($this->request->isPost()) {
             $params = $this->request->post("row/a");
             if ($params) {
@@ -717,12 +735,141 @@ class Index extends Base
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
-        $this->view->assign('row', $point);
-        return $this->view->fetch('/report');	
-    	}
+        
+        $this->view->assign('row', $point); 
+        if ($this->user_id) {
+            if($this->auth->issafer=='是'){
+                return $this->view->fetch('/report_C');	
+            }else{
+                return $this->view->fetch('/report_B');	
+            }
+           } else {
+            return $this->view->fetch('/report_A');	
+           }	
+       
+        }	
     	 
     }
-    
+    public function report_A() //路人报警
+    {	
+       if ($this->request->isPost()) {
+            $params = $this->request->post("row/a");
+            if ($params) {
+                $params['main_status'] = 0; //草稿状态
+               
+                	if($params['informer_name']=='') {
+                		$params['informer_name'] = '匿名';
+                	}	  
+                   $params['main_code'] = $this->getmaincode();//获取单号
+        	       $params['company_id'] = $point['company_id'];
+        	       $params['process_pic'] = '';
+        	       $params['finish_pic'] = '';
+                $result = false;
+                Db::startTrans();
+                try {
+                    $result = $model->allowField(true)->save($params);
+                    $id = $model->id;
+                    LogModel::create(['main_id'=>$id,'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'提交报警信息，等待接警处理...','company_id'=>$this->auth->company_id]);
+                    Db::commit();
+                } catch (ValidateException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (PDOException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (Exception $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                }
+                if ($result !== false) {
+                    $this->success('报警完成！谢谢您的支持');
+                } else {
+                    $this->error(__('No rows were inserted'));
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+    }
+    public function report_B() //人工巡查
+    {	
+       if ($this->request->isPost()) {
+            $params = $this->request->post("row/a");
+            if ($params) {
+                $params['main_status'] = 0; //草稿状态
+               
+                	if($params['informer_name']=='') {
+                		$params['informer_name'] = '匿名';
+                	}	  
+                   $params['main_code'] = $this->getmaincode();//获取单号
+        	       $params['company_id'] = $point['company_id'];
+        	       $params['process_pic'] = '';
+        	       $params['finish_pic'] = '';
+                $result = false;
+                Db::startTrans();
+                try {
+                    $result = $model->allowField(true)->save($params);
+                    $id = $model->id;
+                    LogModel::create(['main_id'=>$id,'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'提交报警信息，等待接警处理...','company_id'=>$this->auth->company_id]);
+                    Db::commit();
+                } catch (ValidateException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (PDOException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (Exception $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                }
+                if ($result !== false) {
+                    $this->success('报警完成！谢谢您的支持');
+                } else {
+                    $this->error(__('No rows were inserted'));
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+    }
+    public function report_C() //安全检查
+    {	
+       if ($this->request->isPost()) {
+            $params = $this->request->post("row/a");
+            if ($params) {
+                $params['main_status'] = 0; //草稿状态
+               
+                	if($params['informer_name']=='') {
+                		$params['informer_name'] = '匿名';
+                	}	  
+                   $params['main_code'] = $this->getmaincode($point['company_id']);//获取单号
+        	       $params['company_id'] = $point['company_id'];
+        	       $params['process_pic'] = '';
+        	       $params['finish_pic'] = '';
+                $result = false;
+                Db::startTrans();
+                try {
+                    $result = $model->allowField(true)->save($params);
+                    $id = $model->id;
+                    LogModel::create(['main_id'=>$id,'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'提交报警信息，等待接警处理...','company_id'=>$this->auth->company_id]);
+                    Db::commit();
+                } catch (ValidateException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (PDOException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (Exception $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                }
+                if ($result !== false) {
+                    $this->success('报警完成！谢谢您的支持');
+                } else {
+                    $this->error(__('No rows were inserted'));
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+    }
     public function selectoperator() //选择人员
     {
         $model = new UserModel;
@@ -751,7 +898,7 @@ class Index extends Base
 
     public function selecttroubletype() //选择隐患类型
     {
-        $model = new TypeModel;
+        $model = new LevelModel;
         
         if ($this->request->isAjax()) {
         		//如果发送的来源是Selectpage，则转发到Selectpage
@@ -799,6 +946,27 @@ class Index extends Base
         }
         return $result;
     }
+
+    public function getmaincode($C){
+    //加入信息编码生成代码
+    $model = new MainModel;
+        $main = $model
+            ->where('createtime','between time',[date('Y-m-01 00:00:01'),date('Y-m-31 23:59:59')])
+            ->where(['company_id'=>$C]) 
+            -> order('main_code','desc')->limit(1)->select();
+        if (count($main)>0) {
+            $item = $main[0];
+            $code = '0000'.(substr($item['main_code'],8,4)+1);
+            $code = substr($code,strlen($code)-4,4);
+            $maincode = 'YH'.date('Ym').$code;
+        } else {
+          $maincode='YH'.date('Ym').'0001';
+        }
+
+         //完成信息编码生成
+         return $maincode;
+
+    }
     
     public function getdata($all,$no,$already,$operator) //获取数据
     {
@@ -811,9 +979,9 @@ class Index extends Base
             list($where, $sort, $order, $offset, $limit) = $this->buildparams(null);
             
             $total = $main->alias('a')
-            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_LEVEL__ b', 'a.level = b.id')
             	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
-            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+            	 ->field('a.*,b.trouble_level,c.point_code,c.point_name,c.point_address')
                 ->where($where)
                 ->where('a.company_id',$this->auth->company_id);
             if ($category_id==0) {
@@ -872,9 +1040,9 @@ class Index extends Base
              
             
             $list = $main->alias('a')
-            	 ->join('__TROUBLE_TYPE__ b', 'a.trouble_type_id = b.id')
+            	 ->join('__TROUBLE_LEVEL__ b', 'a.level = b.id')
             	 ->join('__TROUBLE_POINT__ c','a.point_id = c.id')
-            	 ->field('a.*,b.trouble_type,c.point_code,c.point_name,c.point_address')
+            	 ->field('a.*,b.trouble_level,c.point_code,c.point_name,c.point_address')
                 ->where($where)
                 ->where('a.company_id',$this->auth->company_id);
              
@@ -1115,7 +1283,7 @@ class Index extends Base
                 }
             };
         }
-        $model = new TypeModel;
+        $model = new LevelModel;
         $total = $model->where($where)->count();
         if ($total > 0) {
            

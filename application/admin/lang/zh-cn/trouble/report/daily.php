@@ -8,6 +8,7 @@ return [
     'Updatetime'                       => '更新时间',
     'Deletetime'                       => '删除时间',
     'Finishtime'                       => '完结时间',
+    'Limittime'                        => '整改期限',
     'Firstduration'                    => '响应时长(小时)',
     'Finishduration'                   => '完结时长(小时)',
     'Source_type'                      => '告警来源',
