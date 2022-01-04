@@ -5,7 +5,7 @@ namespace addons\trouble\model;
 use think\Model;
 
 
-class Level extends Model
+class Expression extends Model
 {
 
     
@@ -13,7 +13,7 @@ class Level extends Model
     
 
     // 表名
-    protected $name = 'trouble_level';
+    protected $name = 'trouble_expression';
    
     
     // 自动写入时间戳字段

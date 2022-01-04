@@ -95,8 +95,8 @@ class Recevie extends Model
     }
 
 
-    public function troubletype()
+    public function troublelevel()
     {
-        return $this->belongsTo('app\admin\model\trouble\base\Type', 'trouble_type_id', 'id', [], 'LEFT')->setEagerlyType(0);
+        return $this->belongsTo('app\admin\model\trouble\base\Level', 'level', 'id', [], 'LEFT')->setEagerlyType(0);
     }
 }

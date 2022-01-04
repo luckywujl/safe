@@ -31,7 +31,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','selectpage'], functio
                         //{field: 'id', title: __('Id')},
                         
                         {field: 'main_code', title: __('Main_code'), operate: 'LIKE'},
-                        {field: 'troubletype.trouble_type', title: __('Troubletype.trouble_type'), operate: 'LIKE'},
+                        
                         {field: 'source_type', title: __('Source_type'), searchList: {"0":__('Source_type 0'),"1":__('Source_type 1'),"2":__('Source_type 2')}, formatter: Table.api.formatter.normal},
                         {field: 'informer_name', title: __('Informer'), operate: 'LIKE'},
                         {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
@@ -43,8 +43,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','selectpage'], functio
                         //{field: 'firtstduration', title: __('Firtstduration')},
                         //{field: 'finishduration', title: __('Finishduration')},
                         
-                        
-                        {field: 'trouble_expression', title: __('Trouble_expression'), operate: 'LIKE'},
+                        {field: 'kind', title: __('Kind'), operate: 'LIKE'},
+                        {field: 'type', title: __('Type'), operate: 'LIKE'},
+                        {field: 'expression', title: __('Expression'), operate: 'LIKE'},
+                        {field: 'troublelevel.trouble_level', title: __('Troublelevel.trouble_level'), sortable:true,operate: 'LIKE'},
                         {field: 'description', title: __('Description'), operate: 'LIKE',visible:false},
                         //{field: 'trouble_pic', title: __('Trouble_pic')},
                         //{field: 'process_pic', title: __('Process_pic')},

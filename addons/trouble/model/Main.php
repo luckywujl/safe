@@ -21,6 +21,7 @@ class Main extends Model
     // 定义时间戳字段名
     protected $createTime = 'createtime';
     protected $updateTime = 'updatetime';
+    protected $limitTime = 'limittime';
     protected $deleteTime = false;
 
     // 追加属性
@@ -48,6 +49,12 @@ class Main extends Model
         $value = $value ? $value : (isset($data['finishtime']) ? $data['finishtime'] : '');
         return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
     }
+    public function getLimittimeTextAttr($value, $data)
+    {
+        $value = $value ? $value : (isset($data['limittime']) ? $data['limittime'] : '');
+        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+    }
+
 
 
     public function getSourceTypeTextAttr($value, $data)
@@ -66,6 +73,10 @@ class Main extends Model
     }
 
     protected function setFinishtimeAttr($value)
+    {
+        return $value === '' ? null : ($value && !is_numeric($value) ? strtotime($value) : $value);
+    }
+    protected function setLimittimeAttr($value)
     {
         return $value === '' ? null : ($value && !is_numeric($value) ? strtotime($value) : $value);
     }

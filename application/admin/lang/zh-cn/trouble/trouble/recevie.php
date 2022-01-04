@@ -56,7 +56,8 @@ return [
     'Troubletype.plan_id'              => '预案ID',
     'Troubletype.company_id'           => '数据归属',
     'HandRecevie'								=> '手工接警',
-    'Trouble_kind'                     => '隐患分类',
-    'Trouble_type'                     => '隐患类型',
-    'Trouble_expression'               => '隐患现象',
+    'Kind'                     => '隐患分类',
+    'Type'                     => '隐患类型',
+    'Expression'               => '隐患现象',
+    'Troublelevel.trouble_level'=>'隐患等级',
 ];

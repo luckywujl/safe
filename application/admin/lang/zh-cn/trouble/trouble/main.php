@@ -54,5 +54,9 @@ return [
     'Trouble_type'                     => '隐患类型',
     'Trouble_expression'               => '隐患现象',
     'Remark'                       => '备注',
-    'Limittime'                     => '整改期限'
+    'Limittime'                     => '整改期限',
+    'Kind'                     => '隐患分类',
+    'Type'                     => '隐患类型',
+    'Expression'               => '隐患现象',
+    'Troublelevel.trouble_level'=>'隐患等级',
 ];

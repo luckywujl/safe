@@ -75,7 +75,7 @@ class Main extends Backend
             $areaname = array_combine($area_id,$area_name);
 
             $list = $this->model
-                    ->with(['troublepoint','troubletype'])
+                    ->with(['troublepoint','troublelevel'])
                     ->where($where)
                     ->order($sort, $order)
                     ->paginate($limit);

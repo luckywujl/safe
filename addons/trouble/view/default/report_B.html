@@ -19,7 +19,7 @@
 	<div class="col-md-9">
 		<div class="panel panel-default panel-user">
 			<div class="panel-body">
-				<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+				<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="{:addon_url('trouble/Index/report_B')}">
 					{layout name="common/layout00" /}
     				<div class="page-header panel-post">
          			
@@ -34,21 +34,23 @@
     				<div class="form-group" >
         				<label class="control-label col-xs-12 col-sm-2">{:__('Point_id')}:</label>
        				<div class="col-xs-12 col-sm-7">
-            				<input  readonly="readonly" class="form-control "  type="text" value="{$row.point_name}" >  
+            				<input  readonly="readonly" class="form-control " data-rule="required"  type="text" value="{$row.point_name}" >  
         				</div>
-        				<div class="col-xs-12 col-sm-7" hidden="hidden" >
-            				<input id="c-point_id" readonly="readonly" class="form-control " name="row[point_id]"  type="text" value="{$row.id}" >  
-							<input id="c-source_type" readonly="readonly" class="form-control " name="row[source_type]"  type="text" value="1" > 
+        				<div class="col-xs-12 col-sm-7" hidden="hidden">
+            				<input id="c-point_id" readonly="readonly" data-rule="required" class="form-control " name="row[point_id]"  type="text" value="{$row.id}" >  
+							<input id="c-source_type" readonly="readonly" class="form-control" name="row[source_type]"  type="text" value="1" > 
         				</div>
 						
     				</div>
     				<div class="form-group">
         				<label class="control-label col-xs-12 col-sm-2">{:__('Point_address')}:</label>
        				<div class="col-xs-12 col-sm-7">
-            				<input  readonly="readonly" class="form-control "  type="text"value="{$row.point_address}" >  
+            				<input  readonly="readonly" class="form-control" data-rule="required" type="text"value="{$row.point_address}" >  
         				</div>
     				</div>
     				
+					
+					
     				
     				<div class="form-group">
         				<label class="control-label col-xs-12 col-sm-2">{:__('Description')}:</label>
@@ -71,6 +73,10 @@
         				</div>
     				</div>
     					
+    				
+    				
+    				
+    				
 				</form>
 			</div>
 		</div>
@@ -85,7 +91,7 @@
 <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
 <script data-render="script">
         require.callback = function() {
-            define('training/index', ['jquery', 'bootstrap', 'frontend','backend', 'table', 'fullcalendar-lang', 'fullcalendar', 'moment', 'moment/locale/zh-cn', 'panelslider','form','layer','template'], function($, undefined, Frontend, Backend,Table, CalendarLocale, Calendar, Moment, undefined, panelslider,Form,Layer,Template) {
+            define('training/index', ['jquery', 'bootstrap', 'frontend','backend', 'table', 'fullcalendar-lang', 'fullcalendar', 'moment', 'moment/locale/zh-cn', 'panelslider','form','layer','template','selectpage'], function($, undefined, Frontend, Backend,Table, CalendarLocale, Calendar, Moment, undefined, panelslider,Form,Layer,Template) {
                 
                 var Controller = {
                     report: function() {

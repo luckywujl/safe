@@ -34,6 +34,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template'], function
                         {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         {field: 'updatetime', title: __('Updatetime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         {field: 'finishtime', title: __('Finishtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
+                        {field: 'limittime', title: __('Limittime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         {field: 'firstduration', title: __('Firstduration'),formatter:function (value,row,index) {
                         		return value;
                         }},
@@ -41,8 +42,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template'], function
                         		return value;
                         }},
                         
-                        {field: 'troubletype.trouble_type', title: __('Trouble_type_id')},
-                        {field: 'trouble_expression', title: __('Trouble_expression'), visible:false,operate: 'LIKE'},
+                        {field: 'kind', title: __('Kind'), operate: 'LIKE'},
+                        {field: 'type', title: __('Type'), operate: 'LIKE'},
+                        {field: 'expression', title: __('Expression'), operate: 'LIKE'},
+                        {field: 'troublelevel.trouble_level', title: __('Troublelevel.trouble_level'), operate: 'LIKE'},
+                        {field: 'kind', title: __('Kind'), visible:false,operate: 'LIKE'},
+                        {field: 'type', title: __('Type'), visible:false,operate: 'LIKE'},
+                        {field: 'expression', title: __('Expression'), visible:false,operate: 'LIKE'},
                         {field: 'description', title: __('Description'),visible:false, operate: 'LIKE'},
                         {field: 'trouble_pic', title: __('Trouble_pic'), formatter: Controller.api.table.formatter.thumb, operate: false },
                         {field: 'process_pic', title: __('Process_pic'), formatter: Controller.api.table.formatter.thumb, operate: false },
