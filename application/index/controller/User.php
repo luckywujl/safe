@@ -77,7 +77,17 @@ class User extends Frontend
      */
     public function trouble()
     {
+        if ($this->auth->id) {
+            if($this->auth->issafer=='是'){
+                $type = 2;	
+            }else{
+                $type = 1;	
+            }
+           } else {
+           $type = 0;
+           }
         $this->view->assign('title', __('隐患排查'));
+        $this->view->assign('type',$type);
         return $this->view->fetch();
     }
      /**

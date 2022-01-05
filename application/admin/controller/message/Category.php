@@ -187,6 +187,13 @@ class Category extends Backend
         }
         $ids = $ids ? $ids : $this->request->post("ids");
         if ($ids) {
+            $result = 0 ;
+            //验证是否有分类资料未删除
+            $infomodel = new \app\admin\model\message\Info;
+            $result = $infomodel->where(['category_id'=>['in',$ids]])->select();
+            if($result){
+                $this->error(__('删除失败，原因是要删除的分类下有通告，请先删除它们'));
+            }
             $pk = $this->model->getPk();
             $adminIds = $this->getDataLimitAdminIds();
             if (is_array($adminIds)) {

@@ -116,6 +116,55 @@ class Kind extends Backend
         }
         return $this->view->fetch();
     }
+    /**
+     * 删除
+     */
+    public function del($ids = "")
+    {
+        
+        if (!$this->request->isPost()) {
+            $this->error(__("Invalid parameters"));
+        }
+        $ids = $ids ? $ids : $this->request->post("ids");
+        if ($ids) {
+            $result = 0 ;
+            
+            //再验证是否有该分类下的隐患类别未删除
+            
+            $result = $this->model->where(['pid'=>['in',$ids]])->select();
+            if($result){
+                $this->error(__('删除失败，原因是要删除的分类下有隐患类型，请先删除他们'));
+            }
+            
+            $pk = $this->model->getPk();
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                $this->model->where($this->dataLimitField, 'in', $adminIds);
+            }
+            $list = $this->model->where($pk, 'in', $ids)->select();
+
+            $count = 0;
+            Db::startTrans();
+            try {
+                foreach ($list as $k => $v) {
+                    $count += $v->delete();
+                }
+                Db::commit();
+            } catch (PDOException $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            } catch (Exception $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            }
+            if ($count) {
+                $this->success();
+            } else {
+                $this->error(__('No rows were deleted'));
+            }
+        }
+        $this->error(__('Parameter %s can not be empty', 'ids'));
+    }
     
 
 }

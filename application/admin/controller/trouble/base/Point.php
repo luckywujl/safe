@@ -151,6 +151,53 @@ class Point extends Backend
         $this->view->assign("department_id", $department);
         return $this->view->fetch();
     }
+    /**
+     * 删除
+     */
+    public function del($ids = "")
+    {
+        
+        if (!$this->request->isPost()) {
+            $this->error(__("Invalid parameters"));
+        }
+        $ids = $ids ? $ids : $this->request->post("ids");
+        if ($ids) {
+            $result = 0 ;
+            //再验证是否有分类培训未删除
+            $mainmodel = new \app\admin\model\trouble\trouble\Main;
+            $result = $mainmodel->where(['point_id'=>['in',$ids]])->select();
+            if($result){
+                $this->error(__('删除失败，原因是要删除的隐患信息点已存在报警信息，不能删除！'));
+            }
+            $pk = $this->model->getPk();
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                $this->model->where($this->dataLimitField, 'in', $adminIds);
+            }
+            $list = $this->model->where($pk, 'in', $ids)->select();
+
+            $count = 0;
+            Db::startTrans();
+            try {
+                foreach ($list as $k => $v) {
+                    $count += $v->delete();
+                }
+                Db::commit();
+            } catch (PDOException $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            } catch (Exception $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            }
+            if ($count) {
+                $this->success();
+            } else {
+                $this->error(__('No rows were deleted'));
+            }
+        }
+        $this->error(__('Parameter %s can not be empty', 'ids'));
+    }
     
     /**
      * 查看

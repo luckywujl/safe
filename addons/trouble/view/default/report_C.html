@@ -34,19 +34,20 @@
     				<div class="form-group" >
         				<label class="control-label col-xs-12 col-sm-2">{:__('Point_id')}:</label>
        				<div class="col-xs-12 col-sm-7">
-            				<input  readonly="readonly" class="form-control " data-rule="required"  type="text" value="{$row.point_name}" >  
+            				
+							<input id="c-point_id"  data-rule="required"   class="form-control"  name="row[point_id]" type="text" value="{$row.id}">
         				</div>
         				<div class="col-xs-12 col-sm-7" hidden="hidden">
-            				<input id="c-point_id" readonly="readonly" data-rule="required" class="form-control " name="row[point_id]"  type="text" value="{$row.id}" >  
+            				
 							<input id="c-source_type" readonly="readonly" class="form-control" name="row[source_type]"  type="text" value="2" > 
         				</div>
 						
     				</div>
     				<div class="form-group">
         				<label class="control-label col-xs-12 col-sm-2">{:__('Point_address')}:</label>
-       				<div class="col-xs-12 col-sm-7">
-            				<input  readonly="readonly" class="form-control" data-rule="required" type="text"value="{$row.point_address}" >  
-        				</div>
+						<div class="col-xs-12 col-sm-7">
+							<input id="c-point_address" readonly="readonly" class="form-control" type="text" value="{$row.point_address}">
+						</div>
     				</div>
     				<div class="form-group">
 						<label class="control-label col-xs-12 col-sm-2">{:__('Kind')}:</label>
@@ -153,6 +154,33 @@
                 
                 var Controller = {
                     report: function() {
+						$("#c-point_id").selectPage({           //设置材料编号（即水表型号）的下拉列表框
+						showField: 'point_name',
+						keyField: 'id',
+						data: "{:addon_url('trouble/index/selectpoint')}",
+						pageSize: 10,
+						eAjaxSuccess: function (data) {
+							data.list = typeof data.rows !== 'undefined' ? data.rows : (typeof data.list !== 'undefined' ? data.list : []);
+							data.totalRow = typeof data.total !== 'undefined' ? data.total : (typeof data.totalRow !== 'undefined' ? data.totalRow : data.list.length);
+							return data;
+						},
+						eSelect: function (data) {
+							console.info(data);
+							Fast.api.ajax({
+								url: "{:addon_url('trouble/index/getpoint')}",
+								data: { id: data.id } //再将收到的create_code用POST方式发给主表控制器的total
+							},
+								function (data, ret) { //success 用于接收主表控制器发过来的数据
+									$("#c-point_address").val(data.point_address);
+									//console.info(data);
+									return false;
+								}, function (data) {
+									//失败的回调   
+									return false;
+								}
+							)
+						},
+					});
                         Controller.api.bindEvent();
                     },             
                     api: {

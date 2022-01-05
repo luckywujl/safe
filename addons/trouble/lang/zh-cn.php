@@ -63,5 +63,8 @@ return [
     'Expression'                        => '隐患现象',
     'Violations'                        => '三违行为',
     'Level'                             => '隐患等级',
+    'Back Home'                         => '返回主站',
+    'User center'                         => '员工中心',
+    'Change password'                         => '修改密码',
     
 ];

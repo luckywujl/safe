@@ -23,6 +23,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'video'], function($,
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
                 sortName: 'weigh',
+                singleSelect: true, //是否启用单选
                 columns: [
                     [
                         { checkbox: true },

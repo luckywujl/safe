@@ -581,11 +581,11 @@ class Recevie extends Backend
         $point_id = array_column($point_info , 'id');//获取部门ID，主键
         $point_info = array_combine($point_id,$point_code);//将两个一维数组组装成键名=》键值形式
         
-        $type = new \app\admin\model\trouble\base\Type;
-        $type_info = $type->field('id,trouble_type')->where(['company_id'=>$this->auth->company_id])->order('id', 'asc')->select(); 
-        $trouble_type = array_column($type_info , 'trouble_type');//将区域名称装入一维数组，免得重复读表
-        $type_id = array_column($type_info , 'id');//获取区载ID，主键
-        $type_info = array_combine($type_id,$trouble_type);//将两个一维数组组装成键名=》键值形式
+        $level = new \app\admin\model\trouble\base\Level;
+        $level_info = $level->field('id,trouble_level')->where(['company_id'=>$this->auth->company_id])->order('id', 'asc')->select(); 
+        $trouble_level = array_column($level_info , 'trouble_level');//将区域名称装入一维数组，免得重复读表
+        $level_id = array_column($level_info , 'id');//获取区载ID，主键
+        $level_info = array_combine($level_id,$trouble_level);//将两个一维数组组装成键名=》键值形式
         
         $user = new \app\admin\model\User;
         $user_info = $user->field('id,nickname,jobnumber,mobile')->where(['company_id'=>$this->auth->company_id])->order('id','asc')->select();
@@ -722,7 +722,7 @@ class Recevie extends Backend
         	           $val['finish_pic'] = '';
                     $val['source_type'] = (int)array_search($val['source_type'],$source_type);//信息来源
                     //$val['source_type'] = 0;
-                    $val['trouble_type_id'] = array_search($val['trouble_type_id'],$type_info);//隐患类型
+                    $val['level'] = array_search($val['level'],$level_info);//隐患类型
                     $val['main_status'] = 0;//草稿
                     if($val['informer_name']=='') {
                     		$val['informer_name'] = array_search($this->auth->nickname,$jobnumber).'-'.$this->auth->nickname.'('.array_search($this->auth->nickname,$mobile).')';//转换一下报警人姓名，加上工号和电话号码

@@ -28,22 +28,30 @@
             </header>
             <section class="aui-scrollView">
                 <div class="aui-more-list-box">
+                    
                     <div class="aui-more-list">
                         <h3><font size="3">上报记录 </h3>
                     </div>
                     <div class="aui-grids-box">
-                       <a href="{:addon_url('trouble/index/vcheck')}" class="aui-grids-item">
+                       <a href="{:addon_url('trouble/index/vcheck')}" class="aui-grids-item" style={:$type=='1'?'':'"display: none;"'}>
                             <div class="aui-grids-item-hd">
                                 <img src="/images/icon-item-018.png" alt="">
                             </div>
-                            <div class="aui-grids-item-bd"><font size="2">人工巡检
+                            <div class="aui-grids-item-bd"><font size="2">上报记录
                             </div>
                         </a>
-                        <a href="{:addon_url('trouble/index/scheck')}" class="aui-grids-item">
+                        <a href="{:addon_url('trouble/index/safecheck')}" class="aui-grids-item" style={:$type=='2'?'':'"display: none;"'}>
                             <div class="aui-grids-item-hd">
                                 <img src="/images/icon-item-019.png" alt="">
                             </div>
                             <div class="aui-grids-item-bd"><font size="2">安全检查
+                            </div>
+                        </a>
+                        <a href="{:addon_url('trouble/index/scheck')}" class="aui-grids-item" style={:$type=='2'?'':'"display: none;"'}>
+                            <div class="aui-grids-item-hd">
+                                <img src="/images/icon-item-027.png" alt="">
+                            </div>
+                            <div class="aui-grids-item-bd"><font size="2">检查记录
                             </div>
                         </a>
                         

@@ -177,6 +177,71 @@ class Subject extends Backend
         return $this->view->fetch();
     }
     /**
+     * 删除
+     */
+    public function del($ids = "")
+    {
+        
+        if (!$this->request->isPost()) {
+            $this->error(__("Invalid parameters"));
+        }
+        $ids = $ids ? $ids : $this->request->post("ids");
+        if ($ids) {
+            $result = 0 ;
+            //在删除前先验证是否有子分类
+            $result = $this->model->where(['pid'=>['in',$ids]])->select();
+            if($result){
+                $this->error(__('删除失败，原因是要删除的分类有子分类，请先删除它们！'));
+            }
+            //再验证是否有科目试题未删除
+            $kaoshiQuestionsmodel = new \app\admin\model\kaoshi\examination\KaoshiQuestions;
+            $result = $kaoshiQuestionsmodel->where(['subject_id'=>['in',$ids]])->select();
+            if($result){
+                $this->error(__('删除失败，原因是要删除的科目下有试题，请先删除他们'));
+            }
+            //再验证是否有科目考卷未删除
+            $kaoshiExamsmodel = new \app\admin\model\kaoshi\examination\KaoshiExams;
+            $result = $kaoshiExamsmodel->where(['subject_id'=>['in',$ids]])->select();
+            if($result){
+                $this->error(__('删除失败，原因是要删除的科目下有考卷，请先删除他们'));
+            }
+            //再验证是否有科目考卷未删除
+            $kaoshiPlanmodel = new \app\admin\model\kaoshi\examination\KaoshiPlan;
+            $result = $kaoshiPlanmodel->where(['subject_id'=>['in',$ids]])->select();
+            if($result){
+                $this->error(__('删除失败，原因是要删除的科目下有考试安排，请先删除他们'));
+            }
+           
+            $pk = $this->model->getPk();
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                $this->model->where($this->dataLimitField, 'in', $adminIds);
+            }
+            $list = $this->model->where($pk, 'in', $ids)->select();
+
+            $count = 0;
+            Db::startTrans();
+            try {
+                foreach ($list as $k => $v) {
+                    $count += $v->delete();
+                }
+                Db::commit();
+            } catch (PDOException $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            } catch (Exception $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            }
+            if ($count) {
+                $this->success();
+            } else {
+                $this->error(__('No rows were deleted'));
+            }
+        }
+        $this->error(__('Parameter %s can not be empty', 'ids'));
+    }
+    /**
      * JSTree交互式树
      *
      * @internal

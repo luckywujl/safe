@@ -23,7 +23,7 @@ class Index extends Base
      * 无需登录的方法,同时也就不需要鉴权了
      * @var array
      */
-    protected $noNeedLogin = ['report','report_A','report_B','report_C','level','expression'];
+    protected $noNeedLogin = ['report','report_A','level','expression'];
 
     /**
      * 无需鉴权的方法,但需要登录
@@ -200,6 +200,7 @@ class Index extends Base
             	}
          	}
          	if($operator==2) { //查看隐患
+                if($this->auth->issafer!=='是'){
             	foreach($type as $k=>$v){
             		if($v['id']==0) {//全部
             		$count[$v['id']] = $main->where($map)->where(function ($query) {
@@ -218,6 +219,21 @@ class Index extends Base
             		}
             		
             	}
+            } else{
+                foreach($type as $k=>$v){
+            		if($v['id']==0) {//全部
+            		$count[$v['id']] = $main->where($map)->where('main_status','in',$all)->count();
+            		}
+            		if($v['id']==1) {//未
+            		$count[$v['id']] = $main->where($map)->where('main_status','in',$no)->count();
+            		}
+             		if($v['id']==2) {//已
+            		$count[$v['id']] = $main->where($map)->where('main_status','in',$already)->count();
+            		}
+            		
+            	}
+
+            }
          	}
          	if($operator==3) { //任务分派
             	foreach($type as $k=>$v){
@@ -678,15 +694,112 @@ class Index extends Base
                 return $this->view->fetch('/report_B');	
             }
            } else {
-            return $this->view->fetch('/report_C');	
+            return $this->view->fetch('/report_A');	
            }	
        
         }	
     	 
     }
-    public function report_D() //安全检查
+    public function safecheck() //安全检查
     {	
-        return $this->view->fetch('/report_D');
+        $point_info = new PointModel;
+        $model = new MainModel;
+        if ($this->request->isPost()) {
+            $params = $this->request->post("row/a");
+            if ($params) {
+                $params['main_status'] = 1; //草稿状态
+                $point = $point_info->where('id',$params['point_id'])->find();
+                $params['recevier'] = $this->auth->nickname;//接警人
+                
+                $params['informer'] =$this->auth->id; //ID
+                $params['informer_name'] = $this->auth->jobnumber.'-'.$this->auth->nickname.'('.$this->auth->mobile.')';//array_search($params['informer_name'],$jobnumber).'-'.$params['informer_name'].'('.array_search($params['informer_name'],$mobile).')';//转换一下报警人姓名，加上工号和电话号码
+                $params['main_code'] = $this->getmaincode($this->auth->company_id);//获取单号
+        	    
+                $params['company_id'] = $this->auth->company_id;
+        	    $params['process_pic'] = '';
+        	    $params['finish_pic'] = '';
+                $result = false;
+                Db::startTrans();
+                try {
+                    
+                    //完成隐患类型封装，便于快速查找
+                    $level = new  LevelModel;
+                    $level_info = $level->where('company_id',$this->auth->company_id)->select();
+                    $level_id = array_column($level_info,'id');
+                    $plan_content = array_column($level_info,'plan_content');
+                    $plan_info = array_combine($level_id,$plan_content);
+            
+                    //完成部门信息封装，便 于快速查找
+                    $department = new  DepartmentModel;
+                    $depart_info = $department->where('company_id',$this->auth->company_id)->select();
+                    $depart_id = array_column($depart_info,'id');//部门ID
+                    $depart_leader = array_column($depart_info,'leader');//部门负责人
+                    $depart_person = array_column($depart_info,'person');//部门安全员
+                    $depart_pid = array_column($depart_info,'pid');//上级部门ID
+            
+                    $leader = array_combine($depart_id,$depart_leader);
+                    $person = array_combine($depart_id,$depart_person);
+                    $pid = array_combine($depart_id,$depart_pid);//上级部门ID
+
+                    $plan = $plan_info[$params['level']];//根据键寻值预案内容
+                    //获取部门ID
+                    $department_id = $point['point_department_id'];//根据键寻值
+                    //获取部门负责人及安全员以及上级部门的负责人和上级部门的安全员
+                    $leader_d = explode(',',$leader[$department_id]);//本部门负责人
+                    $person_d = explode(',',$person[$department_id]);//本部门安全员
+                    $department_pid = $pid[$department_id];
+                    $leader_p = explode(',',$leader[$department_pid]);//上级负责人
+                    $person_p = explode(',',$person[$department_pid]);//上级安全员
+                    //定义一个数组，用于存放liabler内容
+                    $liabler = [];
+                    $liabler=array_merge($liabler,$person_d);//责任人由部门安全员负责，下面根据不同一隐患等级，抄送不同的人
+                    $liabler=array_merge($liabler,$leader_d);
+                    
+                    $insider =[];
+                    //$liabler[] ='0';
+                    //循环运行，根据$plan内容，将负责人添加到liabler中
+                    if(substr($plan, 0, 1)=='1')$insider=array_merge($insider,$person_d);
+                    if(substr($plan, 1, 1)=='1')$insider=array_merge($insider,$leader_d);
+                    
+                    if(substr($plan, 2, 1)=='1')$insider=array_merge($insider,$person_p);
+                    if(substr($plan, 3, 1)=='1')$insider=array_merge($insider,$leader_p);
+                                    
+                    $liabler_s = trim(implode(',',$liabler),',');
+                    $insider_s = trim(implode(',',$insider),',');
+                    
+                    $params['liabler'] = $liabler_s;
+                    $params['insider'] = $insider_s;
+
+                    $result = $model->allowField(true)->save($params);
+                    $id = $model->id;
+
+                    LogModel::create(['main_id'=>$id,'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'提交报警信息，等待接警处理...','company_id'=>$this->auth->company_id]);
+                    LogModel::create(['main_id'=>$id,'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'隐患报警信息已经完成接警，并已派单，等待处理...','company_id'=>$this->auth->company_id]);
+                    Db::commit();
+                } catch (ValidateException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (PDOException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (Exception $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                }
+                if ($result !== false) {
+                    $this->success('隐患信息已提交并已派单处理！');
+                } else {
+                    $this->error(__('No rows were inserted'));
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        if ($this->user_id) {
+            if($this->auth->issafer=='是'){
+                return $this->view->fetch('/safecheck');
+            }
+        } 
+        
     	 
     }
     public function report_A() //路人报警
@@ -870,7 +983,17 @@ class Index extends Base
             $this->error(__('Parameter %s can not be empty', ''));
         }
     }
-    
+    public function getpoint ()
+    {
+    if (!empty($this->request->post("id"))){
+        $pointinfo = new PointModel;
+    	$id = $this->request->post("id");
+    	$point = $pointinfo
+            ->where('id',$id) 
+            ->find();  
+    	$this->success(null,null,$point);
+    	}
+    }
     public function selectoperator() //选择人员
     {
         $model = new UserModel;
@@ -1008,9 +1131,12 @@ class Index extends Base
             		});
             }
             if($operator==2) {    
-            	$total = $total->where(function ($query) {
-                	$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
-            		});
+                if($this->auth->issafer!=='是'){
+                    $total = $total->where(function ($query) {
+                        $query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
+                        });
+                }
+            	
             }
             if($operator==3) {    
             	$total = $total->where(function ($query) {
@@ -1067,10 +1193,12 @@ class Index extends Base
             	$list = $list->where('informer',$this->user_id)->where('source_type',2);
             }
             
-            if($operator==2) {    
+            if($operator==2) {   
+                if($this->auth->issafer!=='是'){ 
             	$list = $list->where(function ($query) {
                 	$query->where('find_in_set('.$this->user_id.',liabler)')->whereor('find_in_set('.$this->user_id.',processer)')->whereor('find_in_set('.$this->user_id.',checker)')->whereor('find_in_set('.$this->user_id.',insider)');
             		});
+                }
             }
             if($operator==3) {    
             	$list = $list->where(function ($query) {
@@ -1311,7 +1439,7 @@ class Index extends Base
         //这里一定要返回有list这个字段,total是可选的,如果total<=list的数量,则会隐藏分页按钮
         return json(['list' => $datalist, 'total' => $total]);
     }
-    protected function selectpoint()
+    public function selectpoint()
     {
         //设置过滤方法
         $this->request->filter(['trim', 'strip_tags', 'htmlspecialchars']);
