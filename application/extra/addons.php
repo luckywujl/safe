@@ -28,9 +28,6 @@ return [
         'app_init' => [
             'qrcode',
         ],
-        'testhook' => [
-            'suisunwechat',
-        ],
     ],
     'route' => [
         '/kaoshi$' => 'kaoshi/index/index',
