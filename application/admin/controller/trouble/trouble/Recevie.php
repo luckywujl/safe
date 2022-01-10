@@ -4,7 +4,8 @@ namespace app\admin\controller\trouble\trouble;
 
 use app\common\controller\Backend;
 use app\admin\model\trouble\trouble\Log as LogModel;
-
+use app\admin\model\setting\Company as CompanyModel;
+use app\admin\model\Third as ThirdModel;
 use app\common\library\Auth;
 use Think\Db;
 use fast\Tree;
@@ -15,6 +16,8 @@ use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Csv;
 use think\exception\PDOException;
 use think\exception\ValidateException;
+
+use app\index\controller\WxMessage;  //导入微信消息模板发送类
 
 /**
  * 隐患告警信息
@@ -435,52 +438,73 @@ class Recevie extends Backend
             $point_id = array_column($point_info,'id');
             $point_department_id = array_column($point_info,'point_department_id');
             $department_info = array_combine($point_id,$point_department_id);
-            
-            $data = [];
 
+            //用于信息来源转换
+            $source_type = [
+                0=>'路人告警',
+                1=>'人工巡查',
+                2=>'安全检查',
+            ];
+            
+            
+            $main_data = [];
+            $message =[];//存放信息内容
+            
             $result = 0;
             Db::startTrans();
             try {
                 foreach ($list as $k => $v) {
+                    
                 	if($v['main_status']==0) {
                 		$item =[];
+                        $messageitem = [];
+                        
                 	  //添加日志 
                 	  $id = $v['id'];
-                	  
+                      
                     LogModel::create(['main_id'=>$id,'log_time'=>time(),'log_operator'=>$this->auth->nickname,'log_content'=>'隐患报警信息已经完成接警，并已派单，等待处理...','company_id'=>$this->auth->company_id]);
                     //派单操作，添加责任人，进入流转环节 1、先确定信息点所属部门，隐患等级，获得预案内容 2、根据预案内容，完成liabler（责任人字段内容）3、更新责任人内容
                     //1、获取预案内容
                     
                     $plan = $plan_info[$v['level']];//根据键寻值
                     
-                    //获取部门ID
+                    //根据隐患点ID获取部门ID
                     $department_id = $department_info[$v['point_id']];//根据键寻值
                     
-                    //获取部门负责人及安全员以及上级部门的负责人和上级部门的安全员
+                    //根据部门ID获取部门负责人及安全员以及上级部门的负责人和上级部门的安全员
                     $leader_d = explode(',',$leader[$department_id]);//本部门负责人
                     $person_d = explode(',',$person[$department_id]);//本部门安全员
+                    
                     $department_pid = $pid[$department_id];
-                    $leader_p = explode(',',$leader[$department_pid]);//上级负责人
-                    $person_p = explode(',',$person[$department_pid]);//上级安全员
+                    if($department_pid){
+                        $leader_p = explode(',',$leader[$department_pid]);//上级负责人
+                        
+                        $person_p = explode(',',$person[$department_pid]);//上级安全员
+                    } else{
+                        $leader_p = [];//上级负责人
+                        
+                        $person_p = [];//上级安全员
+                    }
+                    
                     //定义一个数组，用于存放liabler内容
+                    
                     $liabler = [];
                     $liabler=array_merge($liabler,$person_d);//责任人由部门安全员负责，下面根据不同一隐患等级，抄送不同的人
                     $liabler=array_merge($liabler,$leader_d);
                     
                     $insider =[];
-                    //$liabler[] ='0';
-                    //循环运行，根据$plan内容，将负责人添加到liabler中
+                    
+                    
                     if(substr($plan, 0, 1)=='1')$insider=array_merge($insider,$person_d);
                     if(substr($plan, 1, 1)=='1')$insider=array_merge($insider,$leader_d);
                     
                     if(substr($plan, 2, 1)=='1')$insider=array_merge($insider,$person_p);
                     if(substr($plan, 3, 1)=='1')$insider=array_merge($insider,$leader_p);
                     
-                    
-                   
+                    //将数组转为字符，存入字段                  
                     $liabler_s = trim(implode(',',$liabler),',');
                     $insider_s = trim(implode(',',$insider),',');
-                    
+
                     //更新表 因为锁表状态，改用saveall
                     //$result = $this->model->where('id',$id)->update(['main_status'=>1,'updatetime'=>time(),'firstduration'=>$firstduration,'liabler'=>$liabler_s,'insider'=>$insider_s,'recevier'=>$this->auth->nickname]);//完成派单,更新接单时间以及首次跟进时长
                     $item['id'] = $v['id'];
@@ -490,11 +514,49 @@ class Recevie extends Backend
                     $item['liabler'] = $liabler_s;
                     $item['insider'] = $insider_s;
                     $item['recevier'] = $this->auth->nickname;
-                    $data[] = $item;
+                    $main_data[] = $item;
+
+                    $messageitem['target_l'] = $this->IDStoOPENID($liabler_s);//将部门负责人信息压入接收目标
+                    $messageitem['target_i'] = $this->IDStoOPENID($insider_s);//将抄送人压入接收目标
+                    $messageitem['target_m'] = $this->IDStoOPENID($v['informer']);//将抄送人压入接收目标
+                    $messageitem['data_l'] = [
+                        'first'=>['value'=>'您有新的隐患整改通知！编号为:'.$v['main_code'],'color'=>"#F70997"],
+                        'keyword1'=>['value'=>$v['informer_name'],'color'=>'#000'],
+                        'keyword2'=>['value'=>date("Y-m-d H:i:s",$v['createtime']),'color'=>'#248d24'],
+                        'keyword3'=>['value'=>$source_type[$v['source_type']],'color'=>'#000'],
+                        'keyword4'=>['value'=>$v['expression'],'color'=>'#000'],
+                        'keyword5'=>['value'=>date("Y-m-d H:i:s",$v['limittime']),'color'=>'#F70997'],
+                        'remark'  =>['value'=>'请尽快处理','color'=>'#1784e8']
+                    ];
+                    $messageitem['data_i'] = [
+                        'first'=>['value'=>'有一条隐患信息需要您知晓！编号为:'.$v['main_code'],'color'=>"#F70997"],
+                        'keyword1'=>['value'=>$v['informer_name'],'color'=>'#000'],
+                        'keyword2'=>['value'=>date("Y-m-d H:i:s",$v['createtime']),'color'=>'#248d24'],
+                        'keyword3'=>['value'=>$source_type[$v['source_type']],'color'=>'#000'],
+                        'keyword4'=>['value'=>$v['expression'],'color'=>'#000'],
+                        'keyword5'=>['value'=>date("Y-m-d H:i:s",$v['limittime']),'color'=>'#F70997'],
+                        'remark'  =>['value'=>'请了解关注！','color'=>'#1784e8']
+                    ];
+                    $messageitem['data_m'] = [
+                        'first'=>['value'=>'您提交的隐患告警信息已经确认并已经派单处理！编号为:'.$v['main_code'],'color'=>"#F70997"],
+                        'keyword1'=>['value'=>$v['informer_name'],'color'=>'#000'],
+                        'keyword2'=>['value'=>date("Y-m-d H:i:s",$v['createtime']),'color'=>'#248d24'],
+                        'keyword3'=>['value'=>$source_type[$v['source_type']],'color'=>'#000'],
+                        'keyword4'=>['value'=>$v['expression'],'color'=>'#000'],
+                        'keyword5'=>['value'=>date("Y-m-d H:i:s",$v['limittime']),'color'=>'#F70997'],
+                        'remark'  =>['value'=>'请了解关注,感谢您的支持！','color'=>'#1784e8']
+                    ];
                     
+                   
+
+                    $messageitem['url_l'] = '/addons/trouble/index/dispatch';   //部门负责人消息对应的详情网址
+                    $messageitem['url_i'] = '/addons/trouble/index/view';  //抄送人消息对应的详情网址
+                    $messageitem['url_m'] = '/addons/trouble/index/vcheck';  //抄送人消息对应的详情网址
+
+                    $message[]= $messageitem;  //完成消息模板内容封装，并带出循环，待接警完成后，再遍历发送    
                  }  
                 }
-                $result = $this->model->allowField(true)->saveall($data);
+                $result = $this->model->allowField(true)->saveall($main_data);
                 Db::commit();
             } catch (PDOException $e) {
                 Db::rollback();
@@ -502,17 +564,28 @@ class Recevie extends Backend
                 $this->error($e->getMessage());
             } catch (Exception $e) {
                 Db::rollback();
+                //$this->error('接警完成！');
                 $this->error($e->getMessage());
             }
             if ($result) {
-            	$this->success('接警成功！');
+            	
+                //给目标接收人发送模板消息
+                foreach($message as $o=>$p){
+                    $this->sendmessage($p['target_l'],$p['data_l'],$p['url_l']);//给负责人发送
+                    $this->sendmessage($p['target_i'],$p['data_i'],$p['url_i']);//给抄报人发送
+                    $this->sendmessage($p['target_m'],$p['data_m'],$p['url_m']);//给抄报人发送
+                }
+                $this->success('接警成功！');
+
                 //$this->success($id.'-'.$type_id.'-'.$plan.'-'.$department_id.'-'.array_search($department_id,$leader).'-'.array_search($department_id,$person).'-'.array_search($department_pid,$leader).'-'.array_search($department_pid,$person));
             } else {
+                
                 $this->error('接警完成！');
             }
         }
         $this->error(__('Parameter %s can not be empty', 'ids'));
     }
+
     /**
     *取消接警
     */
@@ -881,7 +954,61 @@ class Recevie extends Backend
         }
         
     }
+    /**
+     * 发送模板消息
+     * @openid 接收人
+     * @$data 消息内容
+     */
+    function sendmessage($openid,$data,$url)
+    {
+        $company = new CompanyModel;
+        $company_info = $company->field('company_appid as appid,company_appsecret as appsecret,company_websit as websit')->where('company_id',$this->auth->company_id)->find();
+        $result = '';
+        if ($company_info['appid']!==''&&$company_info['appsecret']!==''){
+            $tem_id = "2enJepBbIbwFssJlT1bjkHLcmrFzw2YWddMyWC1RzCQ"; //消息模板ID-隐患通知
+            if(!$data){
+                $data = [
+                    'first'=>['value'=>'您有新的隐患整改通知！','color'=>"#000"],
+                    'keyword1'=>['value'=>'吴俊雷','color'=>'#F70997'],
+                    'keyword2'=>['value'=>date("Y-m-d H:i:s"),'color'=>'#248d24'],
+                    'keyword3'=>['value'=>'安全检查','color'=>'#000'],
+                    'keyword4'=>['value'=>'井盖丢失','color'=>'#000'],
+                    'keyword5'=>['value'=>date("Y-m-d H:i:s"),'color'=>'#000'],
+                    'remark'  =>['value'=>'请尽快处理！','color'=>'#1784e8']
+                ];
+            }
+            if($openid==''){
+                $openid = 'oIO6b6QByDVA3SwcthrnUGdO0WbY';//接收人的OPENID
+            }            
+            $wxmessage = new WxMessage($company_info['appid'], $company_info['appsecret']);  //带Appid和Appsecret实例化Wxmessage类
+            $return_url = $company_info['websit'].$url;      //  消息详情页面
+            $result = $wxmessage->sendMsg($tem_id,$data,$openid,$return_url);  
+        }
+        return $result;  
+    }
+
+    /**
+     * 将用户ID转换成OPENID
+     * @ids 是多个用户ID格式为：‘123’，‘235’
+     * @openID 是转换后的多个OPENID
+     */
+    function IDStoOPENID($ids)
+    {
+        //完成用户ID与openid的封装，便于转换
+        $third = new ThirdModel;
+        $third_info = $third->field('user_id,openid')->with(['user'])->where('user.company_id',$this->auth->company_id)->select();
+        $user_id = array_column($third_info,'user_id');
+        $user_openid = array_column($third_info,'openid');
+        $openid_info = array_combine($user_id,$user_openid);
+
+        $arr = explode(',',$ids);
+        $openID_arr=[];
+        foreach($arr as $x=>$y){
+            $openID_arr= array_merge($openID_arr,explode(',',$openid_info[$y]));               
+        }
+        $openID = trim(implode(',',$openID_arr));
+        return $openID;
+    }
    
-    
 
 }

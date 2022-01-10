@@ -4,6 +4,7 @@
         <label class="control-label col-xs-12 col-sm-2">{:__('Point_code')}:</label>
         <div class="col-xs-12 col-sm-8" hidden="hidden">
             <input id="c-id" data-rule="required" class="form-control" name="row[id]" type="text" value="{$row.id|htmlentities}">
+            <input id="c-websit"  class="form-control"  type="text" value="{$row.websit|htmlentities}">
             
         </div>
         <div class="col-xs-12 col-sm-8">
@@ -75,7 +76,8 @@
 <script type="text/javascript">
             $(function () {
                 $("form").submit(function () {
-                	 var t = 'http://192.168.0.4:9010/addons/trouble/index/report.html?point_id='+$("#c-id").val();
+                     
+                	 var t = $('#c-websit').val() +'/addons/trouble/index/report.html?point_id='+$("#c-id").val();
                 	// var t = 'http://safe.haxxj.com/addons/trouble/index/report.html?point_id='+$("#c-id").val();
                     $("#qrcodeimg").prop("src", "{:addon_url('qrcode/index/build',[],false)}?" + 'label='+'('+$("#c-point_code").val()+')'+$("#c-point_name").val()+'&logo=1&logopath=.'+$("#c-coverimage").val()+'&text='+t+'&company='+$("#c-company_id").val()+'&code='+$("#c-point_code").val()+'&write=1');;
                     return false;

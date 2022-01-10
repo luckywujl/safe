@@ -1,8 +1,8 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/11/29
+ * User: LUCKYWUJL
+ * Date: 2022/01/07
  * Time: 10:26
  */
 
@@ -27,45 +27,32 @@ class WxMessage extends Controller
         if($tem_id == ''){
             $tem_id = "2enJepBbIbwFssJlT1bjkHLcmrFzw2YWddMyWC1RzCQ";
         }
-//        $user_id = session('user.id');
-//        $user_info = Db::name('user')->find($user_id);
-//        $openid =$user_info['wx_openid'];
-        // $appid = config('wx.appid');
-        // $appsecret = config('wx.appsecret');
-        $appid = 'wx4f79233878b9f770';
-        $appsecret = 'c483da45c62e62784c929aa6722c6de9';
-//        $data = [
-//            'first'=>['value'=>'您有新的隐患整改通知！','color'=>"#000"],
-//            'keyword1'=>['value'=>'吴俊雷','color'=>'#F70997'],
-//            'keyword2'=>['value'=>date("Y-m-d H:i:s"),'color'=>'#248d24'],
-//            'keyword3'=>['value'=>'安全检查','color'=>'#000'],
-//            'keyword4'=>['value'=>'井盖丢失','color'=>'#000'],
-//            'keyword5'=>['value'=>date("Y-m-d H:i:s"),'color'=>'#000'],
-//            'remark'  =>['value'=>'请尽快处理','color'=>'#1784e8']
-//        ];
-        //$return_url = 'http://www.baidu.com';      //  消息详情页面
-        $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$appid."&secret=".$appsecret;
+        $target = explode (',',$openid);//将接收人（字符串数组化）后面循环发送
+        $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$this->appId."&secret=".$this->appSecret;
         if (cookie('access_token')){
             $access_token2 =cookie('access_token');
         }else{
             $json_token=$this->curl_post($url);
             $access_token1=json_decode($json_token,true);
-           // var_dump($access_token1);
             $access_token2 = $access_token1['access_token'];
             setcookie('access_token',$access_token2,7200);
         }//缓存assesstoken
         //$access_token2 = $this->getAcessToken($appid,$appsecret);
-        $params1 = json_encode($this->json_tempalte($openid,$return_url,$data,$tem_id),JSON_UNESCAPED_UNICODE);
-        $url="https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=".$access_token2;
-        $params = $this->curl_post($url,urldecode($params1));
-        //dump($params);exit();
-        $params = json_decode($params,true);
-        if ($params['errcode']==0){
-            //return '发送成功!';
-            exit();
-        }else{
-            return '发送失败!';
-        }
+        foreach($target as $k=>$v)
+        {
+            $params1 = json_encode($this->json_tempalte($v,$return_url,$data,$tem_id),JSON_UNESCAPED_UNICODE);
+            $url="https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=".$access_token2;
+            $params = $this->curl_post($url,urldecode($params1));
+            //dump($params);exit();
+            $params = json_decode($params,true);
+            if ($params['errcode']==0){
+                //return '发送成功!';
+                sleep(0.5);//先这么着吧，以后用多线程来解决，
+                //exit();
+            }else{
+                return '发送失败!';
+            }
+        }      
     }
 
     /**
@@ -112,32 +99,32 @@ class WxMessage extends Controller
     {
         $data = input();
         \think\Cache::set('data',$data);
-//        return 1234;
     }
-
-    function getAcessToken($appid,$secret){
-        //获取access_token，并缓存
-        $file = RUNTIME_PATH.'/access_token1';//缓存文件名access_token1
-        $appid='wx4f79233878b9f770'; // 填写自己的appid
-        $secret='c483da45c62e62784c929aa6722c6de9'; // 填写自己的appsecret
-        $expires = 3600;//缓存时间1个小时
-        if(file_exists($file)) {
-            $time = filemtime($file);
-            if(time() - $time > $expires) {
-                $token = null;
-            }else {
-                $token = file_get_contents($file);
-            }
-        }else{
-            fopen("$file", "w+");
-            $token = null;
-        }
-        if (!$token || strlen($token) < 6) {
-            $res = file_get_contents("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$appid."&secret=".$secret."");
-            $res = json_decode($res, true);
-            $token = $res['access_token'];
-            @file_put_contents($file, $token);
-        }
-        return $token;
-    }
+    
+    //将acesstoken缓存到文件中的另一种方法，本例中采用的是将acesstoken写入cookie
+    // function getAcessToken($appid,$secret){
+    //     //获取access_token，并缓存
+    //     $file = RUNTIME_PATH.'/access_token1';//缓存文件名access_token1
+    //     $appid='wx4f79233878b9f770'; // 填写自己的appid
+    //     $secret='c483da45c62e62784c929aa6722c6de9'; // 填写自己的appsecret
+    //     $expires = 3600;//缓存时间1个小时
+    //     if(file_exists($file)) {
+    //         $time = filemtime($file);
+    //         if(time() - $time > $expires) {
+    //             $token = null;
+    //         }else {
+    //             $token = file_get_contents($file);
+    //         }
+    //     }else{
+    //         fopen("$file", "w+");
+    //         $token = null;
+    //     }
+    //     if (!$token || strlen($token) < 6) {
+    //         $res = file_get_contents("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$appid."&secret=".$secret."");
+    //         $res = json_decode($res, true);
+    //         $token = $res['access_token'];
+    //         @file_put_contents($file, $token);
+    //     }
+    //     return $token;
+    // }
 }

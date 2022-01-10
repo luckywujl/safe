@@ -115,10 +115,7 @@ class User extends Frontend
      */
     public function sendmessage()
     {
-        //$jssdk = new Jssdk("wx4f79233878b9f770", "10eb3f75adafacbaa3c584908395c982");
-        //$signPackage = $jssdk->GetSignPackage();
-        //$this->view->assign('signPackage',$signPackage);
-        //return $this->view->fetch();
+        
         $tem_id = "eOpVggK0wQdeqEfte-cc0phCWEwRaVJPN333N-GVy2g";
         $data = [
                        'first'=>['value'=>'您有新的隐患整改通知！','color'=>"#000"],

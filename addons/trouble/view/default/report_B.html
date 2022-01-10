@@ -101,7 +101,18 @@
                     
                         bindEvent() {
                             Form.api.bindevent($("form[role=form]"),function(data,ret){
-                             alert(ret.msg);
+							 alert(ret.msg);		
+							 $.ajax({
+								url: "{:addon_url('trouble/index/send')}",
+								type: 'post',
+								dataType: 'json',
+							    data: ret.data,
+								success: function (ret) {
+									alert(ret.msg);
+								}, error: function (e) {
+									
+								}
+							});	
                              setTimeout(function() {
         								// 安卓关闭当前窗口
         								document.addEventListener('WeixinJSBridgeReady', function() {

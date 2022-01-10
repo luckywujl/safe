@@ -154,7 +154,7 @@
                 
                 var Controller = {
                     report: function() {
-						$("#c-point_id").selectPage({           //设置材料编号（即水表型号）的下拉列表框
+						$("#c-point_id").selectPage({           //设置下拉列表框
 						showField: 'point_name',
 						keyField: 'id',
 						data: "{:addon_url('trouble/index/selectpoint')}",
@@ -187,7 +187,18 @@
                     
                         bindEvent() {
                             Form.api.bindevent($("form[role=form]"),function(data,ret){
-                             alert(ret.msg);
+							alert(ret.msg);		
+							 $.ajax({
+								url: "{:addon_url('trouble/index/send_d')}",
+								type: 'post',
+								dataType: 'json',
+							    data: ret.data,
+								success: function (ret) {
+									alert(ret.msg);
+								}, error: function (e) {
+									
+								}
+							});	
                              setTimeout(function() {
         								// 安卓关闭当前窗口
         								document.addEventListener('WeixinJSBridgeReady', function() {

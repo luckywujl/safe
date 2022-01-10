@@ -81,6 +81,13 @@
 								type="text" value="{:date('Y-m-d H:m:s',$row.limittime)}">
 						</div>
 					</div>
+					<div class="form-group">
+						<label class="control-label col-xs-12 col-sm-2">{:__('Source_type')}:</label>
+						<div class="col-xs-12 col-sm-8">
+							<input id="c-source_type_txt" readonly="readonly" class="form-control " name="row[source_type_txt]"
+								type="text" value="{$row.source_type_txt|htmlentities}">
+						</div>
+					</div>
     				<div class="form-group">
         				<label class="control-label col-xs-12 col-sm-2">{:__('Point_id')}:</label>
        				<div class="col-xs-12 col-sm-7">
@@ -249,9 +256,20 @@
                     },             
                     api: {
                         bindEvent() {
-                            Form.api.bindevent($("form[role=form]"),function(data,ret){
-                             alert(ret.msg);
-                             window.location.href=Fast.api.fixurl("{:addon_url('trouble/Index/dispatch')}");
+                            Form.api.bindevent($("form[role=form]"),function(data,ret){		
+							 alert(ret.msg);				
+							 $.ajax({
+								url: "{:addon_url('trouble/index/send')}",
+								type: 'post',
+								dataType: 'json',
+							    data: ret.data,
+								success: function (ret) {
+									alert(ret.msg);
+								}, error: function (e) {
+									
+								}
+							});		
+                             window.location.href=Fast.api.fixurl("{:addon_url('trouble/Index/dispatch')}");							 
                             });
                         }  
                     }

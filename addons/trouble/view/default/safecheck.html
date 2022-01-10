@@ -264,8 +264,20 @@
 				api: {
 					bindEvent() {
 						Form.api.bindevent($("form[role=form]"), function (data, ret) {
-							alert(ret.msg);
+							alert(ret.msg);		
+							 $.ajax({
+								url: "{:addon_url('trouble/index/send_d')}",
+								type: 'post',
+								dataType: 'json',
+							    data: ret.data,
+								success: function (ret) {
+									alert(ret.msg);
+								}, error: function (e) {
+									
+								}
+							});	
 							location.reload();//刷新页面
+
 							// setTimeout(function () {
 							// 	// 安卓关闭当前窗口
 							// 	document.addEventListener('WeixinJSBridgeReady', function () {

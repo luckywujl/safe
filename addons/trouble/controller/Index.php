@@ -9,10 +9,15 @@ use addons\trouble\model\Level as LevelModel;
 use addons\trouble\model\Department as DepartmentModel;
 use addons\trouble\model\Expression as ExpressionModel;
 use app\common\model\User as UserModel;
+
+use app\admin\model\setting\Company as CompanyModel;
+use app\admin\model\Third as ThirdModel;
+
 use Think\Db;
 use fast\Tree;
 use think\Validate;
 use addons\trouble\controller\Jssdk;
+use app\index\controller\WxMessage;  //导入微信消息模板发送类
 
 //use app\common\model\User;
 
@@ -46,9 +51,36 @@ class Index extends Base
         //$this->group_id = User::where('id', $this->auth->id)->value('group_id');
         $this->user_id = $this->auth->id;
         $this->company_id = $this->auth->company_id;
-        
-       // $type = $materials_type->field('id,name')->where('company_id',$this->auth->company_id)->select();
-        
+
+        //用于信息来源转换
+        $this->source_type = [
+            0=>'路人告警',
+            1=>'人工巡查',
+            2=>'安全检查',
+        ];   
+    }
+
+    /**
+     * 将用户ID转换成OPENID
+     * @ids 是多个用户ID格式为：‘123’，‘235’
+     * @openID 是转换后的多个OPENID
+     */
+    function IDStoOPENID($ids)
+    {
+        //完成用户ID与openid的封装，便于转换
+        $third = new ThirdModel;
+        $third_info = $third->field('user_id,openid')->with(['user'])->where('user.company_id',$this->auth->company_id)->select();
+        $user_id = array_column($third_info,'user_id');
+        $user_openid = array_column($third_info,'openid');
+        $openid_info = array_combine($user_id,$user_openid);
+
+        $arr = explode(',',$ids);
+        $openID_arr=[];
+        foreach($arr as $x=>$y){
+            $openID_arr= array_merge($openID_arr,explode(',',$openid_info[$y]));               
+        }
+        $openID = trim(implode(',',$openID_arr));
+        return $openID;
     }
 
     
@@ -360,6 +392,7 @@ class Index extends Base
         $trouble['log'] = $this->getlog($id);//获取操作日志内容
 
         $trouble['main_text'] = $this->getstatus($trouble['main_status']);//将状态转换成文本
+        $trouble['source_type_txt'] = $this->source_type[$trouble['source_type']];//显示报警来源
         $this->view->assign('row', $trouble);
        
         return $this->view->fetch('/child/showtrouble');
@@ -377,6 +410,7 @@ class Index extends Base
             	 ->find();
         $trouble['log'] = $this->getlog($id);//获取操作日志内容
         $trouble['main_text'] = $this->getstatus($trouble['main_status']);//将状态转换成文本
+        $trouble['source_type_txt'] = $this->source_type[$trouble['source_type']];//显示报警来源
         if ($this->request->isPost()) {
         		 //$params = $this->request->param();//接收过滤条件	
              $params = $this->request->post('row/a');
@@ -413,7 +447,21 @@ class Index extends Base
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
-                    $this->success('派单成功');
+                    //在这里的添加发送模板消息的代码
+                    $message =[];
+                    $message['target'] = $this->IDStoOPENID($params['processer']);//模板消息接收人openid
+                    $message['data'] = [
+                        'first'=>['value'=>'您有新的隐患整改通知！编号为:'.$params['main_code'],'color'=>"#F70997"],
+                        'keyword1'=>['value'=>$params['informer_name'],'color'=>'#000'],
+                        'keyword2'=>['value'=>$params['createtime'],'color'=>'#248d24'],
+                        'keyword3'=>['value'=>$params['source_type_txt'],'color'=>'#000'],
+                        'keyword4'=>['value'=>$params['expression'],'color'=>'#000'],
+                        'keyword5'=>['value'=>$params['limittime'],'color'=>'#F70997'],
+                        'remark'  =>['value'=>'请在整改期限前排除隐患!派单人:'.$this->auth->nickname,'color'=>'#1784e8']
+                    ];
+                    $message['url'] = '/addons/trouble/index/solve';   //部门负责人消息对应的详情网址
+                    $this->success('派单成功！','',$message);//先将要发送消息模板带出
+                    
                 } else {
                     $this->error(__('No rows were updated'));
                 }
@@ -436,6 +484,7 @@ class Index extends Base
             	 ->find();
         $trouble['log'] = $this->getlog($id);//获取操作日志内容
         $trouble['main_text'] = $this->getstatus($trouble['main_status']);//将状态转换成文本
+        $trouble['source_type_txt'] = $this->source_type[$trouble['source_type']];//显示报警来源
         if ($this->request->isPost()) {
         		 //$params = $this->request->param();//接收过滤条件	
              $params = $this->request->post('row/a');
@@ -482,18 +531,42 @@ class Index extends Base
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
-                    $this->success($msg);
+                    $message =[];//用于将模板消息内容带出
+                    if($params['otype']=='0'){
+                    //在这里的添加发送模板消息的代码
+                    $message['target'] = $this->IDStoOPENID($trouble['checker']);//模板消息接收人openid
+                    $message['data'] = [
+                        'first'=>['value'=>'您有新的隐患需要复核！编号为:'.$params['main_code'],'color'=>"#F70997"],
+                        'keyword1'=>['value'=>$params['informer_name'],'color'=>'#000'],
+                        'keyword2'=>['value'=>$params['createtime'],'color'=>'#248d24'],
+                        'keyword3'=>['value'=>$params['source_type_txt'],'color'=>'#000'],
+                        'keyword4'=>['value'=>$params['expression'],'color'=>'#000'],
+                        'keyword5'=>['value'=>$params['limittime'],'color'=>'#F70997'],
+                        'remark'  =>['value'=>'请您尽快复核!处置人:'.$this->auth->nickname,'color'=>'#1784e8']
+                    ];
+                    $message['url'] = '/addons/trouble/index/review';   //部门负责人消息对应的详情网址
+                }else{
+                    //在这里的添加发送模板消息的代码(申请延期处理的通知)
+                    $message['target'] = $this->IDStoOPENID($trouble['liabler']);//模板消息接收人openid
+                    $message['data'] = [
+                        'first'=>['value'=>'隐患延期处理申请，请知晓！编号为:'.$params['main_code'],'color'=>"#F70997"],
+                        'keyword1'=>['value'=>$params['informer_name'],'color'=>'#000'],
+                        'keyword2'=>['value'=>$params['createtime'],'color'=>'#248d24'],
+                        'keyword3'=>['value'=>$params['source_type_txt'],'color'=>'#000'],
+                        'keyword4'=>['value'=>$params['expression'],'color'=>'#000'],
+                        'keyword5'=>['value'=>$params['limittime'],'color'=>'#F70997'],
+                        'remark'  =>['value'=>'请您注意跟进!申请人:'.$this->auth->nickname,'color'=>'#1784e8']
+                    ];
+                    $message['url'] = '/addons/trouble/index/view';   //部门负责人消息对应的详情网址
+                }            
+                    $this->success($msg,'',$message);//先将要发送消息模板带出           
                 } else {
                     $this->error(__('No rows were updated'));
                 }
             }
             
             $this->error(__('Parameter %s can not be empty', ''));
-        }
-        //加入微信API调用
-        //$jssdk = new Jssdk("wx4f79233878b9f770", "10eb3f75adafacbaa3c584908395c982");
-        //$signPackage = $jssdk->GetSignPackage();
-        //$this->view->assign('signPackage',$signPackage);
+        }  
         $this->view->assign('row', $trouble);
         return $this->view->fetch('/child/solvetrouble');
     }
@@ -510,6 +583,7 @@ class Index extends Base
             	 ->find();
         $trouble['log'] = $this->getlog($id);//获取操作日志内容
         $trouble['main_text'] = $this->getstatus($trouble['main_status']);//将状态转换成文本
+        $trouble['source_type_txt'] = $this->source_type[$trouble['source_type']];//显示报警来源
         if ($this->request->isPost()) {
         		 //$params = $this->request->param();//接收过滤条件	
              $params = $this->request->post('row/a');
@@ -553,7 +627,35 @@ class Index extends Base
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
-                    $this->success($msg);
+                    $message =[];
+                    if($params['otype']=='0'){
+                        //在这里的添加发送模板消息的代码
+                        $message['target'] = $this->IDStoOPENID($trouble['liabler']);//模板消息接收人openid
+                        $message['data'] = [
+                            'first'=>['value'=>'您有已经复核的隐患信息需要反馈！编号为:'.$params['main_code'],'color'=>"#F70997"],
+                            'keyword1'=>['value'=>$params['informer_name'],'color'=>'#000'],
+                            'keyword2'=>['value'=>$params['createtime'],'color'=>'#248d24'],
+                            'keyword3'=>['value'=>$params['source_type_txt'],'color'=>'#000'],
+                            'keyword4'=>['value'=>$params['expression'],'color'=>'#000'],
+                            'keyword5'=>['value'=>$params['limittime'],'color'=>'#F70997'],
+                            'remark'  =>['value'=>'请您尽快回复!','color'=>'#1784e8']
+                        ];
+                        $message['url'] = '/addons/trouble/index/feedback';   //部门负责人消息对应的详情网址
+                    }else{
+                        //在这里的添加发送模板消息的代码(重新处理)
+                        $message['target'] = $this->IDStoOPENID($trouble['processer']);//模板消息接收人openid
+                        $message['data'] = [
+                            'first'=>['value'=>'您有隐患处理工单未通过复核，请重新处理！编号为:'.$params['main_code'],'color'=>"#F70997"],
+                            'keyword1'=>['value'=>$params['informer_name'],'color'=>'#000'],
+                            'keyword2'=>['value'=>$params['createtime'],'color'=>'#248d24'],
+                            'keyword3'=>['value'=>$params['source_type_txt'],'color'=>'#000'],
+                            'keyword4'=>['value'=>$params['expression'],'color'=>'#000'],
+                            'keyword5'=>['value'=>$params['limittime'],'color'=>'#F70997'],
+                            'remark'  =>['value'=>'请您尽快重新处理!复核人:'.$this->auth->nickname,'color'=>'#1784e8']
+                        ];
+                        $message['url'] = '/addons/trouble/index/solve';   //部门负责人消息对应的详情网址
+                    }
+                    $this->success($msg,'',$message);//先将要发送消息模板带出
                 } else {
                     $this->error(__('No rows were updated'));
                 }
@@ -577,6 +679,7 @@ class Index extends Base
             	 ->find();
         $trouble['log'] = $this->getlog($id);//获取操作日志内容
         $trouble['main_text'] = $this->getstatus($trouble['main_status']);//将状态转换成文本
+        $trouble['source_type_txt'] = $this->source_type[$trouble['source_type']];//显示报警来源
         if ($this->request->isPost()) {
         		 //$params = $this->request->param();//接收过滤条件	
              $params = $this->request->post('row/a');
@@ -606,7 +709,19 @@ class Index extends Base
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
-                    $this->success($msg);
+                    $message =[];//用于将模板消息内容带出
+                    $message['target'] = $this->IDStoOPENID($trouble['liabler']);//模板消息接收人openid
+                    $message['data'] = [
+                        'first'=>['value'=>'您有新的隐患由之前处置人流转回来，需要您重新派单！编号为:'.$params['main_code'],'color'=>"#F70997"],
+                        'keyword1'=>['value'=>$params['informer_name'],'color'=>'#000'],
+                        'keyword2'=>['value'=>$params['createtime'],'color'=>'#248d24'],
+                        'keyword3'=>['value'=>$params['source_type_txt'],'color'=>'#000'],
+                        'keyword4'=>['value'=>$params['expression'],'color'=>'#000'],
+                        'keyword5'=>['value'=>$params['limittime'],'color'=>'#F70997'],
+                        'remark'  =>['value'=>'请您尽快重新派单!流转人:'.$this->auth->nickname,'color'=>'#1784e8']
+                    ];
+                    $message['url'] = '/addons/trouble/index/dispatch';   //部门负责人消息对应的详情网址
+                    $this->success($msg,'',$message);
                 } else {
                     $this->error(__('No rows were updated'));
                 }
@@ -631,6 +746,7 @@ class Index extends Base
             	 ->find();
         $trouble['log'] = $this->getlog($id);//获取操作日志内容
         $trouble['main_text'] = $this->getstatus($trouble['main_status']);//将状态转换成文本
+        $trouble['source_type_txt'] = $this->source_type[$trouble['source_type']];//显示报警来源
         if ($this->request->isPost()) {
         		 //$params = $this->request->param();//接收过滤条件	
              $params = $this->request->post('row/a');
@@ -748,8 +864,13 @@ class Index extends Base
                     $leader_d = explode(',',$leader[$department_id]);//本部门负责人
                     $person_d = explode(',',$person[$department_id]);//本部门安全员
                     $department_pid = $pid[$department_id];
-                    $leader_p = explode(',',$leader[$department_pid]);//上级负责人
-                    $person_p = explode(',',$person[$department_pid]);//上级安全员
+                    if($department_pid){
+                        $leader_p = explode(',',$leader[$department_pid]);//上级负责人
+                        $person_p = explode(',',$person[$department_pid]);//上级安全员
+                    } else{
+                        $leader_p = [];//上级负责人    
+                        $person_p = [];//上级安全员
+                    }
                     //定义一个数组，用于存放liabler内容
                     $liabler = [];
                     $liabler=array_merge($liabler,$person_d);//责任人由部门安全员负责，下面根据不同一隐患等级，抄送不同的人
@@ -787,7 +908,33 @@ class Index extends Base
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
-                    $this->success('隐患信息已提交并已派单处理！');
+                    $mssage =[];
+                    //发送模板消息
+                    $message['target_l'] = $this->IDStoOPENID($liabler_s);//将部门负责人信息压入接收目标
+                    $message['target_i'] = $this->IDStoOPENID($insider_s);//将抄送人压入接收目标
+                    $message['data_l'] = [
+                        'first'=>['value'=>'您有新的隐患整改通知！编号为:'.$params['main_code'],'color'=>"#F70997"],
+                        'keyword1'=>['value'=>$params['informer_name'],'color'=>'#000'],
+                        'keyword2'=>['value'=>date("Y-m-d H:i:s"),'color'=>'#248d24'],
+                        'keyword3'=>['value'=>$this->source_type[$params['source_type']],'color'=>'#000'],
+                        'keyword4'=>['value'=>$params['expression'],'color'=>'#000'],
+                        'keyword5'=>['value'=>$params['limittime'],'color'=>'#F70997'],
+                        'remark'  =>['value'=>'请尽快处理','color'=>'#1784e8']
+                    ];
+                    $message['data_i'] = [
+                        'first'=>['value'=>'有一条隐患信息需要您知晓！编号为:'.$params['main_code'],'color'=>"#F70997"],
+                        'keyword1'=>['value'=>$params['informer_name'],'color'=>'#000'],
+                        'keyword2'=>['value'=>date("Y-m-d H:i:s"),'color'=>'#248d24'],
+                        'keyword3'=>['value'=>$this->source_type[$params['source_type']],'color'=>'#000'],
+                        'keyword4'=>['value'=>$params['expression'],'color'=>'#000'],
+                        'keyword5'=>['value'=>$params['limittime'],'color'=>'#F70997'],
+                        'remark'  =>['value'=>'请了解关注！','color'=>'#1784e8']
+                    ];
+                    $message['url_l'] = '/addons/trouble/index/dispatch';   //部门负责人消息对应的详情网址
+                    $message['url_i'] = '/addons/trouble/index/view';  //抄送人消息对应的详情网址
+                    //$this->sendmessage($msg_target_l,$msg_data_l,$msg_url_l);//给负责人发送
+                    //$this->sendmessage($msg_target_i,$msg_data_i,$msg_url_i);//给负责人发送 
+                    $this->success('隐患信息已提交并已派单处理！','',$message);
                 } else {
                     $this->error(__('No rows were inserted'));
                 }
@@ -880,7 +1027,26 @@ class Index extends Base
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
-                    $this->success('报警完成！谢谢您的支持');
+                    $mssage =[];
+                    //发送模板消息
+                    $message['target'] = $this->IDStoOPENID($params['informer']);//将报警人信息压入接收目标
+                    
+                    $message['data'] = [
+                        'first'=>['value'=>'您的隐患告警信息已提交！编号为:'.$params['main_code'],'color'=>"#F70997"],
+                        'keyword1'=>['value'=>$params['informer_name'],'color'=>'#000'],
+                        'keyword2'=>['value'=>date("Y-m-d H:i:s"),'color'=>'#248d24'],
+                        'keyword3'=>['value'=>$this->source_type[$params['source_type']],'color'=>'#000'],
+                        'keyword4'=>['value'=>'','color'=>'#000'],
+                        'keyword5'=>['value'=>'','color'=>'#F70997'],
+                        'remark'  =>['value'=>'报警完成！谢谢您的支持！','color'=>'#1784e8']
+                    ];
+                   
+                    $message['url'] = '/addons/trouble/index/vcheck';   //详情网址
+                    
+                    //$this->sendmessage($msg_target_l,$msg_data_l,$msg_url_l);//给负责人发送
+                    //$this->sendmessage($msg_target_i,$msg_data_i,$msg_url_i);//给负责人发送 
+                    
+                    $this->success('报警完成！谢谢您的支持！','',$message);
                 } else {
                     $this->error(__('No rows were inserted'));
                 }
@@ -936,8 +1102,13 @@ class Index extends Base
                     $leader_d = explode(',',$leader[$department_id]);//本部门负责人
                     $person_d = explode(',',$person[$department_id]);//本部门安全员
                     $department_pid = $pid[$department_id];
-                    $leader_p = explode(',',$leader[$department_pid]);//上级负责人
-                    $person_p = explode(',',$person[$department_pid]);//上级安全员
+                    if($department_pid){
+                        $leader_p = explode(',',$leader[$department_pid]);//上级负责人 
+                        $person_p = explode(',',$person[$department_pid]);//上级安全员
+                    } else{
+                        $leader_p = [];//上级负责人   
+                        $person_p = [];//上级安全员
+                    }
                     //定义一个数组，用于存放liabler内容
                     $liabler = [];
                     $liabler=array_merge($liabler,$person_d);//责任人由部门安全员负责，下面根据不同一隐患等级，抄送不同的人
@@ -975,7 +1146,33 @@ class Index extends Base
                     $this->error($e->getMessage());
                 }
                 if ($result !== false) {
-                    $this->success('报警完成！谢谢您的支持');
+                    $mssage =[];
+                    //发送模板消息
+                    $message['target_l'] = $this->IDStoOPENID($liabler_s);//将部门负责人信息压入接收目标
+                    $message['target_i'] = $this->IDStoOPENID($insider_s);//将抄送人压入接收目标
+                    $message['data_l'] = [
+                        'first'=>['value'=>'您有新的隐患整改通知！编号为:'.$params['main_code'],'color'=>"#F70997"],
+                        'keyword1'=>['value'=>$params['informer_name'],'color'=>'#000'],
+                        'keyword2'=>['value'=>date("Y-m-d H:i:s"),'color'=>'#248d24'],
+                        'keyword3'=>['value'=>$this->source_type[$params['source_type']],'color'=>'#000'],
+                        'keyword4'=>['value'=>$params['expression'],'color'=>'#000'],
+                        'keyword5'=>['value'=>$params['limittime'],'color'=>'#F70997'],
+                        'remark'  =>['value'=>'请尽快处理','color'=>'#1784e8']
+                    ];
+                    $message['data_i'] = [
+                        'first'=>['value'=>'有一条隐患信息需要您知晓！编号为:'.$params['main_code'],'color'=>"#F70997"],
+                        'keyword1'=>['value'=>$params['informer_name'],'color'=>'#000'],
+                        'keyword2'=>['value'=>date("Y-m-d H:i:s"),'color'=>'#248d24'],
+                        'keyword3'=>['value'=>$this->source_type[$params['source_type']],'color'=>'#000'],
+                        'keyword4'=>['value'=>$params['expression'],'color'=>'#000'],
+                        'keyword5'=>['value'=>$params['limittime'],'color'=>'#F70997'],
+                        'remark'  =>['value'=>'请了解关注！','color'=>'#1784e8']
+                    ];
+                    $message['url_l'] = '/addons/trouble/index/dispatch';   //部门负责人消息对应的详情网址
+                    $message['url_i'] = '/addons/trouble/index/view';  //抄送人消息对应的详情网址
+                    //$this->sendmessage($msg_target_l,$msg_data_l,$msg_url_l);//给负责人发送
+                    //$this->sendmessage($msg_target_i,$msg_data_i,$msg_url_i);//给负责人发送 
+                    $this->success('隐患信息已提交并已派单处理！','',$message);
                 } else {
                     $this->error(__('No rows were inserted'));
                 }
@@ -1229,9 +1426,9 @@ class Index extends Base
             $list = $list->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
-        
+            $source = $this->source_type;
             foreach($list as $k=>$v){
-            	$v['status'] = $this->getstatus($v['main_status']);
+            	$v['status'] = $this->getstatus($v['main_status']);  
             }
             $result = array("total" => $total, "rows" => $list);
             return json($result);            
@@ -1668,6 +1865,39 @@ class Index extends Base
         }
         $provincelist = Db::name('trouble_expression')->field('name as value,name')->where($where)->select();//加入数据归属过滤
         $this->success('', '', $provincelist);
+    }
+
+    public function send(){
+        $msg = $this->request->param();
+        $result = $this->sendmessage($msg['target'],$msg['data'],$msg['url']);//给负责人发送
+        $this->success('派单成功！');
+    }
+    
+    //发送两条模板消息
+    public function send_d(){
+        $msg = $this->request->param();
+        $result = $this->sendmessage($msg['target_l'],$msg['data_l'],$msg['url_l']);//给负责人发送
+        $result = $this->sendmessage($msg['target_i'],$msg['data_i'],$msg['url_i']);//给负责人发送
+        $this->success('派单成功！');
+    }
+
+    /**
+     * 发送模板消息
+     * @openid 接收人
+     * @$data 消息内容
+     */
+    function sendmessage($openid,$data,$url)
+    {
+        $company = new CompanyModel;
+        $company_info = $company->field('company_appid as appid,company_appsecret as appsecret,company_websit as websit')->where('company_id',$this->auth->company_id)->find();
+        $result = '';
+        if ($company_info['appid']!==''&&$company_info['appsecret']!==''){
+            $tem_id = "2enJepBbIbwFssJlT1bjkHLcmrFzw2YWddMyWC1RzCQ"; //消息模板ID-隐患通知       
+            $wxmessage = new WxMessage($company_info['appid'], $company_info['appsecret']);  //带Appid和Appsecret实例化Wxmessage类
+            $return_url = $company_info['websit'].$url;      //  消息详情页面
+            $result = $wxmessage->sendMsg($tem_id,$data,$openid,$return_url);  
+        }
+        return $result;  
     }
 
     
