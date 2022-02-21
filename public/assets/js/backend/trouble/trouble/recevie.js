@@ -86,17 +86,35 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form','selectpage'], functio
             //接警
             $(document).on("click", ".btn-verify", function () {
                 var ids = Table.api.selectedids(table);
-    				 layer.confirm('确定要将选中的隐患信息进行接警操作吗?', {btn: ['是','否'] },
-       			 function(index){
-        			 layer.close(index);
-          		 $.post("trouble/trouble/recevie/verify", {ids:ids , action:'success', reply:''},function(response){
-             	 if(response.code == 1){
-                 	  Toastr.success(response.msg)
-                    $(".btn-refresh").trigger('click');
-                }else{
-                    Toastr.error(response.msg)
+    				layer.confirm('确定要将选中的隐患信息进行接警操作吗?', {btn: ['是','否'] },
+       			    function(index){
+        			layer.close(index);
+                    $.ajax({
+                        url:"trouble/trouble/recevie/verify", 
+                        type: 'post',  
+						dataType: 'json',
+                        data:{ids:ids },
+                        success:function(ret){
+                            $(".btn-refresh").trigger('click');	
+                            Toastr.success(ret.msg);
+                            //alert(ret.data);
+							$.ajax({
+								url: "trouble/trouble/recevie/send_t",
+								type: 'post',
+								dataType: 'json',
+                                // async:true,
+							    data: {data:ret.data},
+								success: function (ret) {
+								}, error: function (e) {
+									
+								}
+							});	
+                    
+                },error:function(e) {
+                    Toastr.error(ret.msg)
                 }
-            }, 'json')
+            });
+          
              },
         function(index){
             layer.close(index);

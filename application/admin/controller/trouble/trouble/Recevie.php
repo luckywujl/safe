@@ -34,7 +34,7 @@ class Recevie extends Backend
     protected $model = null;
     protected $dataLimit = 'personal';
     protected $dataLimitField = 'company_id';
-    protected $noNeedRight = ['getlog','dotogether'];
+    protected $noNeedRight = ['getlog','dotogether','send_t'];
     protected $searchFields = 'troublepoint.point_name';
 
     public function _initialize()
@@ -43,6 +43,7 @@ class Recevie extends Backend
         $this->model = new \app\admin\model\trouble\trouble\Recevie;
         $this->view->assign("sourceTypeList", $this->model->getSourceTypeList());
         $this->view->assign("mainStatusList", $this->model->getMainStatusList());
+        $this->ms = [];
     }
 
     /**
@@ -570,12 +571,13 @@ class Recevie extends Backend
             if ($result) {
             	
                 //给目标接收人发送模板消息
-                foreach($message as $o=>$p){
-                    $this->sendmessage($p['target_l'],$p['data_l'],$p['url_l']);//给负责人发送
-                    $this->sendmessage($p['target_i'],$p['data_i'],$p['url_i']);//给抄报人发送
-                    $this->sendmessage($p['target_m'],$p['data_m'],$p['url_m']);//给抄报人发送
-                }
-                $this->success('接警成功！');
+                // foreach($message as $o=>$p){
+                //     $this->sendmessage($p['target_l'],$p['data_l'],$p['url_l']);//给负责人发送
+                //     $this->sendmessage($p['target_i'],$p['data_i'],$p['url_i']);//给抄报人发送
+                //     $this->sendmessage($p['target_m'],$p['data_m'],$p['url_m']);//给报警人发送
+                // }
+              
+                $this->success('接警完成，并已派单处理！','',$message);
 
                 //$this->success($id.'-'.$type_id.'-'.$plan.'-'.$department_id.'-'.array_search($department_id,$leader).'-'.array_search($department_id,$person).'-'.array_search($department_pid,$leader).'-'.array_search($department_pid,$person));
             } else {
@@ -953,6 +955,17 @@ class Recevie extends Backend
          }
         }
         
+    }
+    //发送两条模板消息
+    public function send_t(){
+       
+        $message = $this->request->post("data/a");
+        foreach($message as $o=>$p){
+            $this->sendmessage($p['target_l'],$p['data_l'],$p['url_l']);//给负责人发送
+            $this->sendmessage($p['target_i'],$p['data_i'],$p['url_i']);//给抄报人发送
+            $this->sendmessage($p['target_m'],$p['data_m'],$p['url_m']);//给报警人发送
+        }
+        $this->success('派单成功！');
     }
     /**
      * 发送模板消息

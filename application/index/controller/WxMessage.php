@@ -34,10 +34,14 @@ class WxMessage extends Controller
         }else{
             $json_token=$this->curl_post($url);
             $access_token1=json_decode($json_token,true);
-            $access_token2 = $access_token1['access_token'];
-            setcookie('access_token',$access_token2,7200);
+            if(isset($access_token1['access_token'])){
+                $access_token2 = $access_token1['access_token'];
+                setcookie('access_token',$access_token2,7200);
+            }
+            
         }//缓存assesstoken
         //$access_token2 = $this->getAcessToken($appid,$appsecret);
+        if(isset($access_token1['access_token'])){
         foreach($target as $k=>$v)
         {
             $params1 = json_encode($this->json_tempalte($v,$return_url,$data,$tem_id),JSON_UNESCAPED_UNICODE);
@@ -47,12 +51,14 @@ class WxMessage extends Controller
             $params = json_decode($params,true);
             if ($params['errcode']==0){
                 //return '发送成功!';
-                sleep(0.5);//先这么着吧，以后用多线程来解决，
+                //先这么着吧，以后用多线程来解决，
                 //exit();
             }else{
                 return '发送失败!';
             }
+            sleep(0.5);
         }      
+    }
     }
 
     /**

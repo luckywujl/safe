@@ -53,5 +53,5 @@ return [
     'Set department'	=> '设置部门',
     'Set group'		=> '设置组别',
     'Department'		=> '部门',
-    'Issafer'           => '是否安检员',
+    'Issafer'           => '是否安全员',
 ];

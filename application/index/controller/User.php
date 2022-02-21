@@ -116,7 +116,7 @@ class User extends Frontend
     public function sendmessage()
     {
         
-        $tem_id = "eOpVggK0wQdeqEfte-cc0phCWEwRaVJPN333N-GVy2g";
+        $tem_id = "x6gu7l79wtN7pilksAPdBTp9OlX4d7AXT2pzj41l_Uc";
         $data = [
                        'first'=>['value'=>'您有新的隐患整改通知！','color'=>"#000"],
                        'keyword1'=>['value'=>'吴俊雷','color'=>'#F70997'],
@@ -127,8 +127,8 @@ class User extends Frontend
                        'remark'  =>['value'=>'请尽快处理','color'=>'#1784e8']
                    ];
         
-        $openid = 'oIO6b6QByDVA3SwcthrnUGdO0WbY';//接收人的OPENID
-        $wxmessage = new WxMessage("wx4f79233878b9f770", "c483da45c62e62784c929aa6722c6de9");
+        $openid = 'oIO6b6R-u-KnEuIuYWPkYFDjB2W8';//接收人的OPENID
+        $wxmessage = new WxMessage("wxb0a71e4e0abb4db1", "022e9b9d45380a568342e6d4fc9ab231");
         $return_url = 'http://bc.haxxj.com/index/user/trouble.html';      //  消息详情页面
         $result = $wxmessage->sendMsg($tem_id,$data,$openid,$return_url);
         $this->success($result);

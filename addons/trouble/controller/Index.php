@@ -1195,6 +1195,11 @@ class Index extends Base
     {
         $model = new UserModel;
         $department_id = $this->auth->department_id;
+        //完成部门信息封装，便 于快速查找
+        $department = new  DepartmentModel;
+        $depart_info = $department->where(['pid |id'=>$this->auth->department_id,'company_id'=>$this->auth->company_id])->select();
+        $depart_id = array_column($depart_info,'id');//本人所在部门ID 及下属部门ID
+
         if ($this->request->isAjax()) {
         		//如果发送的来源是Selectpage，则转发到Selectpage
             if ($this->request->request('keyField')) {
@@ -1202,12 +1207,17 @@ class Index extends Base
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams(null);
             $total = $model
-            	 ->where(['department_id'=>$department_id,'company_id'=>$this->auth->company_id])
+                ->where('department_id','in',$depart_id)
+                //->where('department_id',$this->auth->department_id)
+            	->where(['company_id'=>$this->auth->company_id])
                 ->order($sort, $order)
                 ->count();
-            
+                
+               
             $list = $model
-            	 ->where(['department_id'=>$department_id,'company_id'=>$this->auth->company_id])
+                ->where('department_id','in',$depart_id)
+                //->where('department_id',$this->auth->department_id)
+                ->where(['company_id'=>$this->auth->company_id])
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
@@ -1511,8 +1521,13 @@ class Index extends Base
                 }
             };
         }
+        //完成部门信息封装，便 于快速查找
+        $department = new  DepartmentModel;
+        $depart_info = $department->where(['pid | id'=>$this->auth->department_id,'company_id'=>$this->auth->company_id])->select();
+        $depart_id = array_column($depart_info,'id');//本人所在部门ID 及下属部门ID
+
         $model = new UserModel;
-        $total = $model->where($where)->count();
+        $total = $model->where($where)->where('department_id','in',$depart_id)->whereor('department_id',$this->auth->department_id)->where(['company_id'=>$this->auth->company_id])->count();
         if ($total > 0) {
            
             //如果有primaryvalue,说明当前是初始化传值,按照选择顺序排序
@@ -1526,15 +1541,20 @@ class Index extends Base
                 $primaryvalue = implode(',', $primaryvalue);
 
                 $model->orderRaw("FIELD(`{$primarykey}`, {$primaryvalue})");
+                $datalist = $model->where($where);
+               
             } else {
                 $model->order($order);
+
             }
             
             $datalist = $model->where($where)
-            	 ->where(['department_id'=>$this->auth->department_id,'company_id'=>$this->auth->company_id])
+                ->where('department_id','in',$depart_id)
+            	->where(['company_id'=>$this->auth->company_id])
                 ->page($page, $pagesize)
                 ->select();
         }
+
         //这里一定要返回有list这个字段,total是可选的,如果total<=list的数量,则会隐藏分页按钮
         return json(['list' => $datalist, 'total' => $total]);
     }
